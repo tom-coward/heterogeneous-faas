@@ -1,5 +1,3 @@
-package resourcemanager;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import com.sun.net.httpserver.HttpServer;
@@ -13,12 +11,14 @@ public class Receiver {
         try {
             InetSocketAddress serverAddress = new InetSocketAddress(SERVER_PORT);
             server = HttpServer.create(serverAddress, 0);
+            addInvokeFunctionRoute();
+
+            System.out.println(String.format("Resource Manager server started on port %d", SERVER_PORT));
+            server.start();
         } catch (IOException ex) {
-            System.err.println(String.format("There wasn an error starting the HTTP server: {0}", ex.getMessage()));
+            System.err.println(String.format("There was an error starting the HTTP server: %s", ex.getMessage()));
             System.exit(-1);
         }
-
-        addInvokeFunctionRoute();
     }
     
     public static void main(String[] args) {
