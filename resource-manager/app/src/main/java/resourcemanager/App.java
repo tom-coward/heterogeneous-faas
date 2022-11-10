@@ -1,13 +1,15 @@
+package resourcemanager;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import com.sun.net.httpserver.HttpServer;
 
-public class Receiver {
+public class App {
     private static final int SERVER_PORT = 5001;
 
     private HttpServer server;
 
-    public Receiver() {
+    public App() {
         try {
             InetSocketAddress serverAddress = new InetSocketAddress(SERVER_PORT);
             server = HttpServer.create(serverAddress, 0);
@@ -22,7 +24,7 @@ public class Receiver {
     }
     
     public static void main(String[] args) {
-        Receiver receiver = new Receiver();
+        App app = new App();
     }
 
 
