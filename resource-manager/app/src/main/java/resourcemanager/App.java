@@ -3,6 +3,7 @@ package resourcemanager;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import com.sun.net.httpserver.HttpServer;
+import resourcemanager.handlers.*;
 
 public class App {
     private static final int SERVER_PORT = 5001;
