@@ -1,14 +1,15 @@
-package resourcemanager;
+package com.tomcoward.heterogeneousfaas.resourcemanager;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import com.sun.net.httpserver.HttpServer;
-import resourcemanager.handlers.*;
+import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.*;
 
 public class App {
     private static final int SERVER_PORT = 5001;
 
-    private HttpServer server;
+    private final HttpServer server;
+
 
     public App() {
         try {
