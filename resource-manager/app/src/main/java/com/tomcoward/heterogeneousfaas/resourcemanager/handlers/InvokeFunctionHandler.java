@@ -3,11 +3,11 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.handlers;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
 import resourcemanager.exceptions.InvalidFunctionException;
-import resourcemanager.repositories.CassandraFunctionRepository;
-import resourcemanager.repositories.IFunctionRepository;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.json.*;
+import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
+import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.HBaseFunctionRepository;
 
 public class InvokeFunctionHandler implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {

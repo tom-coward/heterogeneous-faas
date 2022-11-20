@@ -1,5 +1,6 @@
-package resourcemanager.repositories;
+package com.tomcoward.heterogeneousfaas.resourcemanager.repositories;
 
 public interface IFunctionRepository {
-    public void get();
+    void get();
+    void create();
 }
