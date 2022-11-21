@@ -21,6 +21,15 @@ public class HBaseFunctionRepository implements IFunctionRepository {
     }
 
 
+    public void get() {
+        //
+    }
+
+    public void create() {
+        //
+    }
+
+
     private void initialiseDbConnection() throws IOException {
         Configuration config = getDbConfig();
 
@@ -35,15 +44,6 @@ public class HBaseFunctionRepository implements IFunctionRepository {
     private Configuration getDbConfig() {
         Configuration config = HBaseConfiguration.create();
 
-        config.add
-    }
-
-
-    public void get() {
-        //
-    }
-
-    public void create() {
-
+        config.addResource();
     }
 }
