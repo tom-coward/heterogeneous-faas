@@ -1,0 +1,2 @@
+/usr/bin/hbase: line 853: /usr/bin/java/bin/java: Not a directory
+/usr/bin/hbase: line 853: exec: /usr/bin/java/bin/java: cannot execute: Not a directory
