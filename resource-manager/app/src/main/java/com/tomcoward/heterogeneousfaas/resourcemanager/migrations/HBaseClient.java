@@ -40,7 +40,12 @@ public class HBaseClient {
     }
 
     public static void down() throws IOException {
-        FunctionsTable.down();
+        boolean functionsTableExists = db.tableExists(TableName.valueOf("functions"));
+        if (functionsTableExists) {
+            FunctionsTable.down();
+        }
+
+        deleteNamespace();
     }
 
 
@@ -69,5 +74,10 @@ public class HBaseClient {
     private static void createNamespace() throws IOException {
         Admin db = initialise();
         db.createNamespace(NamespaceDescriptor.create(NAMESPACE_NAME).build());
+    }
+
+    private static void deleteNamespace() throws IOException {
+        Admin db = initialise();
+        db.deleteNamespace(NAMESPACE_NAME);
     }
 }
