@@ -4,6 +4,7 @@ import docker
 # setup flask server (to take http requests from Resource Manager)
 app = Flask(__name__)
 
+
 @app.route('/')
 def invoke():
     run_container()
@@ -18,4 +19,4 @@ def run_container():
 
 if __name__ == '__main__':
     app.debug = True
-    app.run() # start flask server
+    app.run()  # start flask server

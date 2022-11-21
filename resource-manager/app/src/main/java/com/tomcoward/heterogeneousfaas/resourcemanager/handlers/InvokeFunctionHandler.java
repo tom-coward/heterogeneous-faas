@@ -28,7 +28,7 @@ public class InvokeFunctionHandler implements HttpHandler {
         // get payload of function (if any)
         JsonObject functionPayload = jsonObject.getJsonObject("function_payload");
 
-        // TODO: figure out DI of FunctionRepo (do we need it??)
+        // TODO: figure out DI of FunctionRepo (is it needed??)
         IFunctionRepository functions = new HBaseFunctionRepository();
         functions.get();
 
