@@ -28,14 +28,9 @@ public class CassandraClient implements IDBClient {
     }
 
     public void up() throws DBClientException {
-        try {
-            boolean functionsTableExists = tableExists(FunctionsTable.TABLE_NAME);
-            if (!functionsTableExists) {
-                functionsTable.up();
-            }
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Error running database migrations", ex);
-            throw ex;
+        boolean functionsTableExists = tableExists(FunctionsTable.TABLE_NAME);
+        if (!functionsTableExists) {
+            functionsTable.up();
         }
     }
 
