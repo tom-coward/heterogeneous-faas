@@ -21,7 +21,7 @@ public class CassandraClient implements IDBClient {
 
     private final FunctionsTable functionsTable;
 
-    public CassandraClient() {
+    public CassandraClient() throws DBClientException {
         cqlSession = initialise();
 
         functionsTable = new FunctionsTable(this);
@@ -45,14 +45,19 @@ public class CassandraClient implements IDBClient {
         return cqlSession.execute(statement);
     }
 
+    public CqlSession getCqlSession() {
+        return cqlSession;
+    }
 
-    private CqlSession initialise() {
+
+    private CqlSession initialise() throws DBClientException {
         try {
             return CqlSession.builder()
                     .addContactPoint(new InetSocketAddress(CASSANDRA_HOST, CASSANDRA_PORT))
                     .build();
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error connecting to Cassandra DB", ex);
+            throw new DBClientException("There was an error connecting to the database");
         }
     }
 

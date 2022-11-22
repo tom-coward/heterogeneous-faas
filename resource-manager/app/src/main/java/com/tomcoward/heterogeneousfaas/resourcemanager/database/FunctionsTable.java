@@ -2,10 +2,11 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.database;
 
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.driver.api.core.type.DataTypes;
-import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
+
+import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.*;
 
 public class FunctionsTable implements IDBTable {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -17,6 +18,7 @@ public class FunctionsTable implements IDBTable {
     public FunctionsTable(IDBClient db) {
         this.db = db;
     }
+
 
     public void up() throws DBClientException {
         try {

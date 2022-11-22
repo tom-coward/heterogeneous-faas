@@ -2,6 +2,8 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.repositories;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.driver.api.core.type.DataTypes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.FunctionsTable;
@@ -27,7 +29,9 @@ public class CassandraFunctionRepository implements IFunctionRepository {
                     .all()
                     .whereColumn("name").isEqualTo(literal(functionName))
                     .build();
-            db.execute(statement);
+
+            ResultSet result = db.execute(statement);
+            return new Function();
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error getting function from Cassandra", ex);
             throw new DBClientException(String.format("There was a problem getting the \"%s\" function from the database", functionName));
