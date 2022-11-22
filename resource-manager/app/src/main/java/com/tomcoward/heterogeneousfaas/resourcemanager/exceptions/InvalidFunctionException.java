@@ -1,4 +1,4 @@
-package resourcemanager.exceptions;
+package com.tomcoward.heterogeneousfaas.resourcemanager.exceptions;
 
 import java.io.IOException;
 

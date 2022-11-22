@@ -20,8 +20,8 @@ dependencies {
 
     implementation 'com.google.guava:guava:31.0.1-jre'
     implementation 'javax.json:javax.json-api:1.1.4'
-    implementation 'org.apache.hbase:hbase:2.5.1'
-    implementation 'org.apache.hbase:hbase-client:2.4.13'
+    implementation 'com.datastax.oss:java-driver-core:4.15.0'
+    implementation 'com.datastax.oss:java-driver-query-builder:4.15.0'
 }
 
 application {
