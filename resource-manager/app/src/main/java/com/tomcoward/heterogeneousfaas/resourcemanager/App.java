@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpServer;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.CassandraClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.FunctionsMapper;
+import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.FunctionsMapperBuilder;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.InvalidFunctionException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.*;
@@ -23,7 +24,7 @@ public class App {
         // setup db client instance
         db = new CassandraClient();
 
-        // initialise repos
+        // TODO: initialise repos
 
 
         // setup http server

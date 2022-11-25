@@ -2,7 +2,6 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.repositories;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.driver.api.core.type.DataTypes;

@@ -2,21 +2,21 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.database;
 
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.driver.api.core.type.DataTypes;
+import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createTable;
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropTable;
 
-public class FunctionsTable implements IDBTable {
+public class WorkersTable implements IDBTable {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    public static final String TABLE_NAME = "functions";
+    public static final String TABLE_NAME = "workers";
 
     private final IDBClient db;
 
-    public FunctionsTable(IDBClient db) {
+    public WorkersTable(IDBClient db) {
         this.db = db;
     }
 
@@ -24,11 +24,9 @@ public class FunctionsTable implements IDBTable {
     public void up() throws DBClientException {
         try {
             SimpleStatement statement = createTable(TABLE_NAME)
-                    .withPartitionKey("name", DataTypes.ASCII)
-                    .withColumn("source_code", DataTypes.BLOB)
-                    .withColumn("source_code_runtime", DataTypes.ASCII)
-                    .withColumn("edge_supported", DataTypes.BOOLEAN)
-                    .withColumn("cloud_aws_supported", DataTypes.BOOLEAN)
+                    .withPartitionKey("id", DataTypes.UUID)
+                    .withColumn("host", DataTypes.ASCII)
+                    .withColumn("status", DataTypes.ASCII)
                     .build();
 
             db.execute(statement);

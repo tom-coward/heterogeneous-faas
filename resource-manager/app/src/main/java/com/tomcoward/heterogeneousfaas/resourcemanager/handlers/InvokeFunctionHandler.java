@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.*;
@@ -11,6 +12,7 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.InvalidFunctionException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
+import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.CassandraFunctionRepository;
 
@@ -52,12 +54,31 @@ public class InvokeFunctionHandler implements HttpHandler {
 
             // TODO: call ML Manager
             // returns list of worker types
+            ArrayList<Worker> workers = new ArrayList<>();
+
+            for (Worker worker : workers) {
+                if (!worker.isAvailable()) {
+                    continue;
+                }
+
+                invokeWorker(worker, function);
+                // TODO: handle if no workers available
+            }
         } catch (DBClientException ex) {
             // TODO: return error to client
             return;
         } catch (Exception ex) {
             // TODO: return error to client
             return;
+        }
+    }
+
+    private JsonObject invokeWorker(Worker worker, Function function) {
+        switch (worker.getHost().getName()) {
+            case "KUBERNETES":
+                break;
+            case "AWS":
+                break;
         }
     }
 }
