@@ -8,23 +8,24 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.*;
-import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
-import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.InvalidFunctionException;
+import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.FunctionException;
+import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
+import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.WorkerException;
+import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
-import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.CassandraFunctionRepository;
 
 public class InvokeFunctionHandler implements HttpHandler {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    private final IDBClient db;
     private final IFunctionRepository functionsRepo;
+    private final AWSLambda awsLambda;
 
-    public InvokeFunctionHandler(IDBClient db) {
-        this.db = db;
-        this.functionsRepo = new CassandraFunctionRepository(db);
+    public InvokeFunctionHandler(IFunctionRepository functionsRepo, AWSLambda awsLambda) {
+        this.functionsRepo = functionsRepo;
+        this.awsLambda = awsLambda;
     }
 
 
@@ -41,7 +42,7 @@ public class InvokeFunctionHandler implements HttpHandler {
             // get name of function to be invoked
             String functionName = jsonObject.getString("function_name");
             if (functionName == null || functionName.trim().isEmpty()) {
-                throw new InvalidFunctionException(String.format("No function with the name %s exists to be invoked", functionName));
+                throw new FunctionException(String.format("No function with the name %s exists to be invoked", functionName));
             }
 
             // get payload of function (if any)
@@ -61,7 +62,7 @@ public class InvokeFunctionHandler implements HttpHandler {
                     continue;
                 }
 
-                invokeWorker(worker, function);
+                invokeWorker(worker, function, functionPayload);
                 // TODO: handle if no workers available
             }
         } catch (DBClientException ex) {
@@ -73,12 +74,15 @@ public class InvokeFunctionHandler implements HttpHandler {
         }
     }
 
-    private JsonObject invokeWorker(Worker worker, Function function) {
+    private JsonObject invokeWorker(Worker worker, Function function, JsonObject functionPayload) throws WorkerException, IntegrationException {
         switch (worker.getHost().getName()) {
             case "KUBERNETES":
-                break;
+                // TODO
+                return JsonObject.EMPTY_JSON_OBJECT;
             case "AWS":
-                break;
+                return awsLambda.invokeFunction(function, functionPayload);
+            default:
+                throw new WorkerException("The host of the function's selected worker could not be found");
         }
     }
 }

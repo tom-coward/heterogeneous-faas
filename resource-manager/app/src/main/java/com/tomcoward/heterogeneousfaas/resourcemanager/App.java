@@ -5,12 +5,12 @@ import java.net.InetSocketAddress;
 import com.sun.net.httpserver.HttpServer;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.CassandraClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
-import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.FunctionsMapper;
-import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.FunctionsMapperBuilder;
-import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
-import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.InvalidFunctionException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.*;
+import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
+import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.CassandraFunctionRepository;
+import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.CassandraWorkerRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
+import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IWorkerRepository;
 
 public class App {
     private static final int SERVER_PORT = 5001;
@@ -19,13 +19,21 @@ public class App {
 
     private final IDBClient db;
 
+    private final AWSLambda awsLambda;
+
+    private final IFunctionRepository functionsRepo;
+    private final IWorkerRepository workersRepo;
 
     public App() throws Exception {
         // setup db client instance
         db = new CassandraClient();
 
-        // TODO: initialise repos
+        // setup AWS Lambda client
+        awsLambda = new AWSLambda();
 
+        // initialise repos
+        functionsRepo = new CassandraFunctionRepository(db);
+        workersRepo = new CassandraWorkerRepository(db);
 
         // setup http server
         InetSocketAddress serverAddress = new InetSocketAddress(SERVER_PORT);
@@ -39,7 +47,8 @@ public class App {
         System.out.println(String.format("Resource Manager server started on port %d", SERVER_PORT));
         server.start();
     }
-    
+
+
     public static void main(String[] args) {
         try {
             App app = new App();
@@ -54,10 +63,10 @@ public class App {
 
 
     private void addInvokeFunctionRoute() {
-        server.createContext("/invoke", new InvokeFunctionHandler(db));
+        server.createContext("/invoke", new InvokeFunctionHandler(functionsRepo, awsLambda));
     }
 
     private void addCreateFunctionRoute() {
-        server.createContext("/create", new CreateFunctionHandler(db));
+        server.createContext("/create", new CreateFunctionHandler(functionsRepo, awsLambda));
     }
 }
