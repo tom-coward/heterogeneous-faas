@@ -56,7 +56,7 @@ public class App {
             System.err.println(String.format("There was an error starting the HTTP server: %s", ex.getMessage()));
             System.exit(-1);
         } catch (Exception ex) {
-            System.err.println(String.format("There was an error: %s", ex.getMessage()));
+            System.err.println(String.format("ERROR: %s", ex.getMessage()));
             System.exit(-1);
         }
     }

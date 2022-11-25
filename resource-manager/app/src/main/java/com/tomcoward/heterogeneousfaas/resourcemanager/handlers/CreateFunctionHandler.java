@@ -10,10 +10,6 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationExc
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
-import software.amazon.awssdk.core.SdkBytes;
-import software.amazon.awssdk.core.waiters.WaiterResponse;
-import software.amazon.awssdk.services.lambda.model.*;
-import software.amazon.awssdk.services.lambda.waiters.LambdaWaiter;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;

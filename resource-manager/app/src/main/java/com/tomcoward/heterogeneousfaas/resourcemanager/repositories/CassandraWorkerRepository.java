@@ -5,7 +5,6 @@ import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.WorkersTable;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
-import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
 import java.util.UUID;
 import java.util.logging.Level;
