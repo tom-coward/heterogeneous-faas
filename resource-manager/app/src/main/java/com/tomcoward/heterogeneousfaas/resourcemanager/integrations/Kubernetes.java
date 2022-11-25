@@ -18,7 +18,7 @@ public class Kubernetes implements IWorkerIntegration {
 
     private final ApiClient kubernetesClient;
 
-    public Kubernetes() {
+    public Kubernetes() throws IntegrationException {
         try {
             kubernetesClient = Config.defaultClient();
             Configuration.setDefaultApiClient(kubernetesClient);
