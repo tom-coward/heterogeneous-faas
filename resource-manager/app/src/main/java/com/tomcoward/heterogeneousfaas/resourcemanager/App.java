@@ -7,6 +7,7 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.database.CassandraClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.*;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
+import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.CassandraFunctionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.CassandraWorkerRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
@@ -20,6 +21,7 @@ public class App {
     private final IDBClient db;
 
     private final AWSLambda awsLambda;
+    private final Kubernetes kubernetes;
 
     private final IFunctionRepository functionsRepo;
     private final IWorkerRepository workersRepo;
@@ -30,6 +32,7 @@ public class App {
 
         // setup AWS Lambda client
         awsLambda = new AWSLambda();
+        kubernetes = new Kubernetes();
 
         // initialise repos
         functionsRepo = new CassandraFunctionRepository(db);
@@ -63,10 +66,10 @@ public class App {
 
 
     private void addInvokeFunctionRoute() {
-        server.createContext("/invoke", new InvokeFunctionHandler(functionsRepo, awsLambda));
+        server.createContext("/invoke", new InvokeFunctionHandler(functionsRepo, awsLambda, kubernetes));
     }
 
     private void addCreateFunctionRoute() {
-        server.createContext("/create", new CreateFunctionHandler(functionsRepo, awsLambda));
+        server.createContext("/create", new CreateFunctionHandler(functionsRepo, awsLambda, kubernetes));
     }
 }

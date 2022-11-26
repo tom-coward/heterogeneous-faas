@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
+import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
 import javax.json.Json;
@@ -19,10 +20,12 @@ public class CreateFunctionHandler implements HttpHandler {
 
     private final IFunctionRepository functionsRepo;
     private final AWSLambda awsLambda;
+    private final Kubernetes kubernetes;
 
-    public CreateFunctionHandler(IFunctionRepository functionsRepo, AWSLambda awsLambda) {
+    public CreateFunctionHandler(IFunctionRepository functionsRepo, AWSLambda awsLambda, Kubernetes kubernetes) {
         this.functionsRepo = functionsRepo;
         this.awsLambda = awsLambda;
+        this.kubernetes = kubernetes;
     }
 
 
@@ -58,7 +61,10 @@ public class CreateFunctionHandler implements HttpHandler {
             function = awsLambda.createFunction(function);
         }
 
-        // TODO: if edge supported, add to kubernetes
+        // if edge supported, add to kubernetes
+        if (function.isEdgeSupported()) {
+            function = kubernetes.createFunction(function);
+        }
 
         // save in database
         functionsRepo.create(function);

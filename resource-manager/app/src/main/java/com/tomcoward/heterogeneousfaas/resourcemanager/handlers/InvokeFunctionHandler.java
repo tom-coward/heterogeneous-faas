@@ -13,6 +13,7 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.FunctionExcept
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.WorkerException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
+import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
@@ -22,10 +23,12 @@ public class InvokeFunctionHandler implements HttpHandler {
 
     private final IFunctionRepository functionsRepo;
     private final AWSLambda awsLambda;
+    private final Kubernetes kubernetes;
 
-    public InvokeFunctionHandler(IFunctionRepository functionsRepo, AWSLambda awsLambda) {
+    public InvokeFunctionHandler(IFunctionRepository functionsRepo, AWSLambda awsLambda, Kubernetes kubernetes) {
         this.functionsRepo = functionsRepo;
         this.awsLambda = awsLambda;
+        this.kubernetes = kubernetes;
     }
 
 
@@ -77,8 +80,7 @@ public class InvokeFunctionHandler implements HttpHandler {
     private JsonObject invokeWorker(Worker worker, Function function, JsonObject functionPayload) throws WorkerException, IntegrationException {
         switch (worker.getHost().getName()) {
             case "KUBERNETES":
-                // TODO
-                return JsonObject.EMPTY_JSON_OBJECT;
+                return kubernetes.invokeFunction(function, functionPayload);
             case "AWS":
                 return awsLambda.invokeFunction(function, functionPayload);
             default:
