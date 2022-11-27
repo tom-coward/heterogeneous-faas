@@ -24,6 +24,7 @@ public class WorkersTable implements IDBTable {
     public void up() throws DBClientException {
         try {
             SimpleStatement statement = createTable(TABLE_NAME)
+                    .ifNotExists()
                     .withPartitionKey("id", DataTypes.UUID)
                     .withColumn("host", DataTypes.ASCII)
                     .withColumn("status", DataTypes.ASCII)
@@ -38,7 +39,9 @@ public class WorkersTable implements IDBTable {
 
     public void down() throws DBClientException {
         try {
-            SimpleStatement statement = dropTable(TABLE_NAME).build();
+            SimpleStatement statement = dropTable(TABLE_NAME)
+                    .ifExists()
+                    .build();
 
             db.execute(statement);
         } catch (Exception ex) {

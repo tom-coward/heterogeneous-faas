@@ -6,8 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 
-import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createTable;
-import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropTable;
+import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.*;
 
 public class FunctionsTable implements IDBTable {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -24,6 +23,7 @@ public class FunctionsTable implements IDBTable {
     public void up() throws DBClientException {
         try {
             SimpleStatement statement = createTable(TABLE_NAME)
+                    .ifNotExists()
                     .withPartitionKey("name", DataTypes.ASCII)
                     .withColumn("source_code", DataTypes.BLOB)
                     .withColumn("source_code_runtime", DataTypes.ASCII)
@@ -40,7 +40,9 @@ public class FunctionsTable implements IDBTable {
 
     public void down() throws DBClientException {
         try {
-            SimpleStatement statement = dropTable(TABLE_NAME).build();
+            SimpleStatement statement = dropTable(TABLE_NAME)
+                    .ifExists()
+                    .build();
 
             db.execute(statement);
         } catch (Exception ex) {
