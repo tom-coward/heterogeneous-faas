@@ -7,13 +7,14 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
+import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
 
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.*;
 
 public class CassandraClient implements IDBClient {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    private final static String CASSANDRA_HOST = "cassandra";
+    private final static String CASSANDRA_HOST = "172.18.0.2";
     private final static int CASSANDRA_PORT = 9042;
 
     private final static String KEYSPACE_NAME = "heterogeneousfaas";
@@ -21,11 +22,13 @@ public class CassandraClient implements IDBClient {
     private final CqlSession cqlSession;
 
     private final FunctionsTable functionsTable;
+    private final WorkersTable workersTable;
 
     public CassandraClient() throws DBClientException {
         cqlSession = initialise();
 
         functionsTable = new FunctionsTable(this);
+        workersTable = new WorkersTable(this);
     }
 
     public void up() throws DBClientException {
@@ -36,6 +39,7 @@ public class CassandraClient implements IDBClient {
         execute(statement);
 
         functionsTable.up();
+        workersTable.down();
     }
 
     public void down() throws DBClientException {
@@ -45,6 +49,7 @@ public class CassandraClient implements IDBClient {
         execute(statement);
 
         functionsTable.down();
+        workersTable.down();
     }
 
     public ResultSet execute(SimpleStatement statement) {
