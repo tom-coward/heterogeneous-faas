@@ -39,10 +39,13 @@ public class Kubernetes implements IWorkerIntegration {
 
 
     public Function createFunction(Function function) throws IntegrationException {
+        // no need to do anything here... can spin up k8s job on the fly
         return function;
     }
 
     public JsonObject invokeFunction(Function function, JsonObject functionPayload) throws IntegrationException {
+        api.
+
         return functionPayload;
     }
 
@@ -55,8 +58,13 @@ public class Kubernetes implements IWorkerIntegration {
                     }.getType());
 
             for (Watch.Response<V1Pod> item : watch) {
+                V1Pod pod = (V1Pod) item.object;
+                if (pod == null) {
+                    continue;
+                }
+
                 pods.add(item.object);
-                System.out.printf("%s : %s%n", item.type, item.object.getMetadata().getName());
+                System.out.printf("POD %s STATUS : %s", pod.getKind(), pod.getStatus().getMessage());
             }
         } catch (ApiException ex) {
             LOGGER.log(Level.SEVERE, "Error discovering k8s pods", ex);

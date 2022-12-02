@@ -7,14 +7,13 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
-import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
 
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.*;
 
 public class CassandraClient implements IDBClient {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    private final static String CASSANDRA_HOST = "172.18.0.2";
+    private final static String CASSANDRA_HOST = "127.0.0.1";
     private final static int CASSANDRA_PORT = 9042;
 
     private final static String KEYSPACE_NAME = "heterogeneousfaas";
@@ -65,6 +64,7 @@ public class CassandraClient implements IDBClient {
         try {
             return CqlSession.builder()
                     .addContactPoint(new InetSocketAddress(CASSANDRA_HOST, CASSANDRA_PORT))
+                    .withLocalDatacenter("DC1")
                     .build();
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error connecting to Cassandra DB", ex);

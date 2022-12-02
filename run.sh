@@ -1,5 +1,5 @@
 # run hbase db server
-docker run --rm -d --name cassandra --hostname cassandra --network cassandra cassandra
+docker run -p 9042:9042 cassandra:latest
 
 # run frontend server container
 docker run -d -p 5001:5001 --name heterogeneous-faas-frontend-server frontend-server:latest
