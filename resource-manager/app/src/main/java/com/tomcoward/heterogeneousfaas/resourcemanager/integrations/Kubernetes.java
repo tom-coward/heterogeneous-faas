@@ -5,17 +5,13 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationExc
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.ApiResponse;
 import io.kubernetes.client.openapi.Configuration;
-import io.kubernetes.client.openapi.apis.BatchV1Api;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1Job;
 import io.kubernetes.client.openapi.models.V1Namespace;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.Watch;
 import javax.json.JsonObject;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
