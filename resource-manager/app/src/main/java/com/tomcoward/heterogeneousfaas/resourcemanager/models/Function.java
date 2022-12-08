@@ -52,8 +52,6 @@ public class Function {
     }
 
     public Function(JsonObject jsonObject) throws IOException {
-        String name = jsonObject.getString("name");
-
         this.name = jsonObject.getString("name");
         this.sourceCode = jsonObject.getString("source_code").getBytes();
         this.sourceCodeHandler = jsonObject.getString("source_code_handler");
