@@ -12,7 +12,7 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientExcept
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.FunctionException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.WorkerException;
-import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
+import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSFargate;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
@@ -22,10 +22,10 @@ public class InvokeFunctionHandler implements HttpHandler {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private final IFunctionRepository functionsRepo;
-    private final AWSLambda awsLambda;
+    private final AWSFargate awsLambda;
     private final Kubernetes kubernetes;
 
-    public InvokeFunctionHandler(IFunctionRepository functionsRepo, AWSLambda awsLambda, Kubernetes kubernetes) {
+    public InvokeFunctionHandler(IFunctionRepository functionsRepo, AWSFargate awsLambda, Kubernetes kubernetes) {
         this.functionsRepo = functionsRepo;
         this.awsLambda = awsLambda;
         this.kubernetes = kubernetes;

@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.util.logging.Logger;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
-import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
+import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSFargate;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
@@ -19,12 +19,12 @@ public class CreateFunctionHandler implements HttpHandler {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private final IFunctionRepository functionsRepo;
-    private final AWSLambda awsLambda;
+    private final AWSFargate awsFargate;
     private final Kubernetes kubernetes;
 
-    public CreateFunctionHandler(IFunctionRepository functionsRepo, AWSLambda awsLambda, Kubernetes kubernetes) {
+    public CreateFunctionHandler(IFunctionRepository functionsRepo, AWSFargate awsFargate, Kubernetes kubernetes) {
         this.functionsRepo = functionsRepo;
-        this.awsLambda = awsLambda;
+        this.awsFargate = awsFargate;
         this.kubernetes = kubernetes;
     }
 
@@ -58,7 +58,7 @@ public class CreateFunctionHandler implements HttpHandler {
 
         // if aws supported, list in AWS Lambda
         if (function.isCloudAWSSupported()) {
-            function = awsLambda.createFunction(function);
+            function = awsFargate.createFunction(function);
         }
 
         // if edge supported, add to kubernetes

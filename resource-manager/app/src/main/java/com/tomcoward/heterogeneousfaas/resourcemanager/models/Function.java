@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
-import software.amazon.awssdk.services.lambda.model.Runtime;
 
 @Entity
 public class Function {
@@ -27,17 +26,17 @@ public class Function {
     private String cloudAWSARN;
 
     public enum SourceCodeRuntime {
-        JAVA8 (Runtime.JAVA8),
-        JAVA11(Runtime.JAVA11);
+        JAVA8 ("amazoncorretto:8"),
+        JAVA11 ("amazoncorretto:11");
 
-        private final Runtime awsRuntime;
+        private String image;
 
-        SourceCodeRuntime(Runtime awsRuntime) {
-            this.awsRuntime = awsRuntime;
+        SourceCodeRuntime(String image) {
+            this.image = image;
         }
 
-        public Runtime getAwsRuntime() {
-            return awsRuntime;
+        public String getImage() {
+            return this.image;
         }
     }
 
@@ -78,10 +77,6 @@ public class Function {
 
     public SourceCodeRuntime getSourceCodeRuntime() {
         return sourceCodeRuntime;
-    }
-
-    public Runtime getAwsRuntime() {
-        return sourceCodeRuntime.getAwsRuntime();
     }
 
     public boolean isEdgeSupported() {
