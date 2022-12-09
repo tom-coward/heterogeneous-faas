@@ -3,24 +3,16 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
-import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.ecs.EcsAsyncClient;
-import software.amazon.awssdk.services.ecs.model.ContainerDefinition;
-import software.amazon.awssdk.services.ecs.model.CreateClusterRequest;
-import software.amazon.awssdk.services.ecs.model.RegisterTaskDefinitionRequest;
-import software.amazon.awssdk.services.ecs.model.RegisterTaskDefinitionResponse;
-
-import javax.json.Json;
+import software.amazon.awssdk.services.ecs.model.*;
 import javax.json.JsonObject;
-import java.io.InputStream;
-import java.util.concurrent.ExecutionException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AWSFargate implements IWorkerIntegration {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    private final static String AWS_IAM_ROLE_ARN = "";
     private final static String ECS_CLUSTER_NAME = "heterogeneous-faas";
 
     private final EcsAsyncClient fargateClient;
@@ -36,7 +28,9 @@ public class AWSFargate implements IWorkerIntegration {
         try {
             createECSCluster();
 
-            createTaskDefinition(function.getName(), function.getSourceCodeRuntime());
+            String taskDefinitionArn = createTaskDefinition(function.getName(), function.getSourceCodeRuntime());
+
+            function.setCloudAWSARN(taskDefinitionArn);
 
             return function;
         } catch (Exception ex) {
@@ -47,7 +41,7 @@ public class AWSFargate implements IWorkerIntegration {
 
     public JsonObject invokeFunction(Function function, JsonObject functionPayload) throws IntegrationException {
         try {
-            return functionPayload;
+            return startTask(function.getCloudAWSARN(), functionPayload.toString());
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error invoking AWS Lambda function", ex);
             throw new IntegrationException("There was an issue invoking the function");
@@ -70,7 +64,7 @@ public class AWSFargate implements IWorkerIntegration {
         }
     }
 
-    private void createTaskDefinition(String functionName, Function.SourceCodeRuntime runtime) throws IntegrationException {
+    private String createTaskDefinition(String functionName, Function.SourceCodeRuntime runtime) throws IntegrationException {
         ContainerDefinition containerDefinition = ContainerDefinition.builder()
                 .name(functionName)
                 .image(runtime.getImage())
@@ -83,8 +77,29 @@ public class AWSFargate implements IWorkerIntegration {
 
         try {
             RegisterTaskDefinitionResponse registerTaskDefinitionResponse = fargateClient.registerTaskDefinition(registerTaskDefinitionRequest).get();
+            return registerTaskDefinitionResponse.taskDefinition().taskDefinitionArn();
         } catch (InterruptedException ex) {
-            createTaskDefinition(functionName, runtime); // retry
+            return createTaskDefinition(functionName, runtime); // retry
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error creating AWS ECS cluster", ex);
+            throw new IntegrationException("There was an issue with AWS ECS (Fargate)");
+        }
+    }
+
+    private JsonObject startTask(String functionCloudAWSARN, String functionPayload) throws IntegrationException {
+        StartTaskRequest startTaskRequest = StartTaskRequest.builder()
+                .taskDefinition(functionCloudAWSARN)
+                .build();
+
+        try {
+            StartTaskResponse startTaskResponse = fargateClient.startTask(startTaskRequest).get();
+
+            List<Task> tasks = startTaskResponse.tasks();
+
+            // TODO: return task (function) response
+            return JsonObject.EMPTY_JSON_OBJECT;
+        } catch (InterruptedException ex) {
+            return startTask(functionCloudAWSARN, functionPayload); // retry
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error creating AWS ECS cluster", ex);
             throw new IntegrationException("There was an issue with AWS ECS (Fargate)");

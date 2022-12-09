@@ -56,6 +56,9 @@ public class CreateFunctionHandler implements HttpHandler {
     private void createFunction(JsonObject functionObject) throws IOException, DBClientException, IntegrationException {
         Function function = new Function(functionObject);
 
+        // TODO: create execution file for function
+
+
         // if aws supported, list in AWS Lambda
         if (function.isCloudAWSSupported()) {
             function = awsFargate.createFunction(function);

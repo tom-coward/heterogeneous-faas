@@ -41,8 +41,8 @@ public class FunctionsTable implements IDBTable {
     public void down() throws DBClientException {
         try {
             SimpleStatement statement = dropTable(TABLE_NAME)
-                    .ifExists()
-                    .build();
+                .ifExists()
+                .build();
 
             db.execute(statement);
         } catch (Exception ex) {

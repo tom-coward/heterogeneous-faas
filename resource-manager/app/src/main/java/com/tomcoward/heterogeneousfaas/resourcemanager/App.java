@@ -9,9 +9,7 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.*;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSFargate;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.CassandraFunctionRepository;
-import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.CassandraWorkerRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
-import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IWorkerRepository;
 
 public class App {
     private static final int SERVER_PORT = 5001;
@@ -24,7 +22,6 @@ public class App {
     private final Kubernetes kubernetes;
 
     private final IFunctionRepository functionsRepo;
-    private final IWorkerRepository workersRepo;
 
     public App() throws Exception {
         // setup db client instance
@@ -36,7 +33,6 @@ public class App {
 
         // initialise repos
         functionsRepo = new CassandraFunctionRepository(db);
-        workersRepo = new CassandraWorkerRepository(db);
 
         // setup http server
         InetSocketAddress serverAddress = new InetSocketAddress(SERVER_PORT);

@@ -77,6 +77,10 @@ public class Function {
         return sourceCodeRuntime;
     }
 
+    public String getCloudAWSARN() {
+        return cloudAWSARN;
+    }
+
     public boolean isEdgeSupported() {
         return edgeSupported;
     }

@@ -59,6 +59,8 @@ public class InvokeFunctionHandler implements HttpHandler {
             // TODO: call ML Manager
             // returns list of worker types
             ArrayList<Worker> workers = new ArrayList<>();
+            // TESTING: add k8s worker
+
 
             for (Worker worker : workers) {
                 if (!worker.isAvailable()) {

@@ -21,13 +21,11 @@ public class CassandraClient implements IDBClient {
     private final CqlSession cqlSession;
 
     private final FunctionsTable functionsTable;
-    private final WorkersTable workersTable;
 
     public CassandraClient() throws DBClientException {
         cqlSession = initialise();
 
         functionsTable = new FunctionsTable(this);
-        workersTable = new WorkersTable(this);
     }
 
     public void up() throws DBClientException {
@@ -38,7 +36,6 @@ public class CassandraClient implements IDBClient {
         execute(statement);
 
         functionsTable.up();
-        workersTable.down();
     }
 
     public void down() throws DBClientException {
@@ -48,7 +45,6 @@ public class CassandraClient implements IDBClient {
         execute(statement);
 
         functionsTable.down();
-        workersTable.down();
     }
 
     public ResultSet execute(SimpleStatement statement) {
