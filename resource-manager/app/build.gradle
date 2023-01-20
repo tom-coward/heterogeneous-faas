@@ -27,6 +27,7 @@ dependencies {
     implementation 'com.google.guava:guava:31.1-jre'
     implementation 'software.amazon.awssdk:ecs:2.18.24'
     implementation 'io.kubernetes:client-java:15.0.1'
+    implementation 'com.google.code.gson:2.10.1'
 
     annotationProcessor group: 'com.datastax.oss', name: 'java-driver-mapper-processor', version: '4.15.0'
 }

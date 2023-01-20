@@ -1,9 +1,9 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.handlers;
 
-import com.sun.net.httpserver.HttpHandler;
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Logger;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
@@ -11,12 +11,12 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSFargate;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
 
-public class CreateFunctionHandler implements HttpHandler {
+import javax.json.JsonObject;
+
+public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private final Gson gson = new Gson();
 
     private final IFunctionRepository functionsRepo;
     private final AWSFargate awsFargate;
@@ -31,33 +31,37 @@ public class CreateFunctionHandler implements HttpHandler {
 
     public void handle(HttpExchange exchange) throws IOException {
         try {
-            InputStream requestBody = exchange.getRequestBody();
+            JsonObject functionObject = HttpHandler.getRequestBody(exchange, "function");
 
-            // deserialize json from request body
-            JsonReader jsonReader = Json.createReader(requestBody);
-            JsonObject jsonObject = jsonReader.readObject();
-            requestBody.close();
-            jsonReader.close();
+            Function function = createFunction(functionObject);
 
-            // get function object
-            JsonObject functionObject = jsonObject.getJsonObject("function");
-
-            createFunction(functionObject);
+            String response = gson.toJson(function);
+            exchange.sendResponseHeaders(200, response.length());
+            OutputStream responseStream = exchange.getResponseBody();
+            responseStream.write(response.getBytes());
+            responseStream.close();
         } catch (DBClientException ex) {
-            // TODO: return error to client
-            return;
+            // return error to client
+            String response = "There was an issue saving your function";
+            HttpHandler.sendResponse(exchange, response);
         } catch (Exception ex) {
-            // TODO: return error to client
-            return;
+            // return error to client
+            String response = "There was an issue creating your function";
+            HttpHandler.sendResponse(exchange, response);
         }
     }
 
 
-    private void createFunction(JsonObject functionObject) throws IOException, DBClientException, IntegrationException {
-        Function function = new Function(functionObject);
+    private Function createFunction(JsonObject functionObject) throws IOException, DBClientException, IntegrationException {
+        // get function details from request body
+        String name = functionObject.getString("name");
+        byte[] sourceCode = functionObject.getString("source_code").getBytes();
+        String sourceCodeHandler = functionObject.getString("source_code_handler");
+        Function.SourceCodeRuntime sourceCodeRuntime = Function.SourceCodeRuntime.valueOf(functionObject.getString("source_code_runtime"));
+        boolean edgeSupported = functionObject.getBoolean("edge_supported");
+        boolean cloudAWSSupported = functionObject.getBoolean("cloud_aws_supported");
 
-        // TODO: create execution file for function
-
+        Function function = new Function(name, sourceCode, sourceCodeHandler, sourceCodeRuntime, edgeSupported, cloudAWSSupported);
 
         // if aws supported, list in AWS Lambda
         if (function.isCloudAWSSupported()) {
@@ -69,7 +73,9 @@ public class CreateFunctionHandler implements HttpHandler {
             function = kubernetes.createFunction(function);
         }
 
-        // save in database
+        // save function in database
         functionsRepo.create(function);
+
+        return function;
     }
 }

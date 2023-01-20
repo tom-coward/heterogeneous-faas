@@ -62,7 +62,7 @@ public class Kubernetes implements IWorkerIntegration {
                     dockerfileBytes = Files.readAllBytes(dockerfilePath);
 
                 default:
-                    throw new IntegrationException("No Dockerfile to invoke the function's container could be found");
+                    throw new IntegrationException("No Dockerfile to invoke the function's container could be found - its source code runtime may be unsupported");
             }
         } catch (IOException ex) {
             throw new IntegrationException("The Dockerfile couldn't be read");
@@ -93,8 +93,12 @@ public class Kubernetes implements IWorkerIntegration {
                 .build();
 
         // TODO: get job output
-        OutputStream jobOutput;
-        job.writeTo(jobOutput);
+        //OutputStream jobOutput;
+        //try {
+        //    job.writeTo(jobOutput);
+        //} catch (IOException ex) {
+        //    throw new IntegrationException("The K8s job output couldn't be read");
+        //}
 
         return functionPayload;
     }

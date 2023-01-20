@@ -26,6 +26,8 @@ public class AWSFargate implements IWorkerIntegration {
 
     public Function createFunction(Function function) throws IntegrationException {
         try {
+            // following steps listed in: https://docs.aws.amazon.com/AmazonECS/latest/userguide/getting-started-fargate.html
+
             createECSCluster();
 
             String taskDefinitionArn = createTaskDefinition(function.getName(), function.getSourceCodeRuntime());
@@ -50,6 +52,23 @@ public class AWSFargate implements IWorkerIntegration {
 
 
     private void createECSCluster() throws IntegrationException {
+        // check if cluster already exists...
+        try {
+            DescribeClustersResponse describeClustersResponse = fargateClient.describeClusters().get();
+
+            for (Cluster cluster : describeClustersResponse.clusters()) {
+                if (cluster.clusterName().equals(ECS_CLUSTER_NAME)) {
+                    return; // skip creating cluster as it already exists
+                }
+            }
+        } catch (InterruptedException ex) {
+            createECSCluster(); // retry
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error checking AWS ECS cluster already exists", ex);
+            throw new IntegrationException("There was an issue with AWS ECS (Fargate)");
+        }
+
+        // if it doesn't already exist, create it...
         CreateClusterRequest createClusterRequest = CreateClusterRequest.builder()
                 .clusterName(ECS_CLUSTER_NAME)
                 .build();

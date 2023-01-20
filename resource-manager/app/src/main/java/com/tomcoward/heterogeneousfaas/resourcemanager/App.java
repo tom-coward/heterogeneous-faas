@@ -39,8 +39,8 @@ public class App {
         server = HttpServer.create(serverAddress, 0);
 
         // add http server routes
-        addInvokeFunctionRoute();
         addCreateFunctionRoute();
+        addInvokeFunctionRoute();
 
         // startup http server (will block thread)
         System.out.println(String.format("Resource Manager server started on port %d", SERVER_PORT));
@@ -61,11 +61,11 @@ public class App {
     }
 
 
-    private void addInvokeFunctionRoute() {
-        server.createContext("/invoke", new InvokeFunctionHandler(functionsRepo, awsLambda, kubernetes));
-    }
-
     private void addCreateFunctionRoute() {
         server.createContext("/create", new CreateFunctionHandler(functionsRepo, awsLambda, kubernetes));
+    }
+
+    private void addInvokeFunctionRoute() {
+        server.createContext("/invoke", new InvokeFunctionHandler(functionsRepo, awsLambda, kubernetes));
     }
 }
