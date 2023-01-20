@@ -18,7 +18,7 @@ public class HttpHelper {
         requestBody.close();
         jsonReader.close();
 
-        // get function object
+        // create json object
         JsonObject requestBody = jsonObject.getJsonObject(jsonObjectName);
 
         return requestBody;
