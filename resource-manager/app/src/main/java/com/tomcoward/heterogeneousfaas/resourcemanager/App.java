@@ -62,10 +62,14 @@ public class App {
 
 
     private void addCreateFunctionRoute() {
-        server.createContext("/create", new CreateFunctionHandler(functionsRepo, awsLambda, kubernetes));
+        server.createContext("/function", new CreateFunctionHandler(functionsRepo, awsLambda, kubernetes));
     }
 
     private void addInvokeFunctionRoute() {
-        server.createContext("/invoke", new InvokeFunctionHandler(functionsRepo, awsLambda, kubernetes));
+        server.createContext("/function/invoke", new InvokeFunctionHandler(functionsRepo, awsLambda, kubernetes));
+    }
+
+    private void addSetCredentialsRoute() {
+        server.createContext("/credentials", new SetCredentialsHandler());
     }
 }

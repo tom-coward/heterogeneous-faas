@@ -31,23 +31,20 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
 
     public void handle(HttpExchange exchange) throws IOException {
         try {
-            JsonObject functionObject = HttpHandler.getRequestBody(exchange, "function");
+            JsonObject functionObject = HttpHelper.getRequestBody(exchange, "function");
 
             Function function = createFunction(functionObject);
 
             String response = gson.toJson(function);
-            exchange.sendResponseHeaders(200, response.length());
-            OutputStream responseStream = exchange.getResponseBody();
-            responseStream.write(response.getBytes());
-            responseStream.close();
+            HttpHelper.sendResponse(exchange, 200, response);
         } catch (DBClientException ex) {
             // return error to client
             String response = "There was an issue saving your function";
-            HttpHandler.sendResponse(exchange, response);
+            HttpHelper.sendResponse(exchange, 500, response);
         } catch (Exception ex) {
             // return error to client
             String response = "There was an issue creating your function";
-            HttpHandler.sendResponse(exchange, response);
+            HttpHelper.sendResponse(exchange, 500, response);
         }
     }
 

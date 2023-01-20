@@ -2,7 +2,8 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
-import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.SystemPropertyCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ecs.EcsAsyncClient;
 import software.amazon.awssdk.services.ecs.model.*;
 import javax.json.JsonObject;
@@ -14,12 +15,14 @@ public class AWSFargate implements IWorkerIntegration {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private final static String ECS_CLUSTER_NAME = "heterogeneous-faas";
+    private final static Region AWS_REGION = Region.EU_WEST_1;
 
     private final EcsAsyncClient fargateClient;
 
     public AWSFargate() {
         this.fargateClient = EcsAsyncClient.builder()
-                .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
+                .region(AWS_REGION)
+                .credentialsProvider(SystemPropertyCredentialsProvider.create())
                 .build();
     }
 

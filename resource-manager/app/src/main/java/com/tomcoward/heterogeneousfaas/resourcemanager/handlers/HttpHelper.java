@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class HttpHandler {
+public class HttpHelper {
     public static JsonObject getRequestBody(HttpExchange httpExchange, String jsonObjectName) throws IOException {
         InputStream requestBody = httpExchange.getRequestBody();
 
@@ -24,8 +24,8 @@ public class HttpHandler {
         return requestBody;
     }
 
-    public static void sendResponse(HttpExchange httpExchange, String response) throws IOException {
-        httpExchange.sendResponseHeaders(500, response.length());
+    public static void sendResponse(HttpExchange httpExchange, int responseCode, String response) throws IOException {
+        httpExchange.sendResponseHeaders(responseCode, response.length());
         OutputStream responseStream = httpExchange.getResponseBody();
         responseStream.write(response.getBytes());
         responseStream.close();
