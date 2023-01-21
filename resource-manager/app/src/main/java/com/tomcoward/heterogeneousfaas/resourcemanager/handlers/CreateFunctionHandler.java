@@ -60,12 +60,12 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
 
         Function function = new Function(name, sourceCode, sourceCodeHandler, sourceCodeRuntime, edgeSupported, cloudAWSSupported);
 
-        // if aws supported, list in AWS Lambda
+        // if aws supported, add to AWS Fargate
         if (function.isCloudAWSSupported()) {
             function = awsFargate.createFunction(function);
         }
 
-        // if edge supported, add to kubernetes
+        // if edge supported, add to Kubernetes
         if (function.isEdgeSupported()) {
             function = kubernetes.createFunction(function);
         }
