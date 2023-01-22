@@ -2,7 +2,6 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
-import software.amazon.awssdk.auth.credentials.SystemPropertyCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ecs.EcsAsyncClient;
 import software.amazon.awssdk.services.ecs.model.*;
@@ -22,7 +21,6 @@ public class AWSFargate implements IWorkerIntegration {
     public AWSFargate() {
         this.fargateClient = EcsAsyncClient.builder()
                 .region(AWS_REGION)
-                .credentialsProvider(SystemPropertyCredentialsProvider.create())
                 .build();
     }
 

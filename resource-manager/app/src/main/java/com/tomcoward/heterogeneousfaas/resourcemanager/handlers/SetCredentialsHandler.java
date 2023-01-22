@@ -2,10 +2,8 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-
 import javax.json.JsonObject;
 import java.io.IOException;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 public class SetCredentialsHandler implements HttpHandler {
@@ -25,6 +23,7 @@ public class SetCredentialsHandler implements HttpHandler {
         }
     }
 
+    
     private void setSystemProperties(JsonObject credentialsObject) throws IOException {
         String awsAccessKeyId = credentialsObject.getString("aws_access_key_id");
         String awsSecretAccessKey = credentialsObject.getString("aws_secret_access_key");
