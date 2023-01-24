@@ -41,6 +41,7 @@ public class App {
         // add http server routes
         addCreateFunctionRoute();
         addInvokeFunctionRoute();
+        addSetCredentialsRoute();
 
         // startup http server (will block thread)
         System.out.println(String.format("Resource Manager server started on port %d", SERVER_PORT));
