@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
+import software.amazon.awssdk.services.lambda.model.Environment;
 
 @Entity
 public class Function {

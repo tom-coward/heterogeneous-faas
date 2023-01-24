@@ -23,7 +23,7 @@ public class SetCredentialsHandler implements HttpHandler {
         }
     }
 
-    
+
     private void setSystemProperties(JsonObject credentialsObject) throws IOException {
         String awsAccessKeyId = credentialsObject.getString("aws_access_key_id");
         String awsSecretAccessKey = credentialsObject.getString("aws_secret_access_key");

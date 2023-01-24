@@ -3,11 +3,10 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.handlers;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.logging.Logger;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
-import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSFargate;
+import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
@@ -19,10 +18,10 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     private final Gson gson = new Gson();
 
     private final IFunctionRepository functionsRepo;
-    private final AWSFargate awsFargate;
+    private final AWSLambda awsFargate;
     private final Kubernetes kubernetes;
 
-    public CreateFunctionHandler(IFunctionRepository functionsRepo, AWSFargate awsFargate, Kubernetes kubernetes) {
+    public CreateFunctionHandler(IFunctionRepository functionsRepo, AWSLambda awsFargate, Kubernetes kubernetes) {
         this.functionsRepo = functionsRepo;
         this.awsFargate = awsFargate;
         this.kubernetes = kubernetes;

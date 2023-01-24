@@ -6,7 +6,7 @@ import com.sun.net.httpserver.HttpServer;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.CassandraClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.*;
-import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSFargate;
+import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.CassandraFunctionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
@@ -18,7 +18,7 @@ public class App {
 
     private final IDBClient db;
 
-    private final AWSFargate awsLambda;
+    private final AWSLambda awsLambda;
     private final Kubernetes kubernetes;
 
     private final IFunctionRepository functionsRepo;
@@ -28,7 +28,7 @@ public class App {
         db = new CassandraClient();
 
         // setup AWS Lambda client
-        awsLambda = new AWSFargate();
+        awsLambda = new AWSLambda();
         kubernetes = new Kubernetes();
 
         // initialise repos
