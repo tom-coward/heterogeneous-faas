@@ -48,8 +48,8 @@ public class Kubernetes implements IWorkerIntegration {
         return function;
     }
 
-    public JsonObject invokeFunction(Function function, JsonObject functionPayload) throws IntegrationException {
+    public String invokeFunction(Function function, JsonObject functionPayload) throws IntegrationException {
         // TODO
-        return functionPayload;
+        return "";
     }
 }

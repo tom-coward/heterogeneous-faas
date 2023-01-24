@@ -1,5 +1,6 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 
+import com.google.gson.Gson;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import software.amazon.awssdk.core.SdkBytes;
@@ -8,6 +9,7 @@ import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.CreateFunctionRequest;
 import software.amazon.awssdk.services.lambda.model.FunctionCode;
 import software.amazon.awssdk.services.lambda.model.InvokeRequest;
+import software.amazon.awssdk.services.lambda.model.InvokeResponse;
 
 import javax.json.JsonObject;
 import java.io.ByteArrayInputStream;
@@ -60,16 +62,16 @@ public class AWSLambda implements IWorkerIntegration {
         }
     }
 
-    public JsonObject invokeFunction(Function function, JsonObject functionPayload) throws IntegrationException {
+    public String invokeFunction(Function function, JsonObject functionPayload) throws IntegrationException {
         try {
             InvokeRequest invokeRequest = InvokeRequest.builder()
                     .functionName(function.getName())
                     .build();
 
-            lambdaClient.invoke(invokeRequest);
+            InvokeResponse invokeResponse = lambdaClient.invoke(invokeRequest);
 
-            // TODO: return lambda function response payload as JsonObject
-            return JsonObject.EMPTY_JSON_OBJECT;
+            // return lambda function response payload as JsonObject
+            return invokeResponse.payload().asUtf8String();
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error invoking AWS Lambda function", ex);
             throw new IntegrationException("There was an issue invoking the function");

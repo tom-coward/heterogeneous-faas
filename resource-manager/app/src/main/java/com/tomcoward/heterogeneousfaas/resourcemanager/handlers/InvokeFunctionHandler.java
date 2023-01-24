@@ -79,7 +79,7 @@ public class InvokeFunctionHandler implements HttpHandler {
         }
     }
 
-    private JsonObject invokeWorker(Worker worker, Function function, JsonObject functionPayload) throws WorkerException, IntegrationException {
+    private String invokeWorker(Worker worker, Function function, JsonObject functionPayload) throws WorkerException, IntegrationException {
         switch (worker.getHost().getName()) {
             case "KUBERNETES":
                 return kubernetes.invokeFunction(function, functionPayload);
