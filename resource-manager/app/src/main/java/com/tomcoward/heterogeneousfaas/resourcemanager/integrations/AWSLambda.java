@@ -45,7 +45,7 @@ public class AWSLambda implements IWorkerIntegration {
 
             CreateFunctionRequest createFunctionRequest = CreateFunctionRequest.builder()
                     .functionName(function.getName())
-                    .runtime(function.getSourceCodeRuntime().toString())
+                    .runtime(function.getSourceCodeRuntime().getAwsRuntime())
                     .code(functionCode)
                     .handler(function.getSourceCodeHandler())
                     .packageType("Zip")
@@ -53,7 +53,7 @@ public class AWSLambda implements IWorkerIntegration {
 
             String lambdaFunctionArn = lambdaClient.createFunction(createFunctionRequest).functionArn();
 
-            function.setCloudAWSARN(lambdaFunctionArn);
+            function.setCloudAwsArn(lambdaFunctionArn);
 
             return function;
         } catch (Exception ex) {

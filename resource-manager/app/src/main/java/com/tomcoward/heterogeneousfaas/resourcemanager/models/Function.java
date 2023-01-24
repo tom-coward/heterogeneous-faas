@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
-import software.amazon.awssdk.services.lambda.model.Environment;
 
 @Entity
 public class Function {
@@ -24,20 +23,22 @@ public class Function {
     @CqlName("cloud_aws_supported")
     private boolean cloudAWSSupported;
     @CqlName("cloud_aws_arn")
-    private String cloudAWSARN;
+    private String cloudAwsArn;
 
     public enum SourceCodeRuntime {
-        JAVA8 ("amazoncorretto:8"),
-        JAVA11 ("amazoncorretto:11");
+        NODEJS18 ("nodejs18.x"),
+        PYTHON39 ("python3.9"),
+        JAVA11 ("java11"),
+        GO1 ("go1.x");
 
-        private String image;
+        private String awsRuntime;
 
-        SourceCodeRuntime(String image) {
-            this.image = image;
+        SourceCodeRuntime(String awsRuntime) {
+            this.awsRuntime = awsRuntime;
         }
 
-        public String getImage() {
-            return this.image;
+        public String getAwsRuntime() {
+            return this.awsRuntime;
         }
     }
 
@@ -78,8 +79,8 @@ public class Function {
         return sourceCodeRuntime;
     }
 
-    public String getCloudAWSARN() {
-        return cloudAWSARN;
+    public String getCloudAwsArn() {
+        return cloudAwsArn;
     }
 
     public boolean isEdgeSupported() {
@@ -110,7 +111,7 @@ public class Function {
         this.cloudAWSSupported = cloudAWSSupported;
     }
 
-    public void setCloudAWSARN(String cloudAwsArn) {
-        this.cloudAWSARN = cloudAwsArn;
+    public void setCloudAwsArn(String cloudAwsArn) {
+        this.cloudAwsArn = cloudAwsArn;
     }
 }

@@ -42,9 +42,11 @@ public class CassandraFunctionRepository implements IFunctionRepository {
             SimpleStatement statement = insertInto(FunctionsTable.TABLE_NAME)
                     .value("name", literal(function.getName()))
                     .value("source_code", typeHint(literal(function.getSourceCode()), DataTypes.BLOB))
+                    .value("source_code_handler", literal(function.getSourceCodeHandler()))
                     .value("source_code_runtime", literal(function.getSourceCodeRuntime().toString()))
                     .value("edge_supported", typeHint(literal(function.isEdgeSupported()), DataTypes.BOOLEAN))
                     .value("cloud_aws_supported", typeHint(literal(function.isCloudAWSSupported()), DataTypes.BOOLEAN))
+                    .value("cloud_aws_arn", literal(function.getCloudAwsArn()))
                     .build();
 
             db.execute(statement);
