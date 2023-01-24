@@ -19,7 +19,6 @@ dependencies {
     implementation 'com.google.guava:guava:31.0.1-jre'
     implementation 'javax.json:javax.json-api:1.1.4'
     implementation 'com.datastax.oss:java-driver-core:4.15.0'
-    implementation 'com.datastax.oss:java-driver-query-builder:4.15.0'
     implementation 'com.datastax.oss:java-driver-mapper-processor:4.15.0'
     implementation 'com.datastax.oss:java-driver-mapper-runtime:4.15.0'
     implementation 'com.google.guava:guava:31.1-jre'

@@ -2,20 +2,13 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.repositories;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import com.datastax.oss.driver.api.core.CqlIdentifier;
-import com.datastax.oss.driver.api.core.cql.ResultSet;
-import com.datastax.oss.driver.api.core.cql.SimpleStatement;
-import com.datastax.oss.driver.api.core.type.DataTypes;
-import com.tomcoward.heterogeneousfaas.resourcemanager.database.FunctionsTable;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.daos.FunctionsDAO;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.FunctionsMapper;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.FunctionsMapperBuilder;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
-
-import static com.datastax.oss.driver.api.querybuilder.QueryBuilder.*;
 
 public class CassandraFunctionRepository implements IFunctionRepository {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
