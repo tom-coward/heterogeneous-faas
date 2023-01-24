@@ -58,10 +58,7 @@ public class CassandraClient implements IDBClient {
 
     private CqlSession initialise() throws DBClientException {
         try {
-            return CqlSession.builder()
-                    .addContactPoint(new InetSocketAddress(CASSANDRA_HOST, CASSANDRA_PORT))
-                    .withLocalDatacenter("DC1")
-                    .build();
+            return CqlSession.builder().build(); // may need more config if/when not running in local dev env
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error connecting to Cassandra DB", ex);
             throw new DBClientException("There was an error connecting to the database");
