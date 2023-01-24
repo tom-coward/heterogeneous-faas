@@ -18,7 +18,6 @@ public class App {
 
     private final IDBClient db;
 
-    private final AWSS3 awsS3;
     private final AWSLambda awsLambda;
     private final Kubernetes kubernetes;
 
@@ -29,8 +28,7 @@ public class App {
         db = new CassandraClient();
 
         // setup AWS Lambda client
-        awsS3 = new AWSS3();
-        awsLambda = new AWSLambda(awsS3);
+        awsLambda = new AWSLambda();
         kubernetes = new Kubernetes();
 
         // initialise repos

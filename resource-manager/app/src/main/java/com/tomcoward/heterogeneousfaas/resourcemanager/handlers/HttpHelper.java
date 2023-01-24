@@ -19,9 +19,9 @@ public class HttpHelper {
         jsonReader.close();
 
         // create json object
-        JsonObject requestBody = jsonObject.getJsonObject(jsonObjectName);
+        JsonObject jsonRequestBody = jsonObject.getJsonObject(jsonObjectName);
 
-        return requestBody;
+        return jsonRequestBody;
     }
 
     public static void sendResponse(HttpExchange httpExchange, int responseCode, String response) throws IOException {

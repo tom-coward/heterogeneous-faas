@@ -20,8 +20,6 @@ public class AWSLambda implements IWorkerIntegration {
 
     private final static Region AWS_REGION = Region.EU_WEST_1;
 
-    private final static String S3_KEY_FORMAT = "%s_SourceCode";
-
     private final LambdaClient lambdaClient;
 
     public AWSLambda() {

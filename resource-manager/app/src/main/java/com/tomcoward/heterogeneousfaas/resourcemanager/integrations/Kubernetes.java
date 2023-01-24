@@ -31,15 +31,11 @@ public class Kubernetes implements IWorkerIntegration {
     private final ApiClient client;
     private final CoreV1Api api;
 
-    private ArrayList<V1Pod> pods = new ArrayList<>();
-
     public Kubernetes() throws IntegrationException {
         try {
             this.client = ClientBuilder.cluster().build();
             Configuration.setDefaultApiClient(client);
             this.api = new CoreV1Api(client);
-
-            discoverPods();
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error initialising Kubernetes integration", ex);
             throw new IntegrationException("There was an error connecting to the Kubernetes cluster");
@@ -48,81 +44,12 @@ public class Kubernetes implements IWorkerIntegration {
 
 
     public Function createFunction(Function function) throws IntegrationException {
-        // no need to do anything here... can spin up k8s job on the fly
+        // TODO
         return function;
     }
 
     public JsonObject invokeFunction(Function function, JsonObject functionPayload) throws IntegrationException {
-        // read Dockerfile for function's runtime
-        byte[] dockerfileBytes;
-        try {
-            switch (function.getSourceCodeRuntime().getImage()) {
-                case "amazoncorretto:8":
-                    Path dockerfilePath = Paths.get("./resources/docker/JDK8/Dockerfile");
-                    dockerfileBytes = Files.readAllBytes(dockerfilePath);
-
-                default:
-                    throw new IntegrationException("No Dockerfile to invoke the function's container could be found - its source code runtime may be unsupported");
-            }
-        } catch (IOException ex) {
-            throw new IntegrationException("The Dockerfile couldn't be read");
-        }
-        ByteString dockerfileBytestring = ByteString.copyFrom(dockerfileBytes);
-
-        // get .jar file for function's source code
-
-
-        V1.Container container = V1.Container.newBuilder()
-                .setImageBytes(dockerfileBytestring)
-                .build();
-
-        V1.PodSpec podSpec = V1.PodSpec.newBuilder()
-                .setContainers(0, container)
-                .build();
-
-        V1.PodTemplateSpec podTemplateSpec = V1.PodTemplateSpec.newBuilder()
-                .setSpec(podSpec)
-                .build();
-
-        JobSpec jobSpec = JobSpec.newBuilder()
-                .setTemplate(podTemplateSpec)
-                .build();
-
-        Job job = Job.newBuilder()
-                .setSpec(jobSpec)
-                .build();
-
-        // TODO: get job output
-        //OutputStream jobOutput;
-        //try {
-        //    job.writeTo(jobOutput);
-        //} catch (IOException ex) {
-        //    throw new IntegrationException("The K8s job output couldn't be read");
-        //}
-
+        // TODO
         return functionPayload;
-    }
-
-    private void discoverPods() throws IntegrationException {
-        try {
-            Watch<V1Pod> watch = Watch.createWatch(
-                    client,
-                    api.listPodForAllNamespacesCall(true, null, null, null, null, null, null, null, null, null, null),
-                    new TypeToken<Watch.Response<V1Namespace>>() {
-                    }.getType());
-
-            for (Watch.Response<V1Pod> item : watch) {
-                V1Pod pod = (V1Pod) item.object;
-                if (pod == null) {
-                    continue;
-                }
-
-                pods.add(item.object);
-                System.out.printf("POD %s STATUS : %s", pod.getKind(), pod.getStatus().getMessage());
-            }
-        } catch (ApiException ex) {
-            LOGGER.log(Level.SEVERE, "Error discovering k8s pods", ex);
-            throw new IntegrationException("There was an error with Kubernetes service discovery");
-        }
     }
 }
