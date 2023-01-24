@@ -7,6 +7,8 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.CreateFunctionRequest;
 import software.amazon.awssdk.services.lambda.model.FunctionCode;
+import software.amazon.awssdk.services.lambda.model.InvokeRequest;
+
 import javax.json.JsonObject;
 import java.io.ByteArrayInputStream;
 import java.util.logging.Level;
@@ -62,7 +64,11 @@ public class AWSLambda implements IWorkerIntegration {
 
     public JsonObject invokeFunction(Function function, JsonObject functionPayload) throws IntegrationException {
         try {
-            //
+            InvokeRequest invokeRequest = InvokeRequest.builder()
+                    .functionName(function.getName())
+                    .build();
+
+            lambdaClient.invoke(invokeRequest);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error invoking AWS Lambda function", ex);
             throw new IntegrationException("There was an issue invoking the function");
