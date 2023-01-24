@@ -49,20 +49,14 @@ public class AWSLambda implements IWorkerIntegration {
                     .packageType("Zip")
                     .build();
 
-            String lambdaFunctionArn;
-            try {
-                lambdaFunctionArn = lambdaClient.createFunction(createFunctionRequest).functionArn();
-            } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, String.format("Error creating AWS Lambda function %s", function.getName()), ex);
-                throw new IntegrationException("There was an issue with AWS Lambda");
-            }
+            String lambdaFunctionArn = lambdaClient.createFunction(createFunctionRequest).functionArn();
 
             function.setCloudAWSARN(lambdaFunctionArn);
 
             return function;
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Error creating AWS Lambda function", ex);
-            throw new IntegrationException("There was an issue creating the function on AWS");
+            LOGGER.log(Level.SEVERE, String.format("Error creating AWS Lambda function %s", function.getName()), ex);
+            throw new IntegrationException("There was an issue with AWS Lambda");
         }
     }
 
