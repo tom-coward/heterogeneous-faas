@@ -69,6 +69,9 @@ public class AWSLambda implements IWorkerIntegration {
                     .build();
 
             lambdaClient.invoke(invokeRequest);
+
+            // TODO: return lambda function response payload as JsonObject
+            return JsonObject.EMPTY_JSON_OBJECT;
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error invoking AWS Lambda function", ex);
             throw new IntegrationException("There was an issue invoking the function");
