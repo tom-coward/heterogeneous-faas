@@ -16,8 +16,6 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
-
     implementation 'com.google.guava:guava:31.0.1-jre'
     implementation 'javax.json:javax.json-api:1.1.4'
     implementation 'com.datastax.oss:java-driver-core:4.15.0'
@@ -30,13 +28,9 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
 
     annotationProcessor group: 'com.datastax.oss', name: 'java-driver-mapper-processor', version: '4.15.0'
+    runtimeOnly group: 'com.datastax.oss', name: 'java-driver-mapper-runtime', version: '4.15.0'
 }
 
 application {
     mainClass = 'com.tomcoward.heterogeneousfaas.resourcemanager.App'
-}
-
-tasks.named('test') {
-    // Use JUnit Platform for unit tests.
-    useJUnitPlatform()
 }

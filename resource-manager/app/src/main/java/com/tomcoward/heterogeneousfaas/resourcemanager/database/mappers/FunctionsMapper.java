@@ -4,10 +4,10 @@ import com.datastax.oss.driver.api.core.CqlIdentifier;
 import com.datastax.oss.driver.api.mapper.annotations.DaoFactory;
 import com.datastax.oss.driver.api.mapper.annotations.DaoKeyspace;
 import com.datastax.oss.driver.api.mapper.annotations.Mapper;
-import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
+import com.tomcoward.heterogeneousfaas.resourcemanager.database.daos.FunctionsDAO;
 
 @Mapper
 public interface FunctionsMapper {
     @DaoFactory
-    IFunctionRepository functionsDao(@DaoKeyspace CqlIdentifier keyspace);
+    FunctionsDAO functionsDao(@DaoKeyspace CqlIdentifier keyspace);
 }
