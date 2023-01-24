@@ -2,27 +2,28 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
+import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.ecs.EcsAsyncClient;
-import software.amazon.awssdk.services.ecs.model.*;
-import software.amazon.awssdk.services.lambda.LambdaAsyncClient;
+import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.CreateFunctionRequest;
 import software.amazon.awssdk.services.lambda.model.FunctionCode;
-
 import javax.json.JsonObject;
-import java.util.List;
+import java.io.ByteArrayInputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipInputStream;
 
 public class AWSLambda implements IWorkerIntegration {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private final static Region AWS_REGION = Region.EU_WEST_1;
 
-    private final LambdaAsyncClient lambdaClient;
+    private final static String S3_KEY_FORMAT = "%s_SourceCode";
+
+    private final LambdaClient lambdaClient;
 
     public AWSLambda() {
-        this.lambdaClient = LambdaAsyncClient.builder()
+        this.lambdaClient = LambdaClient.builder()
                 .region(AWS_REGION)
                 .build();
     }
@@ -30,30 +31,33 @@ public class AWSLambda implements IWorkerIntegration {
 
     public Function createFunction(Function function) throws IntegrationException {
         try {
-            // TODO: upload source code to s3 to pass as FunctionCode to Lambda
+            // create zip file containing function source code
+            ByteArrayInputStream sourceCodeInputStream = new ByteArrayInputStream(function.getSourceCode());
+            ZipInputStream zipFileInputStream = new ZipInputStream(sourceCodeInputStream);
+            SdkBytes sourceCodeZipFile = SdkBytes.fromInputStream(zipFileInputStream);
+            zipFileInputStream.close();
 
             FunctionCode functionCode = FunctionCode.builder()
-                    .s3Key("")
+                    .zipFile(sourceCodeZipFile)
                     .build();
 
             CreateFunctionRequest createFunctionRequest = CreateFunctionRequest.builder()
                     .functionName(function.getName())
                     .runtime(function.getSourceCodeRuntime().toString())
-                    .code()
+                    .code(functionCode)
                     .handler(function.getSourceCodeHandler())
                     .packageType("Zip")
                     .build();
 
+            String lambdaFunctionArn;
             try {
-                lambdaClient.createFunction(createFunctionRequest).get();
-            } catch (InterruptedException ex) {
-                createFunction(function); // retry
+                lambdaFunctionArn = lambdaClient.createFunction(createFunctionRequest).functionArn();
             } catch (Exception ex) {
                 LOGGER.log(Level.SEVERE, String.format("Error creating AWS Lambda function %s", function.getName()), ex);
                 throw new IntegrationException("There was an issue with AWS Lambda");
             }
 
-            function.setCloudAWSARN(taskDefinitionArn);
+            function.setCloudAWSARN(lambdaFunctionArn);
 
             return function;
         } catch (Exception ex) {
@@ -64,7 +68,7 @@ public class AWSLambda implements IWorkerIntegration {
 
     public JsonObject invokeFunction(Function function, JsonObject functionPayload) throws IntegrationException {
         try {
-            return startTask(function.getCloudAWSARN(), functionPayload.toString());
+            //
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error invoking AWS Lambda function", ex);
             throw new IntegrationException("There was an issue invoking the function");
