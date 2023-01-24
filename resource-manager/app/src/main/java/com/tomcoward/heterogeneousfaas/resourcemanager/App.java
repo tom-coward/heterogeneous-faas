@@ -2,9 +2,13 @@ package com.tomcoward.heterogeneousfaas.resourcemanager;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.sun.net.httpserver.HttpServer;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.CassandraClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
+import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.*;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
@@ -27,18 +31,18 @@ public class App {
         // setup db client instance
         db = new CassandraClient();
 
-        // setup AWS Lambda client
+        // setup AWS Lambda & k8s clients
         awsLambda = new AWSLambda();
         kubernetes = new Kubernetes();
 
         // initialise repos
         functionsRepo = new CassandraFunctionRepository(db);
 
-        // setup http server
+        // initialise http server
         InetSocketAddress serverAddress = new InetSocketAddress(SERVER_PORT);
         server = HttpServer.create(serverAddress, 0);
 
-        // add http server routes
+        // define http server routes
         addCreateFunctionRoute();
         addInvokeFunctionRoute();
         addSetCredentialsRoute();

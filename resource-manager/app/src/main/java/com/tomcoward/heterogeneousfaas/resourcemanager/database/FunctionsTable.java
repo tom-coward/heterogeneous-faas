@@ -11,7 +11,7 @@ import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.*;
 public class FunctionsTable implements IDBTable {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    public static final String TABLE_NAME = "functions";
+    public static final String TABLE_NAME = String.format("%s.functions", CassandraClient.KEYSPACE_NAME);
 
     private final IDBClient db;
 

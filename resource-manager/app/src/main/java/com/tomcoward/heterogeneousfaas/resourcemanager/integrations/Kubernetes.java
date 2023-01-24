@@ -13,14 +13,14 @@ import java.util.logging.Logger;
 public class Kubernetes implements IWorkerIntegration {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    private final ApiClient client;
-    private final CoreV1Api api;
+    //private final ApiClient client;
+    //private final CoreV1Api api;
 
     public Kubernetes() throws IntegrationException {
         try {
-            this.client = ClientBuilder.cluster().build();
-            Configuration.setDefaultApiClient(client);
-            this.api = new CoreV1Api(client);
+            //this.client = ClientBuilder.cluster().build();
+            //Configuration.setDefaultApiClient(client);
+            //this.api = new CoreV1Api(client);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error initialising Kubernetes integration", ex);
             throw new IntegrationException("There was an error connecting to the Kubernetes cluster");

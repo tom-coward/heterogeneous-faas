@@ -13,9 +13,6 @@ import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.*;
 public class CassandraClient implements IDBClient {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    private final static String CASSANDRA_HOST = "127.0.0.1";
-    private final static int CASSANDRA_PORT = 9042;
-
     private final static String KEYSPACE_NAME = "heterogeneousfaas";
 
     private final CqlSession cqlSession;
@@ -26,6 +23,8 @@ public class CassandraClient implements IDBClient {
         cqlSession = initialise();
 
         functionsTable = new FunctionsTable(this);
+
+        up();
     }
 
     public void up() throws DBClientException {
