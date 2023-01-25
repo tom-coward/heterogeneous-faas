@@ -7,7 +7,7 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientExcept
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 
 @Dao
-public interface FunctionsDAO {
+public interface FunctionsDao {
     @Select
     Function get(String functionName) throws DBClientException;
     @Insert

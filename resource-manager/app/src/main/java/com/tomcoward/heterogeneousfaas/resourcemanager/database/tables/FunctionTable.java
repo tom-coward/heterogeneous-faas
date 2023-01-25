@@ -4,20 +4,20 @@ import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.driver.api.core.type.DataTypes;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.tomcoward.heterogeneousfaas.resourcemanager.database.CassandraClient;
+
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.*;
 
-public class FunctionsTable implements IDBTable {
+public class FunctionTable implements IDBTable {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    public static final String TABLE_NAME = String.format("%s.functions", CassandraClient.KEYSPACE_NAME);
+    private static final String TABLE_NAME = "function";
 
     private final IDBClient db;
 
-    public FunctionsTable(IDBClient db) {
+    public FunctionTable(IDBClient db) {
         this.db = db;
     }
 
