@@ -13,7 +13,7 @@ import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.*;
 public class CassandraClient implements IDBClient {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    private final static String KEYSPACE_NAME = "heterogeneousfaas";
+    public final static String KEYSPACE_NAME = "heterogeneousfaas";
 
     private final CqlSession cqlSession;
 
