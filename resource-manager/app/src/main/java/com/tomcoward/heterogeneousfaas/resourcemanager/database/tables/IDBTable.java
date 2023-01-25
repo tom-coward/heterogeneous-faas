@@ -1,4 +1,4 @@
-package com.tomcoward.heterogeneousfaas.resourcemanager.database;
+package com.tomcoward.heterogeneousfaas.resourcemanager.database.tables;
 
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 

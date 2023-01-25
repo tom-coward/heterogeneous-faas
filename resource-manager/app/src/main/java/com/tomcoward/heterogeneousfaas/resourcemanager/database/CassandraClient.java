@@ -1,11 +1,11 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.database;
 
-import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
+import com.tomcoward.heterogeneousfaas.resourcemanager.database.tables.FunctionsTable;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.*;

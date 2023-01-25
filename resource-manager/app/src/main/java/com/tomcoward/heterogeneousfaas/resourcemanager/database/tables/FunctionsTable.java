@@ -1,9 +1,11 @@
-package com.tomcoward.heterogeneousfaas.resourcemanager.database;
+package com.tomcoward.heterogeneousfaas.resourcemanager.database.tables;
 
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.driver.api.core.type.DataTypes;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.tomcoward.heterogeneousfaas.resourcemanager.database.CassandraClient;
+import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.*;
