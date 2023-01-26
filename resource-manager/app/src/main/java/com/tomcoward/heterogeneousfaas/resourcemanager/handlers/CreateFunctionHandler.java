@@ -11,11 +11,9 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
-
 import javax.json.JsonObject;
 
 public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler {
-    private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private final Gson gson = new Gson();
 
     private final IFunctionRepository functionsRepo;
