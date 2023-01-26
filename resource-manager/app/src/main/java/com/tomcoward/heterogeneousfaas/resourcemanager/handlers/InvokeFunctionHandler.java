@@ -61,7 +61,6 @@ public class InvokeFunctionHandler implements HttpHandler {
             ArrayList<Worker> workers = new ArrayList<>();
             // TESTING: add k8s worker
 
-
             for (Worker worker : workers) {
                 if (!worker.isAvailable()) {
                     continue;

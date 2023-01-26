@@ -2,8 +2,6 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.models;
 
 import javax.json.JsonObject;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
@@ -14,8 +12,8 @@ public class Function {
     @CqlName("name")
     private String name;
 
-    @CqlName("source_code")
-    private ByteBuffer sourceCode;
+    @CqlName("source_code_path")
+    private String sourceCodePath;
     @CqlName("source_code_handler")
     private String sourceCodeHandler;
     /*
@@ -36,9 +34,9 @@ public class Function {
 
     public Function() {}
 
-    public Function(String name, ByteBuffer sourceCode, String sourceCodeHandler, String sourceCodeRuntime, boolean edgeSupported, boolean cloudAWSSupported) {
+    public Function(String name, String sourceCodePath, String sourceCodeHandler, String sourceCodeRuntime, boolean edgeSupported, boolean cloudAWSSupported) {
         this.name = name;
-        this.sourceCode = sourceCode;
+        this.sourceCodePath = sourceCodePath;
         this.sourceCodeHandler = sourceCodeHandler;
         this.sourceCodeRuntime = sourceCodeRuntime;
         this.edgeSupported = edgeSupported;
@@ -47,7 +45,7 @@ public class Function {
 
     public Function(JsonObject jsonObject) throws IOException {
         this.name = jsonObject.getString("name");
-        this.sourceCode = ByteBuffer.wrap(jsonObject.getString("source_code").getBytes());
+        this.sourceCodePath = jsonObject.getString("source_code_path");
         this.sourceCodeHandler = jsonObject.getString("source_code_handler");
         this.sourceCodeRuntime = jsonObject.getString("source_code_runtime");
         this.edgeSupported = jsonObject.getBoolean("edge_supported");
@@ -59,8 +57,8 @@ public class Function {
         return name;
     }
 
-    public ByteBuffer getSourceCode() {
-        return sourceCode;
+    public String getSourceCodePath() {
+        return sourceCodePath;
     }
 
     public String getSourceCodeHandler() {
@@ -87,8 +85,8 @@ public class Function {
         this.name = name;
     }
 
-    public void setSourceCode(ByteBuffer sourceCode) {
-        this.sourceCode = sourceCode;
+    public void setSourceCodePath(String sourceCodePath) {
+        this.sourceCodePath = sourceCodePath;
     }
 
     public void setSourceCodeRuntime(String sourceCodeRuntime) {

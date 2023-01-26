@@ -1,22 +1,11 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.database.tables;
 
-import com.datastax.oss.driver.api.core.ProtocolVersion;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
-import com.datastax.oss.driver.api.core.type.DataType;
 import com.datastax.oss.driver.api.core.type.DataTypes;
-
-import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
-import com.datastax.oss.driver.api.core.type.codec.registry.MutableCodecRegistry;
-import com.datastax.oss.driver.api.core.type.reflect.GenericType;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
-import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.*;
 
@@ -37,7 +26,7 @@ public class FunctionTable implements IDBTable {
             SimpleStatement statement = createTable(TABLE_NAME)
                     .ifNotExists()
                     .withPartitionKey("name", DataTypes.ASCII)
-                    .withColumn("source_code", DataTypes.BLOB)
+                    .withColumn("source_code_path", DataTypes.ASCII)
                     .withColumn("source_code_runtime", DataTypes.ASCII)
                     .withColumn("edge_supported", DataTypes.BOOLEAN)
                     .withColumn("cloud_aws_supported", DataTypes.BOOLEAN)
