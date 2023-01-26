@@ -36,6 +36,8 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
 
             Function function = createFunction(functionObject);
 
+            LOGGER.log(Level.INFO, String.format("CreateFunctionHandler functionName input: \"%s\"", function.getName()));
+
             String response = gson.toJson(function);
             HttpHelper.sendResponse(exchange, 200, response);
         } catch (DBClientException ex) {

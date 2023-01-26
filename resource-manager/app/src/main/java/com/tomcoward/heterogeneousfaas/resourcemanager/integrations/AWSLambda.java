@@ -12,9 +12,9 @@ import software.amazon.awssdk.services.lambda.model.FunctionCode;
 import software.amazon.awssdk.services.lambda.model.InvokeRequest;
 import software.amazon.awssdk.services.lambda.model.InvokeResponse;
 import javax.json.JsonObject;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.ZipInputStream;
 
 public class AWSLambda implements IWorkerIntegration {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -42,7 +42,7 @@ public class AWSLambda implements IWorkerIntegration {
     public Function createFunction(Function function) throws IntegrationException {
         try {
             // create zip file containing function source code files
-            ZipInputStream sourceCodeInputStream = new ZipInputStream(getClass().getClassLoader().getResourceAsStream(function.getSourceCodePath()));
+            InputStream sourceCodeInputStream = getClass().getClassLoader().getResourceAsStream(function.getSourceCodePath());
             SdkBytes sourceCodeZipFile = SdkBytes.fromInputStream(sourceCodeInputStream);
             sourceCodeInputStream.close();
 
@@ -111,6 +111,22 @@ public class AWSLambda implements IWorkerIntegration {
                     .build();
 
             CreateRoleResponse createRoleResponse = iamClient.createRole(createRoleRequest);
+
+            // Attach "AWSLambda_FullAccess" policy to role to allow it perms
+            AttachRolePolicyRequest attachFullAccessRolePolicyRequest = AttachRolePolicyRequest.builder()
+                    .roleName(AWS_IAM_ROLE_NAME)
+                    .policyArn("arn:aws:iam::aws:policy/AWSLambda_FullAccess")
+                    .build();
+
+            iamClient.attachRolePolicy(attachFullAccessRolePolicyRequest);
+
+            // Attach "AWSLambdaBasicExecutionRole" policy to role to allow it perms
+            AttachRolePolicyRequest attachExecutionRolePolicyRequest = AttachRolePolicyRequest.builder()
+                    .roleName(AWS_IAM_ROLE_NAME)
+                    .policyArn("arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole")
+                    .build();
+
+            iamClient.attachRolePolicy(attachExecutionRolePolicyRequest);
 
             return createRoleResponse.role().arn();
         } catch (EntityAlreadyExistsException ex) {
