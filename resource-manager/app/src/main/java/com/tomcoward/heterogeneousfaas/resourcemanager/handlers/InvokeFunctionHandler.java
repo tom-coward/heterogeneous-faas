@@ -56,19 +56,26 @@ public class InvokeFunctionHandler implements HttpHandler {
 
             Function function = functionsRepo.get(functionName);
 
-            // TODO: call ML Manager
+            // invoke in AWS
+            Worker awsWorker = new Worker(Worker.Host.CLOUD_AWS, Worker.Status.AVAILABLE);
+            String response = invokeWorker(awsWorker, function, functionPayload);
+
+            // TODO: call ML Manager to choose worker
+
             // returns list of worker types
-            ArrayList<Worker> workers = new ArrayList<>();
-            // TESTING: add k8s worker
+//            ArrayList<Worker> workers = new ArrayList<>();
+//            // TESTING: add k8s worker
+//
+//            for (Worker worker : workers) {
+//                if (!worker.isAvailable()) {
+//                    continue;
+//                }
+//
+//                invokeWorker(worker, function, functionPayload);
+//                // TODO: handle if no workers available
+//            }
 
-            for (Worker worker : workers) {
-                if (!worker.isAvailable()) {
-                    continue;
-                }
-
-                invokeWorker(worker, function, functionPayload);
-                // TODO: handle if no workers available
-            }
+            HttpHelper.sendResponse(exchange, 200, response);
         } catch (DBClientException ex) {
             // TODO: return error to client
             return;

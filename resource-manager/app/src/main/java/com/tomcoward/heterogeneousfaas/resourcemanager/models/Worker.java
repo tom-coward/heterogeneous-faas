@@ -43,6 +43,12 @@ public class Worker {
         this.status = status;
     }
 
+    public Worker(Host host, Status status) {
+        this.id = UUID.randomUUID();
+        this.host = host;
+        this.status = status;
+    }
+
 
     public UUID getId() {
         return id;
