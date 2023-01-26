@@ -2,7 +2,6 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.database;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import com.datastax.oss.driver.api.core.CqlIdentifier;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.InvalidKeyspaceException;
@@ -30,15 +29,13 @@ public class CassandraClient implements IDBClient {
 
         this.functionsTable = new FunctionTable(this);
 
+        up();
+
         FunctionsMapper functionsMapper = new FunctionsMapperBuilder(this.cqlSession).build();
         this.functionsDao = functionsMapper.functionsDao(CqlIdentifier.fromCql(KEYSPACE_NAME));
-
-        up();
     }
 
     public void up() throws DBClientException {
-        createKeyspace(this.cqlSession);
-
         functionsTable.up();
     }
 

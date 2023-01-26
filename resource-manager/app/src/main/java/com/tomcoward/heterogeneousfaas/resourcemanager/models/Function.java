@@ -2,6 +2,8 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.models;
 
 import javax.json.JsonObject;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
@@ -13,11 +15,18 @@ public class Function {
     private String name;
 
     @CqlName("source_code")
-    private byte[] sourceCode;
+    private ByteBuffer sourceCode;
     @CqlName("source_code_handler")
     private String sourceCodeHandler;
+    /*
+    Accepted source code runtimes (match AWS Lambda runtime IDs):
+    - nodejs18.x
+    - python3.9
+    - java11
+    - go1.x
+     */
     @CqlName("source_code_runtime")
-    private SourceCodeRuntime sourceCodeRuntime;
+    private String sourceCodeRuntime;
     @CqlName("edge_supported")
     private boolean edgeSupported;
     @CqlName("cloud_aws_supported")
@@ -25,26 +34,9 @@ public class Function {
     @CqlName("cloud_aws_arn")
     private String cloudAwsArn;
 
-    public enum SourceCodeRuntime {
-        NODEJS18 ("nodejs18.x"),
-        PYTHON39 ("python3.9"),
-        JAVA11 ("java11"),
-        GO1 ("go1.x");
-
-        private String awsRuntime;
-
-        SourceCodeRuntime(String awsRuntime) {
-            this.awsRuntime = awsRuntime;
-        }
-
-        public String getAwsRuntime() {
-            return this.awsRuntime;
-        }
-    }
-
     public Function() {}
 
-    public Function(String name, byte[] sourceCode, String sourceCodeHandler, SourceCodeRuntime sourceCodeRuntime, boolean edgeSupported, boolean cloudAWSSupported) {
+    public Function(String name, ByteBuffer sourceCode, String sourceCodeHandler, String sourceCodeRuntime, boolean edgeSupported, boolean cloudAWSSupported) {
         this.name = name;
         this.sourceCode = sourceCode;
         this.sourceCodeHandler = sourceCodeHandler;
@@ -55,9 +47,9 @@ public class Function {
 
     public Function(JsonObject jsonObject) throws IOException {
         this.name = jsonObject.getString("name");
-        this.sourceCode = jsonObject.getString("source_code").getBytes();
+        this.sourceCode = ByteBuffer.wrap(jsonObject.getString("source_code").getBytes());
         this.sourceCodeHandler = jsonObject.getString("source_code_handler");
-        this.sourceCodeRuntime = SourceCodeRuntime.valueOf(jsonObject.getString("source_code_runtime"));
+        this.sourceCodeRuntime = jsonObject.getString("source_code_runtime");
         this.edgeSupported = jsonObject.getBoolean("edge_supported");
         this.cloudAWSSupported = jsonObject.getBoolean("cloud_aws_supported");
     }
@@ -67,7 +59,7 @@ public class Function {
         return name;
     }
 
-    public byte[] getSourceCode() {
+    public ByteBuffer getSourceCode() {
         return sourceCode;
     }
 
@@ -75,7 +67,7 @@ public class Function {
         return sourceCodeHandler;
     }
 
-    public SourceCodeRuntime getSourceCodeRuntime() {
+    public String getSourceCodeRuntime() {
         return sourceCodeRuntime;
     }
 
@@ -95,11 +87,11 @@ public class Function {
         this.name = name;
     }
 
-    public void setSourceCode(byte[] sourceCode) {
+    public void setSourceCode(ByteBuffer sourceCode) {
         this.sourceCode = sourceCode;
     }
 
-    public void setSourceCodeRuntime(SourceCodeRuntime sourceCodeRuntime) {
+    public void setSourceCodeRuntime(String sourceCodeRuntime) {
         this.sourceCodeRuntime = sourceCodeRuntime;
     }
 

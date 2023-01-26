@@ -3,6 +3,7 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.handlers;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.logging.Logger;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
@@ -51,9 +52,9 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     private Function createFunction(JsonObject functionObject) throws IOException, DBClientException, IntegrationException {
         // get function details from request body
         String name = functionObject.getString("name");
-        byte[] sourceCode = functionObject.getString("source_code").getBytes();
+        ByteBuffer sourceCode = ByteBuffer.wrap(functionObject.getString("source_code").getBytes());
         String sourceCodeHandler = functionObject.getString("source_code_handler");
-        Function.SourceCodeRuntime sourceCodeRuntime = Function.SourceCodeRuntime.valueOf(functionObject.getString("source_code_runtime"));
+        String sourceCodeRuntime = functionObject.getString("source_code_runtime");
         boolean edgeSupported = functionObject.getBoolean("edge_supported");
         boolean cloudAWSSupported = functionObject.getBoolean("cloud_aws_supported");
 

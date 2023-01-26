@@ -34,7 +34,7 @@ public class AWSLambda implements IWorkerIntegration {
     public Function createFunction(Function function) throws IntegrationException {
         try {
             // create zip file containing function source code
-            ByteArrayInputStream sourceCodeInputStream = new ByteArrayInputStream(function.getSourceCode());
+            ByteArrayInputStream sourceCodeInputStream = new ByteArrayInputStream(function.getSourceCode().array());
             ZipInputStream zipFileInputStream = new ZipInputStream(sourceCodeInputStream);
             SdkBytes sourceCodeZipFile = SdkBytes.fromInputStream(zipFileInputStream);
             zipFileInputStream.close();
@@ -45,7 +45,7 @@ public class AWSLambda implements IWorkerIntegration {
 
             CreateFunctionRequest createFunctionRequest = CreateFunctionRequest.builder()
                     .functionName(function.getName())
-                    .runtime(function.getSourceCodeRuntime().getAwsRuntime())
+                    .runtime(function.getSourceCodeRuntime())
                     .code(functionCode)
                     .handler(function.getSourceCodeHandler())
                     .packageType("Zip")

@@ -2,13 +2,9 @@ package com.tomcoward.heterogeneousfaas.resourcemanager;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.sun.net.httpserver.HttpServer;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.CassandraClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
-import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.*;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
