@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
