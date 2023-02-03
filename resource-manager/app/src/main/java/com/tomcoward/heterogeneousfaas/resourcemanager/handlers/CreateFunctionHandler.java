@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
+import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSECR;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
@@ -19,11 +20,13 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     private final Gson gson = new Gson();
 
     private final IFunctionRepository functionsRepo;
+    private final AWSECR awsEcr;
     private final AWSLambda awsLambda;
     private final Kubernetes kubernetes;
 
-    public CreateFunctionHandler(IFunctionRepository functionsRepo, AWSLambda awsLambda, Kubernetes kubernetes) {
+    public CreateFunctionHandler(IFunctionRepository functionsRepo, AWSECR awsEcr, AWSLambda awsLambda, Kubernetes kubernetes) {
         this.functionsRepo = functionsRepo;
+        this.awsEcr = awsEcr;
         this.awsLambda = awsLambda;
         this.kubernetes = kubernetes;
     }
@@ -35,7 +38,7 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
 
             Function function = createFunction(functionObject);
 
-            LOGGER.log(Level.INFO, String.format("CreateFunctionHandler functionName input: \"%s\"", function.getName()));
+            LOGGER.log(Level.INFO, String.format("CreateFunctionHandler function created: \"%s\"", function.getName()));
 
             String response = gson.toJson(function);
             HttpHelper.sendResponse(exchange, 200, response);
@@ -52,16 +55,12 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     }
 
 
-    private Function createFunction(JsonObject functionObject) throws DBClientException, IntegrationException {
-        // get function details from request body
-        String name = functionObject.getString("name");
-        String sourceCodePath = functionObject.getString("source_code_path");
-        String sourceCodeHandler = functionObject.getString("source_code_handler");
-        String sourceCodeRuntime = functionObject.getString("source_code_runtime");
-        boolean edgeSupported = functionObject.getBoolean("edge_supported");
-        boolean cloudAWSSupported = functionObject.getBoolean("cloud_aws_supported");
+    private Function createFunction(JsonObject functionObject) throws DBClientException, IntegrationException, IOException {
+        Function function = new Function(functionObject);
 
-        Function function = new Function(name, sourceCodePath, sourceCodeHandler, sourceCodeRuntime, edgeSupported, cloudAWSSupported);
+        // build & push container image to AWS ECR (container registry)
+        String containerRegistryUri = awsEcr.publishContainer(function.getName(), function.getContainerPath());
+        function.setContainerRegistryUri(containerRegistryUri);
 
         // if aws supported, add to AWS Fargate
         if (function.isCloudAWSSupported()) {

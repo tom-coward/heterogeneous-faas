@@ -26,8 +26,11 @@ dependencies {
     implementation 'software.amazon.awssdk:lambda:2.19.21'
     implementation 'io.kubernetes:client-java:15.0.1'
     implementation 'com.google.code.gson:gson:2.10.1'
-    implementation 'javax.servlet:javax.servlet-api:4.0.1'
     implementation 'software.amazon.awssdk:iam:2.19.24'
+    implementation 'io.fabric8:knative-client:6.4.1'
+    implementation 'software.amazon.awssdk:ecr:2.19.28'
+    implementation 'com.github.docker-java:docker-java-core:3.2.14'
+    implementation 'com.github.docker-java:docker-java-transport-httpclient5:3.2.14'
 
     annotationProcessor group: 'com.datastax.oss', name: 'java-driver-mapper-processor', version: '4.15.0'
     runtimeOnly group: 'com.datastax.oss', name: 'java-driver-mapper-runtime', version: '4.15.0'

@@ -12,42 +12,29 @@ public class Function {
     @CqlName("name")
     private String name;
 
-    @CqlName("source_code_path")
-    private String sourceCodePath;
-    @CqlName("source_code_handler")
-    private String sourceCodeHandler;
-    /*
-    Accepted source code runtimes (match AWS Lambda runtime IDs):
-    - nodejs18.x
-    - python3.9
-    - java11
-    - go1.x
-     */
-    @CqlName("source_code_runtime")
-    private String sourceCodeRuntime;
+    @CqlName("container_path")
+    private String containerPath;
     @CqlName("edge_supported")
     private boolean edgeSupported;
     @CqlName("cloud_aws_supported")
     private boolean cloudAWSSupported;
+    @CqlName("container_registry_uri")
+    private String containerRegistryUri;
     @CqlName("cloud_aws_arn")
     private String cloudAwsArn;
 
     public Function() {}
 
-    public Function(String name, String sourceCodePath, String sourceCodeHandler, String sourceCodeRuntime, boolean edgeSupported, boolean cloudAWSSupported) {
+    public Function(String name, String containerPath, boolean edgeSupported, boolean cloudAWSSupported) {
         this.name = name;
-        this.sourceCodePath = sourceCodePath;
-        this.sourceCodeHandler = sourceCodeHandler;
-        this.sourceCodeRuntime = sourceCodeRuntime;
+        this.containerPath = containerPath;
         this.edgeSupported = edgeSupported;
         this.cloudAWSSupported = cloudAWSSupported;
     }
 
     public Function(JsonObject jsonObject) throws IOException {
         this.name = jsonObject.getString("name");
-        this.sourceCodePath = jsonObject.getString("source_code_path");
-        this.sourceCodeHandler = jsonObject.getString("source_code_handler");
-        this.sourceCodeRuntime = jsonObject.getString("source_code_runtime");
+        this.containerPath = jsonObject.getString("container_path");
         this.edgeSupported = jsonObject.getBoolean("edge_supported");
         this.cloudAWSSupported = jsonObject.getBoolean("cloud_aws_supported");
     }
@@ -57,20 +44,8 @@ public class Function {
         return name;
     }
 
-    public String getSourceCodePath() {
-        return sourceCodePath;
-    }
-
-    public String getSourceCodeHandler() {
-        return sourceCodeHandler;
-    }
-
-    public String getSourceCodeRuntime() {
-        return sourceCodeRuntime;
-    }
-
-    public String getCloudAwsArn() {
-        return cloudAwsArn;
+    public String getContainerPath() {
+        return containerPath;
     }
 
     public boolean isEdgeSupported() {
@@ -81,16 +56,20 @@ public class Function {
         return cloudAWSSupported;
     }
 
+    public String getContainerRegistryUri() {
+        return containerRegistryUri;
+    }
+
+    public String getCloudAwsArn() {
+        return cloudAwsArn;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setSourceCodePath(String sourceCodePath) {
-        this.sourceCodePath = sourceCodePath;
-    }
-
-    public void setSourceCodeRuntime(String sourceCodeRuntime) {
-        this.sourceCodeRuntime = sourceCodeRuntime;
+    public void setContainerPath(String containerPath) {
+        this.containerPath = containerPath;
     }
 
     public void setEdgeSupported(boolean edgeSupported) {
@@ -99,6 +78,10 @@ public class Function {
 
     public void setCloudAWSSupported(boolean cloudAWSSupported) {
         this.cloudAWSSupported = cloudAWSSupported;
+    }
+
+    public void setContainerRegistryUri(String containerRegistryUri) {
+        this.containerRegistryUri = containerRegistryUri;
     }
 
     public void setCloudAwsArn(String cloudAwsArn) {

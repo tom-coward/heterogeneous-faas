@@ -8,6 +8,7 @@ import com.sun.net.httpserver.HttpServer;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.CassandraClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.*;
+import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSECR;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.CassandraFunctionRepository;
@@ -20,6 +21,7 @@ public class App {
 
     private final IDBClient db;
 
+    private final AWSECR awsEcr;
     private final AWSLambda awsLambda;
     private final Kubernetes kubernetes;
 
@@ -29,7 +31,8 @@ public class App {
         // setup db client instance
         db = new CassandraClient();
 
-        // setup AWS Lambda & k8s clients
+        // setup AWS ECR/Lambda & k8s clients
+        awsEcr = new AWSECR();
         awsLambda = new AWSLambda();
         kubernetes = new Kubernetes();
 
@@ -65,7 +68,7 @@ public class App {
 
 
     private void addCreateFunctionRoute() {
-        server.createContext("/function", new CreateFunctionHandler(functionsRepo, awsLambda, kubernetes));
+        server.createContext("/function", new CreateFunctionHandler(functionsRepo, awsEcr, awsLambda, kubernetes));
     }
 
     private void addInvokeFunctionRoute() {
