@@ -4,7 +4,6 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
@@ -24,16 +23,12 @@ public class Docker {
                 .build();
     }
 
-    public void buildImage(String containerPath, String tag) throws IOException {
-        FileInputStream containerInputStream = new FileInputStream(containerPath);
-
+    public void buildImage(InputStream containerInputStream, String tag) throws IOException {
         DockerHttpClient.Request request = DockerHttpClient.Request.builder()
                 .method(DockerHttpClient.Request.Method.GET)
                 .path(String.format("/build?t=%s", tag))
                 .body(containerInputStream)
                 .build();
-
-        containerInputStream.close();
 
         dockerHttpClient.execute(request).close();
     }

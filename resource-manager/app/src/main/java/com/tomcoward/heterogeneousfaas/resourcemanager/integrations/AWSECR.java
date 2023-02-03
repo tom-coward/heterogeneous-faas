@@ -4,6 +4,7 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationExc
 import software.amazon.awssdk.services.ecr.EcrClient;
 import software.amazon.awssdk.services.ecr.model.CreateRepositoryRequest;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,9 +29,10 @@ public class AWSECR {
 
     public String publishContainer(String imageTag, String containerPath) throws IntegrationException {
         try {
+            InputStream containerInputStream = getClass().getClassLoader().getResourceAsStream(containerPath);
             String tag = String.format("%s/%s", repositoryUri, imageTag);
 
-            docker.buildImage(containerPath, tag);
+            docker.buildImage(containerInputStream, tag);
 
             docker.pushImageToECR(imageTag, tag);
 

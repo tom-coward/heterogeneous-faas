@@ -26,10 +26,10 @@ public class FunctionTable implements IDBTable {
             SimpleStatement statement = createTable(TABLE_NAME)
                     .ifNotExists()
                     .withPartitionKey("name", DataTypes.ASCII)
-                    .withColumn("source_code_path", DataTypes.ASCII)
-                    .withColumn("source_code_runtime", DataTypes.ASCII)
+                    .withColumn("container_path", DataTypes.ASCII)
                     .withColumn("edge_supported", DataTypes.BOOLEAN)
                     .withColumn("cloud_aws_supported", DataTypes.BOOLEAN)
+                    .withColumn("container_registry_uri", DataTypes.ASCII)
                     .withColumn("cloud_aws_arn", DataTypes.ASCII)
                     .build();
 

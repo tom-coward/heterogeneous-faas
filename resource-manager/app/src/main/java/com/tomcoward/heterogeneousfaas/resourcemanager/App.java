@@ -2,8 +2,6 @@ package com.tomcoward.heterogeneousfaas.resourcemanager;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.logging.Logger;
-
 import com.sun.net.httpserver.HttpServer;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.CassandraClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;

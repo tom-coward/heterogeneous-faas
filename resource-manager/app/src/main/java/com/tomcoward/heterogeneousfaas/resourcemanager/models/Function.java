@@ -20,6 +20,8 @@ public class Function {
     private boolean cloudAWSSupported;
     @CqlName("container_registry_uri")
     private String containerRegistryUri;
+    @CqlName("edge_knservice_name")
+    private String edgeKnServiceName;
     @CqlName("cloud_aws_arn")
     private String cloudAwsArn;
 
@@ -60,6 +62,10 @@ public class Function {
         return containerRegistryUri;
     }
 
+    public String getEdgeKnServiceName() {
+        return edgeKnServiceName;
+    }
+
     public String getCloudAwsArn() {
         return cloudAwsArn;
     }
@@ -82,6 +88,10 @@ public class Function {
 
     public void setContainerRegistryUri(String containerRegistryUri) {
         this.containerRegistryUri = containerRegistryUri;
+    }
+
+    public String setEdgeKnServiceName(String edgeKnServiceName) {
+        this.edgeKnServiceName = edgeKnServiceName;
     }
 
     public void setCloudAwsArn(String cloudAwsArn) {

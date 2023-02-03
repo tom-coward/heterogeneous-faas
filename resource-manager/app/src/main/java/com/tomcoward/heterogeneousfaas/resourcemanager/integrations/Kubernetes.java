@@ -32,18 +32,21 @@ public class Kubernetes implements IWorkerIntegration {
 
 
     public Function createFunction(Function function) throws IntegrationException {
-        createKnativeService(function.getContainerPath());
+        String serviceName = createKnativeService(function.getContainerPath());
+
+        function.setEdgeKnServiceName(serviceName);
 
         return function;
     }
 
     public String invokeFunction(Function function, JsonObject functionPayload) throws IntegrationException {
         // TODO
+        invokeKnativeService();
         return "";
     }
 
 
-    private void createKnativeService(String containerRegistryUri) throws IntegrationException {
+    private String createKnativeService(String containerRegistryUri) throws IntegrationException {
         Container serviceSpecContainer = new ContainerBuilder()
                 .withImage(containerRegistryUri)
                 .build();
@@ -61,5 +64,11 @@ public class Kubernetes implements IWorkerIntegration {
                 .build();
 
         knativeClient.services().inNamespace(KNATIVE_NAMESPACE).resource(service).create();
+
+        return service.getMetadata().getName();
+    }
+
+    private void invokeKnativeService() {
+
     }
 }
