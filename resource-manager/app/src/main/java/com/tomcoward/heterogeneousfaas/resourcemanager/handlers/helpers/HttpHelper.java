@@ -1,4 +1,4 @@
-package com.tomcoward.heterogeneousfaas.resourcemanager.handlers;
+package com.tomcoward.heterogeneousfaas.resourcemanager.handlers.helpers;
 
 import com.sun.net.httpserver.HttpExchange;
 import javax.json.Json;

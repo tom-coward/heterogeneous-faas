@@ -4,7 +4,6 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.*;
@@ -12,6 +11,7 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientExcept
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.FunctionException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.WorkerException;
+import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.helpers.HttpHelper;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;

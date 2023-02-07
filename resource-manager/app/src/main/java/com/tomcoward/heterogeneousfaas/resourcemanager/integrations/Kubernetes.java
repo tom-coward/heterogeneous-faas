@@ -51,13 +51,18 @@ public class Kubernetes implements IWorkerIntegration {
     }
 
 
-    private String createDockerImage(String sourceCodePath, String name) throws IOException {
-        // build & push container image to Docker registry
-        FileInputStream containerInputStream = new FileInputStream(sourceCodePath);
-        docker.buildImage(containerInputStream, name);
-        String containerRegistryUri = docker.pushImageToRegistry(name);
+    private String createDockerImage(String sourceCodePath, String name) throws IntegrationException {
+        try {
+            // build & push container image to Docker registry
+            FileInputStream containerInputStream = new FileInputStream(sourceCodePath);
+            docker.buildImage(containerInputStream, name);
+            String containerRegistryUri = docker.pushImageToRegistry(name);
 
-        return containerRegistryUri;
+            return containerRegistryUri;
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error creating Docker image", ex);
+            throw new IntegrationException("There was an error creating Docker image");
+        }
     }
 
     private String createKnativeService(String containerRegistryUri, String name) throws IntegrationException {

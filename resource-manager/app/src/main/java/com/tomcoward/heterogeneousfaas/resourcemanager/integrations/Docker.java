@@ -8,8 +8,6 @@ import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.callbacks.BuildImageCallback;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.callbacks.PushImageCallback;
-
-import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.Set;
@@ -49,14 +47,22 @@ public class Docker {
         }
     }
 
-    public String pushImageToRegistry(String tag) {
+    public String pushImageToRegistry(String imageId, String tag) {
         try {
-            dockerClient.pushImageCmd(tag)
+            String imageNameWithRepository = String.format("%s/%s", dockerClient.authConfig().getRegistryAddress(), imageId);
+            tagImage(imageId, imageNameWithRepository, tag);
+
+            dockerClient.pushImageCmd(imageNameWithRepository)
                     .exec(new PushImageCallback())
                     .awaitCompletion();
         } catch (InterruptedException ex) {
             LOGGER.log(Level.SEVERE, String.format("Pushing Docker image \"%s\" to registry was interrupted", tag));
-            pushImageToRegistry(tag); // retry
+            pushImageToRegistry(imageId, tag); // retry
         }
+    }
+
+    public void tagImage(String imageId, String imageNameWithRepository, String tag) {
+        dockerClient.tagImageCmd(imageId, imageNameWithRepository, tag)
+                .exec();
     }
 }

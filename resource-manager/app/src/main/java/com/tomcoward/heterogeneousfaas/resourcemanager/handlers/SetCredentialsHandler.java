@@ -2,6 +2,8 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.helpers.HttpHelper;
+
 import javax.json.JsonObject;
 import java.io.IOException;
 import java.util.logging.Logger;

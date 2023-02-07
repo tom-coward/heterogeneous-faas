@@ -3,12 +3,12 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.handlers;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
+import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.helpers.HttpHelper;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Docker;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
