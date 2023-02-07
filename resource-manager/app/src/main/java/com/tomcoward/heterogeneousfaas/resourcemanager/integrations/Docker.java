@@ -37,7 +37,7 @@ public class Docker {
     }
 
 
-    public void buildImage(InputStream containerInputStream, String tag) throws IOException {
+    public void buildImage(InputStream containerInputStream, String tag) {
         try {
             dockerClient.buildImageCmd(containerInputStream)
                     .withTags(Set.of(tag))

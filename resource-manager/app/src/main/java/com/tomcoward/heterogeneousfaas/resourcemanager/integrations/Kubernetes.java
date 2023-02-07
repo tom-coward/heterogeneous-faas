@@ -9,12 +9,9 @@ import io.fabric8.knative.serving.v1.ServiceBuilder;
 import io.fabric8.knative.serving.v1.ServiceSpec;
 import io.fabric8.knative.serving.v1.ServiceSpecBuilder;
 import io.fabric8.kubernetes.api.model.*;
-
 import javax.json.JsonObject;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,7 +20,6 @@ public class Kubernetes implements IWorkerIntegration {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private final static String KNATIVE_NAMESPACE = "default";
-    private final static String IMAGE_PULL_POLICY_NAME = "heterogeneous-faas-image-pull-policy";
 
     private final Docker docker;
     private final KnativeClient knativeClient;
