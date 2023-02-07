@@ -12,14 +12,16 @@ public class Function {
     @CqlName("name")
     private String name;
 
-    @CqlName("container_path")
-    private String containerPath;
+    @CqlName("source_code_path")
+    private String sourceCodePath;
+    @CqlName("source_code_runtime")
+    private String sourceCodeRuntime;
+    @CqlName("source_code_handler")
+    private String sourceCodeHandler;
     @CqlName("edge_supported")
     private boolean edgeSupported;
     @CqlName("cloud_aws_supported")
     private boolean cloudAWSSupported;
-    @CqlName("container_registry_uri")
-    private String containerRegistryUri;
     @CqlName("edge_knservice_name")
     private String edgeKnServiceName;
     @CqlName("cloud_aws_arn")
@@ -27,16 +29,11 @@ public class Function {
 
     public Function() {}
 
-    public Function(String name, String containerPath, boolean edgeSupported, boolean cloudAWSSupported) {
-        this.name = name;
-        this.containerPath = containerPath;
-        this.edgeSupported = edgeSupported;
-        this.cloudAWSSupported = cloudAWSSupported;
-    }
-
     public Function(JsonObject jsonObject) throws IOException {
         this.name = jsonObject.getString("name");
-        this.containerPath = jsonObject.getString("container_path");
+        this.sourceCodePath = jsonObject.getString("source_code_path");
+        this.sourceCodeRuntime = jsonObject.getString("source_code_runtime");
+        this.sourceCodeHandler = jsonObject.getString("source_code_handler");
         this.edgeSupported = jsonObject.getBoolean("edge_supported");
         this.cloudAWSSupported = jsonObject.getBoolean("cloud_aws_supported");
     }
@@ -46,8 +43,16 @@ public class Function {
         return name;
     }
 
-    public String getContainerPath() {
-        return containerPath;
+    public String getSourceCodePath() {
+        return sourceCodePath;
+    }
+
+    public String getSourceCodeRuntime() {
+        return sourceCodeRuntime;
+    }
+
+    public String getSourceCodeHandler() {
+        return sourceCodeHandler;
     }
 
     public boolean isEdgeSupported() {
@@ -58,10 +63,6 @@ public class Function {
         return cloudAWSSupported;
     }
 
-    public String getContainerRegistryUri() {
-        return containerRegistryUri;
-    }
-
     public String getEdgeKnServiceName() {
         return edgeKnServiceName;
     }
@@ -70,12 +71,21 @@ public class Function {
         return cloudAwsArn;
     }
 
+
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setContainerPath(String containerPath) {
-        this.containerPath = containerPath;
+    public void setSourceCodePath(String sourceCodePath) {
+        this.sourceCodePath = sourceCodePath;
+    }
+
+    public void setSourceCodeRuntime(String sourceCodeRuntime) {
+        this.sourceCodeRuntime = sourceCodeRuntime;
+    }
+
+    public void setSourceCodeHandler(String sourceCodeHandler) {
+        this.sourceCodeHandler = sourceCodeHandler;
     }
 
     public void setEdgeSupported(boolean edgeSupported) {
@@ -86,11 +96,7 @@ public class Function {
         this.cloudAWSSupported = cloudAWSSupported;
     }
 
-    public void setContainerRegistryUri(String containerRegistryUri) {
-        this.containerRegistryUri = containerRegistryUri;
-    }
-
-    public String setEdgeKnServiceName(String edgeKnServiceName) {
+    public void setEdgeKnServiceName(String edgeKnServiceName) {
         this.edgeKnServiceName = edgeKnServiceName;
     }
 

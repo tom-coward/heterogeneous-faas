@@ -1,0 +1,1 @@
+docker run -d -p 2376:2376 --restart=always --name registry registry:2

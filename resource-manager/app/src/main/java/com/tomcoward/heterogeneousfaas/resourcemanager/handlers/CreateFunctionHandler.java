@@ -2,13 +2,15 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.handlers;
 
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
+
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
-import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSECR;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
+import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Docker;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
@@ -20,13 +22,13 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     private final Gson gson = new Gson();
 
     private final IFunctionRepository functionsRepo;
-    private final AWSECR awsEcr;
+    private final Docker docker;
     private final AWSLambda awsLambda;
     private final Kubernetes kubernetes;
 
-    public CreateFunctionHandler(IFunctionRepository functionsRepo, AWSECR awsEcr, AWSLambda awsLambda, Kubernetes kubernetes) {
+    public CreateFunctionHandler(IFunctionRepository functionsRepo, Docker docker, AWSLambda awsLambda, Kubernetes kubernetes) {
         this.functionsRepo = functionsRepo;
-        this.awsEcr = awsEcr;
+        this.docker = docker;
         this.awsLambda = awsLambda;
         this.kubernetes = kubernetes;
     }
@@ -58,11 +60,7 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     private Function createFunction(JsonObject functionObject) throws DBClientException, IntegrationException, IOException {
         Function function = new Function(functionObject);
 
-        // build & push container image to AWS ECR (container registry)
-        String containerRegistryUri = awsEcr.publishContainer(function.getName(), function.getContainerPath());
-        function.setContainerRegistryUri(containerRegistryUri);
-
-        // if aws supported, add to AWS Fargate
+        // if aws supported, add to AWS Lambda
         if (function.isCloudAWSSupported()) {
             function = awsLambda.createFunction(function);
         }
