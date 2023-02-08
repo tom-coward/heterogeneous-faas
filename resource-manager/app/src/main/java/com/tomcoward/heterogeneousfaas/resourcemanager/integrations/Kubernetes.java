@@ -11,6 +11,7 @@ import io.fabric8.knative.serving.v1.ServiceSpecBuilder;
 import io.fabric8.kubernetes.api.model.*;
 import javax.json.JsonObject;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,8 +54,8 @@ public class Kubernetes implements IWorkerIntegration {
     private String createDockerImage(String sourceCodePath, String name) throws IntegrationException {
         try {
             // build & push container image to Docker registry
-            FileInputStream containerInputStream = new FileInputStream(sourceCodePath);
-            docker.buildImage(containerInputStream, name);
+            InputStream sourceCodeInputStream = getClass().getClassLoader().getResourceAsStream(sourceCodePath);
+            docker.buildImage(sourceCodeInputStream, name);
             String containerRegistryUri = docker.pushImageToRegistry(name);
 
             return containerRegistryUri;
@@ -69,6 +70,7 @@ public class Kubernetes implements IWorkerIntegration {
                 .withName(name)
                 .build();
 
+        // TODO: can define resource limits of service pods (cpu & memory) here
         Container serviceSpecContainer = new ContainerBuilder()
                 .withImage(containerRegistryUri)
                 .build();
