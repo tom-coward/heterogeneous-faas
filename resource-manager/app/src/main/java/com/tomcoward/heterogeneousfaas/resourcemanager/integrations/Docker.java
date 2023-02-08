@@ -47,17 +47,17 @@ public class Docker {
         }
     }
 
-    public String pushImageToRegistry(String imageId, String tag) {
+    public String pushImageToRegistry(String imageId) {
         try {
             String imageNameWithRepository = String.format("%s/%s", dockerClient.authConfig().getRegistryAddress(), imageId);
-            tagImage(imageId, imageNameWithRepository, tag);
+            tagImage(imageId, imageNameWithRepository, imageNameWithRepository);
 
             dockerClient.pushImageCmd(imageNameWithRepository)
                     .exec(new PushImageCallback())
                     .awaitCompletion();
         } catch (InterruptedException ex) {
             LOGGER.log(Level.SEVERE, String.format("Pushing Docker image \"%s\" to registry was interrupted", tag));
-            pushImageToRegistry(imageId, tag); // retry
+            pushImageToRegistry(imageId); // retry
         }
     }
 
