@@ -55,9 +55,11 @@ public class Docker {
             dockerClient.pushImageCmd(imageNameWithRepository)
                     .exec(new PushImageCallback())
                     .awaitCompletion();
+
+            return imageNameWithRepository;
         } catch (InterruptedException ex) {
-            LOGGER.log(Level.SEVERE, String.format("Pushing Docker image \"%s\" to registry was interrupted", tag));
-            pushImageToRegistry(imageId); // retry
+            LOGGER.log(Level.SEVERE, String.format("Pushing Docker image \"%s\" to registry was interrupted", imageId));
+            return pushImageToRegistry(imageId); // retry
         }
     }
 
