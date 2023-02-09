@@ -9,7 +9,6 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientExcept
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.helpers.HttpHelper;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
-import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Docker;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
@@ -21,13 +20,11 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     private final Gson gson = new Gson();
 
     private final IFunctionRepository functionsRepo;
-    private final Docker docker;
     private final AWSLambda awsLambda;
     private final Kubernetes kubernetes;
 
-    public CreateFunctionHandler(IFunctionRepository functionsRepo, Docker docker, AWSLambda awsLambda, Kubernetes kubernetes) {
+    public CreateFunctionHandler(IFunctionRepository functionsRepo, AWSLambda awsLambda, Kubernetes kubernetes) {
         this.functionsRepo = functionsRepo;
-        this.docker = docker;
         this.awsLambda = awsLambda;
         this.kubernetes = kubernetes;
     }

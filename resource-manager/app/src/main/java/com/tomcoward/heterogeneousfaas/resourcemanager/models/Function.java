@@ -12,12 +12,8 @@ public class Function {
     @CqlName("name")
     private String name;
 
-    @CqlName("source_code_path")
-    private String sourceCodePath;
-    @CqlName("source_code_runtime")
-    private String sourceCodeRuntime;
-    @CqlName("source_code_handler")
-    private String sourceCodeHandler;
+    @CqlName("container_registry_uri")
+    private String containerRegistryUri;
     @CqlName("edge_supported")
     private boolean edgeSupported;
     @CqlName("cloud_aws_supported")
@@ -31,9 +27,7 @@ public class Function {
 
     public Function(JsonObject jsonObject) throws IOException {
         this.name = jsonObject.getString("name");
-        this.sourceCodePath = jsonObject.getString("source_code_path");
-        this.sourceCodeRuntime = jsonObject.getString("source_code_runtime");
-        this.sourceCodeHandler = jsonObject.getString("source_code_handler");
+        this.containerRegistryUri = jsonObject.getString("container_registry_uri");
         this.edgeSupported = jsonObject.getBoolean("edge_supported");
         this.cloudAWSSupported = jsonObject.getBoolean("cloud_aws_supported");
     }
@@ -43,16 +37,8 @@ public class Function {
         return name;
     }
 
-    public String getSourceCodePath() {
-        return sourceCodePath;
-    }
-
-    public String getSourceCodeRuntime() {
-        return sourceCodeRuntime;
-    }
-
-    public String getSourceCodeHandler() {
-        return sourceCodeHandler;
+    public String getContainerRegistryUri() {
+        return containerRegistryUri;
     }
 
     public boolean isEdgeSupported() {
@@ -76,16 +62,8 @@ public class Function {
         this.name = name;
     }
 
-    public void setSourceCodePath(String sourceCodePath) {
-        this.sourceCodePath = sourceCodePath;
-    }
-
-    public void setSourceCodeRuntime(String sourceCodeRuntime) {
-        this.sourceCodeRuntime = sourceCodeRuntime;
-    }
-
-    public void setSourceCodeHandler(String sourceCodeHandler) {
-        this.sourceCodeHandler = sourceCodeHandler;
+    public void setContainerRegistryUri(String containerRegistryUri) {
+        this.containerRegistryUri = containerRegistryUri;
     }
 
     public void setEdgeSupported(boolean edgeSupported) {

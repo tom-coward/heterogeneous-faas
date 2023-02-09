@@ -21,12 +21,10 @@ public class Kubernetes implements IWorkerIntegration {
 
     private final static String KNATIVE_NAMESPACE = "default";
 
-    private final Docker docker;
     private final KnativeClient knativeClient;
 
-    public Kubernetes(Docker docker) throws IntegrationException {
+    public Kubernetes() throws IntegrationException {
         try {
-            this.docker = docker;
             this.knativeClient = new DefaultKnativeClient();
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error initialising Kubernetes integration", ex);
@@ -35,10 +33,8 @@ public class Kubernetes implements IWorkerIntegration {
     }
 
 
-    public Function createFunction(Function function) throws IntegrationException {
-        String containerRegistryUri = createDockerImage(function.getSourceCodePath(), function.getName());
-
-        String serviceName = createKnativeService(containerRegistryUri, function.getName());
+    public Function createFunction(Function function) {
+        String serviceName = createKnativeService(function.getContainerRegistryUri(), function.getName());
 
         function.setEdgeKnServiceName(serviceName);
 
@@ -51,21 +47,7 @@ public class Kubernetes implements IWorkerIntegration {
     }
 
 
-    private String createDockerImage(String sourceCodePath, String name) throws IntegrationException {
-        try {
-            // build & push container image to Docker registry
-            InputStream sourceCodeInputStream = getClass().getClassLoader().getResourceAsStream(sourceCodePath);
-            docker.buildImage(sourceCodeInputStream, name);
-            String containerRegistryUri = docker.pushImageToRegistry(name);
-
-            return containerRegistryUri;
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Error creating Docker image", ex);
-            throw new IntegrationException("There was an error creating Docker image");
-        }
-    }
-
-    private String createKnativeService(String containerRegistryUri, String name) throws IntegrationException {
+    private String createKnativeService(String containerRegistryUri, String name) {
         ObjectMeta metadata = new ObjectMetaBuilder()
                 .withName(name)
                 .build();
@@ -79,6 +61,7 @@ public class Kubernetes implements IWorkerIntegration {
                 .withNewTemplate()
                 .withNewSpec()
                 .withContainers(serviceSpecContainer)
+                .withServiceAccountName("builder")
                 .endSpec()
                 .endTemplate()
                 .build();
