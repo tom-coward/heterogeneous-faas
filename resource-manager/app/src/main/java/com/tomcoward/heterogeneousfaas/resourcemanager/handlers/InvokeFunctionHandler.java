@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.*;
-
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.*;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.helpers.HttpHelper;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
