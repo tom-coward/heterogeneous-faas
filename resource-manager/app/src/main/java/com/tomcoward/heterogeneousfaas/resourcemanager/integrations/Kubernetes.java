@@ -77,7 +77,7 @@ public class Kubernetes implements IWorkerIntegration {
 
         knativeClient.services().inNamespace(KNATIVE_NAMESPACE).resource(service).create();
 
-        return String.format("http://%s.%s.%s", service.getMetadata().getName(), service.getMetadata().getNamespace(), KNATIVE_URI);
+        return String.format("http://%s.%s.%s", service.getMetadata().getName(), KNATIVE_NAMESPACE, KNATIVE_URI);
     }
 
     private String invokeKnativeService(String serviceUri, String method, String functionPayload) throws IntegrationException {
