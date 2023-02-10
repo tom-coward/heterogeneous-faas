@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.*;
@@ -50,6 +52,8 @@ public class InvokeFunctionHandler implements HttpHandler {
             String response = invokeFunction(functionName, functionPayload);
 
             HttpHelper.sendResponse(exchange, 200, response);
+
+            recordFunctionExecution(functionName, );
         } catch (DBClientException ex) {
             // return error to client
             HttpHelper.sendResponse(exchange, 500, ex.getMessage());
@@ -64,6 +68,8 @@ public class InvokeFunctionHandler implements HttpHandler {
 
     private String invokeFunction(String functionName, JsonObject functionPayload) throws DBClientException, WorkerException, IntegrationException {
         Function function = functionsRepo.get(functionName);
+
+        Instant invocationStartTime = Instant.now();
 
         // invoke in AWS
         Worker worker = new Worker(Worker.Host.CLOUD_AWS, Worker.Status.AVAILABLE);
@@ -87,10 +93,16 @@ public class InvokeFunctionHandler implements HttpHandler {
 //                // TODO: handle if no workers available
 //            }
 
-        String response = gson.toJson(invokeWorker(worker, function, functionPayload));
+        String response = invokeWorker(worker, function, functionPayload);
 
-        LOGGER.log(Level.INFO, String.format("%s invocation response: %s", function.getName(), response));
-        return response;
+        Instant invocationEndTime = Instant.now();
+
+        long invocationDuration = Duration.between(invocationStartTime, invocationEndTime).toMillis();
+
+        LOGGER.log(Level.INFO, String.format("%s invocation response in %dms: %s", function.getName(), invocationDuration, response));
+
+        String responseJson = gson.toJson(response);
+        return responseJson;
     }
 
     private String invokeWorker(Worker worker, Function function, JsonObject functionPayload) throws WorkerException, IntegrationException {
@@ -102,5 +114,9 @@ public class InvokeFunctionHandler implements HttpHandler {
             default:
                 throw new WorkerException("The host of the function's selected worker could not be found");
         }
+    }
+
+    private void recordFunctionExecution(String functionName, long executionTime) {
+        //
     }
 }
