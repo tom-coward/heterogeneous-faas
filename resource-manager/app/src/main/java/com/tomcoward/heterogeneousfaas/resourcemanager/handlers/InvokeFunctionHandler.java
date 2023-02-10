@@ -1,9 +1,9 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.handlers;
 
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.*;
@@ -18,6 +18,8 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRep
 public class InvokeFunctionHandler implements HttpHandler {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
+    private final Gson gson = new Gson();
+
     private final IFunctionRepository functionsRepo;
     private final AWSLambda awsLambda;
     private final Kubernetes kubernetes;
@@ -31,22 +33,16 @@ public class InvokeFunctionHandler implements HttpHandler {
 
     public void handle(HttpExchange exchange) throws IOException {
         try {
-            InputStream requestBody = exchange.getRequestBody();
-
-            // deserialize json from request body
-            JsonReader jsonReader = Json.createReader(requestBody);
-            JsonObject jsonObject = jsonReader.readObject();
-            requestBody.close();
-            jsonReader.close();
+            JsonObject requestBody = HttpHelper.getRequestBody(exchange, null);
 
             // get name of function to be invoked
-            String functionName = jsonObject.getString("function_name");
+            String functionName = requestBody.getString("function_name");
             if (functionName == null || functionName.trim().isEmpty()) {
                 throw new FunctionException(String.format("No function with the name %s exists to be invoked", functionName));
             }
 
             // get payload of function (if any)
-            JsonObject functionPayload = jsonObject.getJsonObject("function_payload");
+            JsonObject functionPayload = requestBody.getJsonObject("function_payload");
 
             LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionName input: \"%s\"", functionName));
             LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionPayload input: \"%s\"", functionPayload.toString()));
@@ -54,12 +50,11 @@ public class InvokeFunctionHandler implements HttpHandler {
             Function function = functionsRepo.get(functionName);
 
             // invoke in AWS
-            Worker awsWorker = new Worker(Worker.Host.CLOUD_AWS, Worker.Status.AVAILABLE);
-            String lambdaResponse = invokeWorker(awsWorker, function, functionPayload);
+            Worker worker = new Worker(Worker.Host.CLOUD_AWS, Worker.Status.AVAILABLE);
 
             // invoke in Kubernetes
-            Worker k8sWorker = new Worker(Worker.Host.EDGE_KUBERNETES, Worker.Status.AVAILABLE);
-            String knativeResponse = invokeWorker(k8sWorker, function, functionPayload);
+            //Worker k8sWorker = new Worker(Worker.Host.EDGE_KUBERNETES, Worker.Status.AVAILABLE);
+            //String knativeResponse = invokeWorker(k8sWorker, function, functionPayload);
 
             // TODO: call ML Manager to choose worker
 
@@ -76,7 +71,10 @@ public class InvokeFunctionHandler implements HttpHandler {
 //                // TODO: handle if no workers available
 //            }
 
-            HttpHelper.sendResponse(exchange, 200, lambdaResponse);
+            String response = gson.toJson(invokeWorker(worker, function, functionPayload));
+
+            LOGGER.log(Level.INFO, String.format("%s invocation response: %s", function.getName(), response));
+            HttpHelper.sendResponse(exchange, 200, response);
         } catch (DBClientException ex) {
             // return error to client
             HttpHelper.sendResponse(exchange, 500, ex.getMessage());

@@ -19,7 +19,12 @@ public class HttpHelper {
         jsonReader.close();
 
         // create json object
-        JsonObject jsonRequestBody = jsonObject.getJsonObject(jsonObjectName);
+        JsonObject jsonRequestBody;
+        if (jsonObjectName != null && jsonObjectName != "") {
+            jsonRequestBody = jsonObject.getJsonObject(jsonObjectName);
+        } else {
+            jsonRequestBody = jsonObject;
+        }
 
         return jsonRequestBody;
     }
