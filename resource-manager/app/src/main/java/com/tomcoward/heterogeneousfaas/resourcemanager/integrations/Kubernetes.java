@@ -10,9 +10,10 @@ import io.fabric8.knative.serving.v1.ServiceSpec;
 import io.fabric8.knative.serving.v1.ServiceSpecBuilder;
 import io.fabric8.kubernetes.api.model.*;
 import javax.json.JsonObject;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Optional;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,12 +21,16 @@ public class Kubernetes implements IWorkerIntegration {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private final static String KNATIVE_NAMESPACE = "default";
+    private final static String KNATIVE_URI = "127.0.0.1.sslip.io";
 
     private final KnativeClient knativeClient;
+    private final HttpClient httpClient;
 
     public Kubernetes() throws IntegrationException {
         try {
             this.knativeClient = new DefaultKnativeClient();
+            this.httpClient = HttpClient.newBuilder()
+                    .build();
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error initialising Kubernetes integration", ex);
             throw new IntegrationException("There was an error connecting to the Kubernetes cluster");
@@ -34,16 +39,15 @@ public class Kubernetes implements IWorkerIntegration {
 
 
     public Function createFunction(Function function) {
-        String serviceName = createKnativeService(function.getContainerRegistryUri(), function.getName());
+        String serviceUri = createKnativeService(function.getContainerRegistryUri(), function.getName());
 
-        function.setEdgeKnServiceName(serviceName);
+        function.setEdgeKnServiceUri(serviceUri);
 
         return function;
     }
 
-    public String invokeFunction(Function function, JsonObject functionPayload) throws IntegrationException {
-        invokeKnativeService(function.getEdgeKnServiceName());
-        return "";
+    public String invokeFunction(Function function, String method, JsonObject functionPayload) throws IntegrationException {
+        return invokeKnativeService(function.getEdgeKnServiceUri(), method, functionPayload.toString());
     }
 
 
@@ -73,15 +77,28 @@ public class Kubernetes implements IWorkerIntegration {
 
         knativeClient.services().inNamespace(KNATIVE_NAMESPACE).resource(service).create();
 
-        return service.getMetadata().getName();
+        return String.format("http://%s.%s.%s", service.getMetadata().getName(), service.getMetadata().getNamespace(), KNATIVE_URI);
     }
 
-    private void invokeKnativeService(String serviceName) throws IntegrationException {
-        Optional<Service> service = knativeClient.services().inNamespace(KNATIVE_NAMESPACE).list().getItems().stream().filter(x -> x.getMetadata().getName().equals(serviceName)).findFirst();
-        if (service.isEmpty()) {
-            throw new IntegrationException(String.format("No Knative service with the name %s could be found", serviceName));
-        }
+    private String invokeKnativeService(String serviceUri, String method, String functionPayload) throws IntegrationException {
+        try {
+            HttpRequest httpRequest = HttpRequest.newBuilder()
+                    .uri(new URI(serviceUri))
+                    .method(method, HttpRequest.BodyPublishers.ofString(functionPayload))
+                    .build();
 
-        knativeClient.services().inNamespace(KNATIVE_NAMESPACE).resource(service.get()).item();
+            HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+            if (httpResponse.statusCode() != 200 || httpResponse.statusCode() != 204) {
+                String errorMessage = String.format("Function invocation failed. Status code: %s, body: %s", String.valueOf(httpResponse.statusCode()), httpResponse.body());
+                LOGGER.log(Level.WARNING, errorMessage);
+                throw new IntegrationException(errorMessage);
+            }
+
+            return httpResponse.body();
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error sending HTTP request to Knative (k8s) service", ex);
+            throw new IntegrationException("There was an error invoking the function");
+        }
     }
 }

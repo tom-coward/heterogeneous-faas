@@ -18,8 +18,8 @@ public class Function {
     private boolean edgeSupported;
     @CqlName("cloud_aws_supported")
     private boolean cloudAWSSupported;
-    @CqlName("edge_knservice_name")
-    private String edgeKnServiceName;
+    @CqlName("edge_knservice_uri")
+    private String edgeKnServiceUri;
     @CqlName("cloud_aws_arn")
     private String cloudAwsArn;
 
@@ -49,8 +49,8 @@ public class Function {
         return cloudAWSSupported;
     }
 
-    public String getEdgeKnServiceName() {
-        return edgeKnServiceName;
+    public String getEdgeKnServiceUri() {
+        return edgeKnServiceUri;
     }
 
     public String getCloudAwsArn() {
@@ -74,8 +74,8 @@ public class Function {
         this.cloudAWSSupported = cloudAWSSupported;
     }
 
-    public void setEdgeKnServiceName(String edgeKnServiceName) {
-        this.edgeKnServiceName = edgeKnServiceName;
+    public void setEdgeKnServiceUri(String edgeKnServiceUri) {
+        this.edgeKnServiceUri = edgeKnServiceUri;
     }
 
     public void setCloudAwsArn(String cloudAwsArn) {

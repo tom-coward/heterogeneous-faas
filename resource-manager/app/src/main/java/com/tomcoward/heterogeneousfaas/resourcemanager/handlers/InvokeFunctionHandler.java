@@ -7,10 +7,8 @@ import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.*;
-import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
-import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.FunctionException;
-import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
-import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.WorkerException;
+
+import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.*;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.helpers.HttpHelper;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
@@ -58,7 +56,11 @@ public class InvokeFunctionHandler implements HttpHandler {
 
             // invoke in AWS
             Worker awsWorker = new Worker(Worker.Host.CLOUD_AWS, Worker.Status.AVAILABLE);
-            String response = invokeWorker(awsWorker, function, functionPayload);
+            String lambdaResponse = invokeWorker(awsWorker, function, functionPayload);
+
+            // invoke in Kubernetes
+            Worker k8sWorker = new Worker(Worker.Host.EDGE_KUBERNETES, Worker.Status.AVAILABLE);
+            String knativeResponse = invokeWorker(k8sWorker, function, functionPayload);
 
             // TODO: call ML Manager to choose worker
 
@@ -75,13 +77,16 @@ public class InvokeFunctionHandler implements HttpHandler {
 //                // TODO: handle if no workers available
 //            }
 
-            HttpHelper.sendResponse(exchange, 200, response);
+            HttpHelper.sendResponse(exchange, 200, lambdaResponse);
         } catch (DBClientException ex) {
-            // TODO: return error to client
-            return;
+            // return error to client
+            HttpHelper.sendResponse(exchange, 500, ex.getMessage());
+        } catch (FunctionInvocationException ex) {
+            // return function invocation error to client
+            HttpHelper.sendResponse(exchange, ex.getHttpErrorCode(), ex.getMessage());
         } catch (Exception ex) {
-            // TODO: return error to client
-            return;
+            // return error to client
+            HttpHelper.sendResponse(exchange, 500, ex.getMessage());
         }
     }
 
