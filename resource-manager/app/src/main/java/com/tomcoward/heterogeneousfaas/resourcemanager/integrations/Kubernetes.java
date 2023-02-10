@@ -1,5 +1,6 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 
+import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.FunctionInvocationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import io.fabric8.knative.client.DefaultKnativeClient;
@@ -90,9 +91,9 @@ public class Kubernetes implements IWorkerIntegration {
             HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
             if (httpResponse.statusCode() != 200 || httpResponse.statusCode() != 204) {
-                String errorMessage = String.format("Function invocation failed. Status code: %s, body: %s", String.valueOf(httpResponse.statusCode()), httpResponse.body());
+                String errorMessage = String.format("Function invocation failed. Status code: %d, body: %s", httpResponse.statusCode(), httpResponse.body());
                 LOGGER.log(Level.WARNING, errorMessage);
-                throw new IntegrationException(errorMessage);
+                throw new FunctionInvocationException(errorMessage, httpResponse.statusCode());
             }
 
             return httpResponse.body();
