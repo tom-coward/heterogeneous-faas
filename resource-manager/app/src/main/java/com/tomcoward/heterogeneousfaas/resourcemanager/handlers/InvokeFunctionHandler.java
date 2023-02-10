@@ -47,18 +47,34 @@ public class InvokeFunctionHandler implements HttpHandler {
             LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionName input: \"%s\"", functionName));
             LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionPayload input: \"%s\"", functionPayload.toString()));
 
-            Function function = functionsRepo.get(functionName);
+            String response = invokeFunction(functionName, functionPayload);
 
-            // invoke in AWS
-            Worker worker = new Worker(Worker.Host.CLOUD_AWS, Worker.Status.AVAILABLE);
+            HttpHelper.sendResponse(exchange, 200, response);
+        } catch (DBClientException ex) {
+            // return error to client
+            HttpHelper.sendResponse(exchange, 500, ex.getMessage());
+        } catch (FunctionInvocationException ex) {
+            // return function invocation error to client
+            HttpHelper.sendResponse(exchange, ex.getHttpErrorCode(), ex.getMessage());
+        } catch (Exception ex) {
+            // return error to client
+            HttpHelper.sendResponse(exchange, 500, ex.getMessage());
+        }
+    }
 
-            // invoke in Kubernetes
-            //Worker k8sWorker = new Worker(Worker.Host.EDGE_KUBERNETES, Worker.Status.AVAILABLE);
-            //String knativeResponse = invokeWorker(k8sWorker, function, functionPayload);
+    private String invokeFunction(String functionName, JsonObject functionPayload) throws DBClientException, WorkerException, IntegrationException {
+        Function function = functionsRepo.get(functionName);
 
-            // TODO: call ML Manager to choose worker
+        // invoke in AWS
+        Worker worker = new Worker(Worker.Host.CLOUD_AWS, Worker.Status.AVAILABLE);
 
-            // returns list of worker types
+        // invoke in Kubernetes
+        //Worker k8sWorker = new Worker(Worker.Host.EDGE_KUBERNETES, Worker.Status.AVAILABLE);
+        //String knativeResponse = invokeWorker(k8sWorker, function, functionPayload);
+
+        // TODO: call ML Manager to choose worker
+
+        // returns list of worker types
 //            ArrayList<Worker> workers = new ArrayList<>();
 //            // TESTING: add k8s worker
 //
@@ -71,20 +87,10 @@ public class InvokeFunctionHandler implements HttpHandler {
 //                // TODO: handle if no workers available
 //            }
 
-            String response = gson.toJson(invokeWorker(worker, function, functionPayload));
+        String response = gson.toJson(invokeWorker(worker, function, functionPayload));
 
-            LOGGER.log(Level.INFO, String.format("%s invocation response: %s", function.getName(), response));
-            HttpHelper.sendResponse(exchange, 200, response);
-        } catch (DBClientException ex) {
-            // return error to client
-            HttpHelper.sendResponse(exchange, 500, ex.getMessage());
-        } catch (FunctionInvocationException ex) {
-            // return function invocation error to client
-            HttpHelper.sendResponse(exchange, ex.getHttpErrorCode(), ex.getMessage());
-        } catch (Exception ex) {
-            // return error to client
-            HttpHelper.sendResponse(exchange, 500, ex.getMessage());
-        }
+        LOGGER.log(Level.INFO, String.format("%s invocation response: %s", function.getName(), response));
+        return response;
     }
 
     private String invokeWorker(Worker worker, Function function, JsonObject functionPayload) throws WorkerException, IntegrationException {
