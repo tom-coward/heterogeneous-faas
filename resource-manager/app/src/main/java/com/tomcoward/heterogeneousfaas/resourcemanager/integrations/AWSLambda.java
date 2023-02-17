@@ -67,6 +67,11 @@ public class AWSLambda implements IWorkerIntegration {
 
             // return lambda function response payload as JsonObject
             return invokeResponse.payload().asUtf8String();
+        } catch (ResourceConflictException ex) {
+            // lambda isn't in state ready to be invoked... try again in 1 second
+            try { Thread.sleep(1000); } catch (InterruptedException interrupt) { }
+
+            return invokeFunction(function, functionPayload);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error invoking AWS Lambda function", ex);
             throw new IntegrationException("There was an issue invoking the function");
