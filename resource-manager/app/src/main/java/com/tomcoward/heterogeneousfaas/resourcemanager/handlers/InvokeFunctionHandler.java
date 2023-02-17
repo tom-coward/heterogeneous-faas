@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.*;
@@ -58,7 +59,7 @@ public class InvokeFunctionHandler implements HttpHandler {
 
             HttpHelper.sendResponse(exchange, 200, response.getResponse());
 
-            recordFunctionExecution(functionName, response.getDuration());
+            recordFunctionExecution(functionName, response.getWorkerId(), functionPayload.size(), response.getDuration());
         } catch (DBClientException ex) {
             // return error to client
             HttpHelper.sendResponse(exchange, 500, ex.getMessage());
@@ -122,11 +123,11 @@ public class InvokeFunctionHandler implements HttpHandler {
 
         long invocationDuration = Duration.between(invocationStartTime, invocationEndTime).toMillis();
 
-        return new FunctionInvocationResponse(response, invocationDuration);
+        return new FunctionInvocationResponse(response, invocationDuration, worker.getId());
     }
 
-    private void recordFunctionExecution(String functionName, long executionTime) throws DBClientException {
-        FunctionExecution functionExecution = new FunctionExecution();
+    public void recordFunctionExecution(String functionName, UUID workerId, int inputSize, long executionTime) throws DBClientException {
+        FunctionExecution functionExecution = new FunctionExecution(functionName, workerId, inputSize, executionTime);
 
         functionExecutionsRepo.create(functionExecution);
     }
@@ -135,10 +136,12 @@ public class InvokeFunctionHandler implements HttpHandler {
     public class FunctionInvocationResponse {
         private final String response;
         private final long duration;
+        private final UUID workerId;
 
-        public FunctionInvocationResponse(String response, long duration) {
+        public FunctionInvocationResponse(String response, long duration, UUID workerId) {
             this.response = response;
             this.duration = duration;
+            this.workerId = workerId;
         }
 
 
@@ -148,6 +151,10 @@ public class InvokeFunctionHandler implements HttpHandler {
 
         public long getDuration() {
             return this.duration;
+        }
+
+        public UUID getWorkerId() {
+            return this.workerId;
         }
     }
 }

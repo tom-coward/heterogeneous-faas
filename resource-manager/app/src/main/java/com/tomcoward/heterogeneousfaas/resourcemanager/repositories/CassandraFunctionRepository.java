@@ -2,8 +2,6 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.repositories;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.tomcoward.heterogeneousfaas.resourcemanager.database.CassandraClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.daos.FunctionsDao;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;

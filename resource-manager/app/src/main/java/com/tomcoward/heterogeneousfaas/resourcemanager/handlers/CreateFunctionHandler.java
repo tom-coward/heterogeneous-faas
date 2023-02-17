@@ -94,7 +94,9 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
                 // get function payload (incrementally larger)
                 JsonObject functionPayload = JsonObject.EMPTY_JSON_OBJECT;
 
-                invokeFunctionHandler.invokeWorker(worker, function, functionPayload);
+                InvokeFunctionHandler.FunctionInvocationResponse response = invokeFunctionHandler.invokeWorker(worker, function, functionPayload);
+
+                invokeFunctionHandler.recordFunctionExecution(function.getName(), worker.getId(), functionPayload.size(), response.getDuration());
             }
         }
     }

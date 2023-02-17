@@ -29,7 +29,7 @@ public class FunctionExecutionTable implements IDBTable {
                     .withPartitionKey("id", DataTypes.UUID)
                     .withColumn("function_name", DataTypes.ASCII)
                     .withColumn("worker_id", DataTypes.UUID)
-                    .withColumn("input_size", DataTypes.FLOAT)
+                    .withColumn("input_size", DataTypes.INT)
                     .withColumn("duration", DataTypes.BIGINT)
                     .build();
 

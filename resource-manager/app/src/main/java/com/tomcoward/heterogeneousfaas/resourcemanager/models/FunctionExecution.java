@@ -16,14 +16,14 @@ public class FunctionExecution {
     @CqlName("worker_id")
     private UUID workerId;
     @CqlName("input_size")
-    private double inputSize;
+    private int inputSize;
     @CqlName("duration")
     private long duration;
 
 
     public FunctionExecution() {}
 
-    public FunctionExecution(UUID id, String functionName, UUID workerId, double inputSize, long duration) {
+    public FunctionExecution(UUID id, String functionName, UUID workerId, int inputSize, long duration) {
         this.id = id;
         this.functionName = functionName;
         this.workerId = workerId;
@@ -31,7 +31,7 @@ public class FunctionExecution {
         this.duration = duration;
     }
 
-    public FunctionExecution(String functionName, UUID workerId, double inputSize, long duration) {
+    public FunctionExecution(String functionName, UUID workerId, int inputSize, long duration) {
         this.id = UUID.randomUUID();
         this.functionName = functionName;
         this.workerId = workerId;
@@ -52,7 +52,7 @@ public class FunctionExecution {
         return workerId;
     }
 
-    public double getInputSize() {
+    public int getInputSize() {
         return inputSize;
     }
 
@@ -73,7 +73,7 @@ public class FunctionExecution {
         this.workerId = workerId;
     }
 
-    public void setInputSize(double inputSize) {
+    public void setInputSize(int inputSize) {
         this.inputSize = inputSize;
     }
 
