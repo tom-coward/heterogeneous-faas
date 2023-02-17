@@ -45,6 +45,7 @@ public class App {
         // define http server routes
         addCreateFunctionRoute();
         addInvokeFunctionRoute();
+        addCreateWorkerRoute();
         addSetCredentialsRoute();
 
         // startup http server (will block thread)
