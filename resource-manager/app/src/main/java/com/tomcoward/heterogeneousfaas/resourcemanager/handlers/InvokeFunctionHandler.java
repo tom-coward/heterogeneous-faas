@@ -1,6 +1,5 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.handlers;
 
-import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;

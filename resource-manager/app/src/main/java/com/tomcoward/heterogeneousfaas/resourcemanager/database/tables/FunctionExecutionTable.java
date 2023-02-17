@@ -24,7 +24,7 @@ public class FunctionExecutionTable implements IDBTable {
     public void up() throws DBClientException {
         try {
             // create table
-            SimpleStatement statement = createTable(TABLE_NAME)
+            SimpleStatement createTableStatement = createTable(TABLE_NAME)
                     .ifNotExists()
                     .withPartitionKey("id", DataTypes.UUID)
                     .withColumn("function_name", DataTypes.ASCII)
@@ -33,7 +33,25 @@ public class FunctionExecutionTable implements IDBTable {
                     .withColumn("duration", DataTypes.BIGINT)
                     .build();
 
-            db.execute(statement);
+            db.execute(createTableStatement);
+
+            // create function_name column index
+            SimpleStatement createFunctionNameIndexStatement = createIndex(String.format("%s_function_name_index", TABLE_NAME))
+                    .ifNotExists()
+                    .onTable(TABLE_NAME)
+                    .andColumn("function_name")
+                    .build();
+
+            db.execute(createFunctionNameIndexStatement);
+
+            // create worker_id column index
+            SimpleStatement createWorkerIdIndexStatement = createIndex(String.format("%s_worker_id_index", TABLE_NAME))
+                    .ifNotExists()
+                    .onTable(TABLE_NAME)
+                    .andColumn("worker_id")
+                    .build();
+
+            db.execute(createWorkerIdIndexStatement);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, String.format("Error creating %s table", TABLE_NAME), ex);
             throw new DBClientException("There was a problem setting up the database");

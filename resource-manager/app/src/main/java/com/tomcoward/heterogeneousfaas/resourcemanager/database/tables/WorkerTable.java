@@ -24,17 +24,14 @@ public class WorkerTable implements IDBTable {
     public void up() throws DBClientException {
         try {
             // create table
-            SimpleStatement statement = createTable(TABLE_NAME)
+            SimpleStatement createTableStatement = createTable(TABLE_NAME)
                     .ifNotExists()
                     .withPartitionKey("id", DataTypes.UUID)
                     .withColumn("host", DataTypes.ASCII)
                     .withColumn("is_active", DataTypes.BOOLEAN)
                     .build();
 
-            db.execute(statement);
-
-            // add default records
-            
+            db.execute(createTableStatement);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, String.format("Error creating %s table", TABLE_NAME), ex);
             throw new DBClientException("There was a problem setting up the database");
