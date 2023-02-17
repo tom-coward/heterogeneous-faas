@@ -7,10 +7,7 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.database.CassandraClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.*;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.*;
-import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.CassandraFunctionRepository;
-import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.CassandraWorkerRepository;
-import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
-import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IWorkerRepository;
+import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.*;
 
 public class App {
     private static final int SERVER_PORT = 5001;
@@ -25,6 +22,7 @@ public class App {
 
     private final IFunctionRepository functionsRepo;
     private final IWorkerRepository workersRepo;
+    private final IFunctionExecutionRepository functionExecutionsRepo;
 
     public App() throws Exception {
         // setup db client instance
@@ -38,6 +36,7 @@ public class App {
         // initialise repos
         functionsRepo = new CassandraFunctionRepository(db);
         workersRepo = new CassandraWorkerRepository(db);
+        functionExecutionsRepo = new CassandraFunctionExecutionRepository(db);
 
         // initialise http server
         InetSocketAddress serverAddress = new InetSocketAddress(SERVER_PORT);
@@ -68,11 +67,11 @@ public class App {
 
 
     private void addCreateFunctionRoute() {
-        server.createContext("/function", new CreateFunctionHandler(functionsRepo, workersRepo, awsLambda, kubernetes));
+        server.createContext("/function", new CreateFunctionHandler(functionsRepo, workersRepo, functionExecutionsRepo, awsLambda, kubernetes));
     }
 
     private void addInvokeFunctionRoute() {
-        server.createContext("/function/invoke", new InvokeFunctionHandler(functionsRepo, workersRepo, awsLambda, kubernetes));
+        server.createContext("/function/invoke", new InvokeFunctionHandler(functionsRepo, workersRepo, functionExecutionsRepo, awsLambda, kubernetes));
     }
 
     private void addSetCredentialsRoute() {

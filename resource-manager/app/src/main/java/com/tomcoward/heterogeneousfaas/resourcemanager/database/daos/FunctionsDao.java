@@ -10,6 +10,7 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 public interface FunctionsDao {
     @Select
     Function get(String functionName) throws DBClientException;
+
     @Insert
     void create(Function function) throws DBClientException;
 }

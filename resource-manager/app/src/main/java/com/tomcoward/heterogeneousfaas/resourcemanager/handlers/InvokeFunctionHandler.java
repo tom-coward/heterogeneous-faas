@@ -14,7 +14,9 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.helpers.HttpHelp
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
+import com.tomcoward.heterogeneousfaas.resourcemanager.models.FunctionExecution;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
+import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionExecutionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IWorkerRepository;
 
@@ -23,12 +25,14 @@ public class InvokeFunctionHandler implements HttpHandler {
 
     private final IFunctionRepository functionsRepo;
     private final IWorkerRepository workersRepo;
+    private final IFunctionExecutionRepository functionExecutionsRepo;
     private final AWSLambda awsLambda;
     private final Kubernetes kubernetes;
 
-    public InvokeFunctionHandler(IFunctionRepository functionsRepo, IWorkerRepository workersRepo, AWSLambda awsLambda, Kubernetes kubernetes) {
+    public InvokeFunctionHandler(IFunctionRepository functionsRepo, IWorkerRepository workersRepo, IFunctionExecutionRepository functionExecutionsRepo, AWSLambda awsLambda, Kubernetes kubernetes) {
         this.functionsRepo = functionsRepo;
         this.workersRepo = workersRepo;
+        this.functionExecutionsRepo = functionExecutionsRepo;
         this.awsLambda = awsLambda;
         this.kubernetes = kubernetes;
     }
@@ -121,8 +125,10 @@ public class InvokeFunctionHandler implements HttpHandler {
         return new FunctionInvocationResponse(response, invocationDuration);
     }
 
-    private void recordFunctionExecution(String functionName, long executionTime) {
-        //
+    private void recordFunctionExecution(String functionName, long executionTime) throws DBClientException {
+        FunctionExecution functionExecution = new FunctionExecution();
+
+        functionExecutionsRepo.create(functionExecution);
     }
 
 

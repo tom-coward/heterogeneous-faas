@@ -14,9 +14,9 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
+import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionExecutionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IWorkerRepository;
-
 import javax.json.JsonObject;
 
 public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler {
@@ -30,13 +30,13 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     private final Kubernetes kubernetes;
     private final InvokeFunctionHandler invokeFunctionHandler;
 
-    public CreateFunctionHandler(IFunctionRepository functionsRepo, IWorkerRepository workersRepo, AWSLambda awsLambda, Kubernetes kubernetes) {
+    public CreateFunctionHandler(IFunctionRepository functionsRepo, IWorkerRepository workersRepo, IFunctionExecutionRepository functionExecutionsRepo, AWSLambda awsLambda, Kubernetes kubernetes) {
         this.functionsRepo = functionsRepo;
         this.workersRepo = workersRepo;
         this.awsLambda = awsLambda;
         this.kubernetes = kubernetes;
 
-        this.invokeFunctionHandler = new InvokeFunctionHandler(functionsRepo, workersRepo, awsLambda, kubernetes);
+        this.invokeFunctionHandler = new InvokeFunctionHandler(functionsRepo, workersRepo, functionExecutionsRepo, awsLambda, kubernetes);
     }
 
 
