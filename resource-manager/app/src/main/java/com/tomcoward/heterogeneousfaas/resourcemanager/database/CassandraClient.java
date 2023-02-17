@@ -8,9 +8,13 @@ import com.datastax.oss.driver.api.core.InvalidKeyspaceException;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.daos.FunctionsDao;
+import com.tomcoward.heterogeneousfaas.resourcemanager.database.daos.WorkersDao;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.FunctionsMapper;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.FunctionsMapperBuilder;
+import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.WorkersMapper;
+import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.WorkersMapperBuilder;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.tables.FunctionTable;
+import com.tomcoward.heterogeneousfaas.resourcemanager.database.tables.WorkerTable;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 
 public class CassandraClient implements IDBClient {
@@ -21,28 +25,35 @@ public class CassandraClient implements IDBClient {
     private final CqlSession cqlSession;
 
     private final FunctionTable functionsTable;
+    private final WorkerTable workersTable;
 
     private final FunctionsDao functionsDao;
+    private final WorkersDao workersDao;
 
     public CassandraClient() throws DBClientException {
         this.cqlSession = initialise();
 
         this.functionsTable = new FunctionTable(this);
+        this.workersTable = new WorkerTable(this);
 
         up();
 
         FunctionsMapper functionsMapper = new FunctionsMapperBuilder(this.cqlSession).build();
         this.functionsDao = functionsMapper.functionsDao(CqlIdentifier.fromCql(KEYSPACE_NAME));
+        WorkersMapper workersMapper = new WorkersMapperBuilder(this.cqlSession).build();
+        this.workersDao = workersMapper.workersDao(CqlIdentifier.fromCql(KEYSPACE_NAME));
     }
 
     public void up() throws DBClientException {
         functionsTable.up();
+        workersTable.up();
     }
 
     public void down() throws DBClientException {
         dropKeyspace(this.cqlSession);
 
         functionsTable.down();
+        workersTable.down();
     }
 
     public ResultSet execute(SimpleStatement statement) {
@@ -55,6 +66,9 @@ public class CassandraClient implements IDBClient {
 
     public FunctionsDao getFunctionsDao() {
         return this.functionsDao;
+    }
+    public WorkersDao getWorkersDao() {
+        return this.workersDao;
     }
 
 

@@ -3,15 +3,21 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.handlers;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
+import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.WorkerException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.helpers.HttpHelper;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
+import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
+import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IWorkerRepository;
+import org.checkerframework.common.reflection.qual.Invoke;
+
 import javax.json.JsonObject;
 
 public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler {
@@ -20,13 +26,18 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     private final Gson gson = new Gson();
 
     private final IFunctionRepository functionsRepo;
+    private final IWorkerRepository workersRepo;
     private final AWSLambda awsLambda;
     private final Kubernetes kubernetes;
+    private final InvokeFunctionHandler invokeFunctionHandler;
 
-    public CreateFunctionHandler(IFunctionRepository functionsRepo, AWSLambda awsLambda, Kubernetes kubernetes) {
+    public CreateFunctionHandler(IFunctionRepository functionsRepo, IWorkerRepository workersRepo, AWSLambda awsLambda, Kubernetes kubernetes) {
         this.functionsRepo = functionsRepo;
+        this.workersRepo = workersRepo;
         this.awsLambda = awsLambda;
         this.kubernetes = kubernetes;
+
+        this.invokeFunctionHandler = new InvokeFunctionHandler(functionsRepo, workersRepo, awsLambda, kubernetes);
     }
 
 
@@ -53,7 +64,7 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     }
 
 
-    private Function createFunction(JsonObject functionObject) throws DBClientException, IntegrationException, IOException {
+    private Function createFunction(JsonObject functionObject) throws DBClientException, IntegrationException, IOException, WorkerException {
         Function function = new Function(functionObject);
 
         // if aws supported, add to AWS Lambda
@@ -69,6 +80,23 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
         // save function in database
         functionsRepo.create(function);
 
+        // run training on function
+        runTraining(function);
+
         return function;
+    }
+
+    private void runTraining(Function function) throws WorkerException, IntegrationException, DBClientException {
+        // iterate through each worker to build model for each
+        List<Worker> workers = workersRepo.getAll();
+
+        for (Worker worker : workers) {
+            for (int i=0; i > 100; i++) {
+                // get function payload (incrementally larger)
+                JsonObject functionPayload = JsonObject.EMPTY_JSON_OBJECT;
+
+                invokeFunctionHandler.invokeWorker(worker, function, functionPayload);
+            }
+        }
     }
 }

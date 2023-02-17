@@ -27,7 +27,7 @@ public class CassandraFunctionRepository implements IFunctionRepository {
         try {
             return functionsDao.get(functionName);
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Error getting function from Cassandra", ex);
+            LOGGER.log(Level.SEVERE, "Error getting Function from Cassandra", ex);
             throw new DBClientException(String.format("There was a problem getting the \"%s\" function from the database", functionName));
         }
     }
@@ -36,7 +36,7 @@ public class CassandraFunctionRepository implements IFunctionRepository {
         try {
             functionsDao.create(function);
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Error adding function to Cassandra", ex);
+            LOGGER.log(Level.SEVERE, "Error adding Function to Cassandra", ex);
             throw new DBClientException(String.format("There was a problem adding the \"%s\" function to the database", function.getName()));
         }
     }

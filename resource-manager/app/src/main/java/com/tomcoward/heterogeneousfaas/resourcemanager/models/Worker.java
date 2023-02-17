@@ -11,42 +11,25 @@ public class Worker {
     @CqlName("id")
     private UUID id;
 
+    // "AWS" or "KUBERNETES"
     @CqlName("host")
-    private Host host;
-    @CqlName("status")
-    private Status status;
+    private String host;
+    @CqlName("is_active")
+    private boolean isActive;
 
-    public enum Host {
-        EDGE_KUBERNETES("KUBERNETES"),
-        CLOUD_AWS("AWS");
-
-        private final String name;
-
-        Host(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
-
-    public enum Status {
-        AVAILABLE, BUSY, OFFLINE
-    }
 
     public Worker() {}
 
-    public Worker(UUID id, Host host, Status status) {
+    public Worker(UUID id, String host, boolean isActive) {
         this.id = id;
         this.host = host;
-        this.status = status;
+        this.isActive = isActive;
     }
 
-    public Worker(Host host, Status status) {
+    public Worker(String host, boolean isActive) {
         this.id = UUID.randomUUID();
         this.host = host;
-        this.status = status;
+        this.isActive = isActive;
     }
 
 
@@ -54,27 +37,29 @@ public class Worker {
         return id;
     }
 
-    public Host getHost() {
+    public String getHost() {
         return host;
     }
 
-    public Status getStatus() {
-        return status;
+    public boolean isActive() {
+        return isActive;
     }
 
     public void setId(UUID id) {
         this.id = id;
     }
 
-    public void setHost(Host host) {
+    public void setHost(String host) {
         this.host = host;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
     }
 
-    public boolean isAvailable() {
-        return status.equals(Status.AVAILABLE);
+
+    public class HOST {
+        public static final String AWS = "AWS";
+        public static final String KUBERNETES = "KUBERNETES";
     }
 }

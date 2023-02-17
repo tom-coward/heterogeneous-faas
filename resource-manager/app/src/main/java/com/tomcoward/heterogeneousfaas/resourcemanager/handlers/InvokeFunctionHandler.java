@@ -16,18 +16,19 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
+import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IWorkerRepository;
 
 public class InvokeFunctionHandler implements HttpHandler {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    private final Gson gson = new Gson();
-
     private final IFunctionRepository functionsRepo;
+    private final IWorkerRepository workersRepo;
     private final AWSLambda awsLambda;
     private final Kubernetes kubernetes;
 
-    public InvokeFunctionHandler(IFunctionRepository functionsRepo, AWSLambda awsLambda, Kubernetes kubernetes) {
+    public InvokeFunctionHandler(IFunctionRepository functionsRepo, IWorkerRepository workersRepo, AWSLambda awsLambda, Kubernetes kubernetes) {
         this.functionsRepo = functionsRepo;
+        this.workersRepo = workersRepo;
         this.awsLambda = awsLambda;
         this.kubernetes = kubernetes;
     }
@@ -49,11 +50,11 @@ public class InvokeFunctionHandler implements HttpHandler {
             LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionName input: \"%s\"", functionName));
             LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionPayload input: \"%s\"", functionPayload.toString()));
 
-            String response = invokeFunction(functionName, functionPayload);
+            FunctionInvocationResponse response = invokeFunction(functionName, functionPayload);
 
-            HttpHelper.sendResponse(exchange, 200, response);
+            HttpHelper.sendResponse(exchange, 200, response.getResponse());
 
-            recordFunctionExecution(functionName, );
+            recordFunctionExecution(functionName, response.getDuration());
         } catch (DBClientException ex) {
             // return error to client
             HttpHelper.sendResponse(exchange, 500, ex.getMessage());
@@ -66,17 +67,14 @@ public class InvokeFunctionHandler implements HttpHandler {
         }
     }
 
-    private String invokeFunction(String functionName, JsonObject functionPayload) throws DBClientException, WorkerException, IntegrationException {
+    private FunctionInvocationResponse invokeFunction(String functionName, JsonObject functionPayload) throws DBClientException, WorkerException, IntegrationException {
         Function function = functionsRepo.get(functionName);
 
-        Instant invocationStartTime = Instant.now();
-
         // invoke in AWS
-        Worker worker = new Worker(Worker.Host.CLOUD_AWS, Worker.Status.AVAILABLE);
+        Worker worker = new Worker(Worker.HOST.AWS, true);
 
         // invoke in Kubernetes
-        //Worker k8sWorker = new Worker(Worker.Host.EDGE_KUBERNETES, Worker.Status.AVAILABLE);
-        //String knativeResponse = invokeWorker(k8sWorker, function, functionPayload);
+        //
 
         // TODO: call ML Manager to choose worker
 
@@ -93,30 +91,57 @@ public class InvokeFunctionHandler implements HttpHandler {
 //                // TODO: handle if no workers available
 //            }
 
-        String response = invokeWorker(worker, function, functionPayload);
+        FunctionInvocationResponse response = invokeWorker(worker, function, functionPayload);
+
+        LOGGER.log(Level.INFO, String.format("%s invocation response in %dms: %s", function.getName(), response.getDuration(), response.getResponse()));
+
+        return response;
+    }
+
+    public FunctionInvocationResponse invokeWorker(Worker worker, Function function, JsonObject functionPayload) throws WorkerException, IntegrationException {
+        Instant invocationStartTime = Instant.now();
+
+        String response;
+
+        switch (worker.getHost()) {
+            case "KUBERNETES":
+                response = kubernetes.invokeFunction(function, functionPayload);
+                break;
+            case "AWS":
+                response = awsLambda.invokeFunction(function, functionPayload);
+                break;
+            default:
+                throw new WorkerException("The host of the function's selected worker could not be found");
+        }
 
         Instant invocationEndTime = Instant.now();
 
         long invocationDuration = Duration.between(invocationStartTime, invocationEndTime).toMillis();
 
-        LOGGER.log(Level.INFO, String.format("%s invocation response in %dms: %s", function.getName(), invocationDuration, response));
-
-        String responseJson = gson.toJson(response);
-        return responseJson;
-    }
-
-    private String invokeWorker(Worker worker, Function function, JsonObject functionPayload) throws WorkerException, IntegrationException {
-        switch (worker.getHost().getName()) {
-            case "KUBERNETES":
-                return kubernetes.invokeFunction(function, functionPayload);
-            case "AWS":
-                return awsLambda.invokeFunction(function, functionPayload);
-            default:
-                throw new WorkerException("The host of the function's selected worker could not be found");
-        }
+        return new FunctionInvocationResponse(response, invocationDuration);
     }
 
     private void recordFunctionExecution(String functionName, long executionTime) {
         //
+    }
+
+
+    public class FunctionInvocationResponse {
+        private final String response;
+        private final long duration;
+
+        public FunctionInvocationResponse(String response, long duration) {
+            this.response = response;
+            this.duration = duration;
+        }
+
+
+        public String getResponse() {
+            return this.response;
+        }
+
+        public long getDuration() {
+            return this.duration;
+        }
     }
 }
