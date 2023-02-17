@@ -16,7 +16,6 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IWorkerRepository;
-import org.checkerframework.common.reflection.qual.Invoke;
 
 import javax.json.JsonObject;
 
@@ -91,7 +90,7 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
         List<Worker> workers = workersRepo.getAll();
 
         for (Worker worker : workers) {
-            for (int i=0; i > 100; i++) {
+            for (int i=0; i < 100; i++) {
                 // get function payload (incrementally larger)
                 JsonObject functionPayload = JsonObject.EMPTY_JSON_OBJECT;
 
