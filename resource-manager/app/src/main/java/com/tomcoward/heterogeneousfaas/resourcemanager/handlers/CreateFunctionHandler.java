@@ -54,6 +54,11 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
             // return error to client
             String response = "There was an issue saving your function";
             HttpHelper.sendResponse(exchange, 500, response);
+        } catch (IOException ex) {
+            // return error to client
+            LOGGER.log(Level.SEVERE, "Error creating function", ex);
+            String response = "The function object was invalid";
+            HttpHelper.sendResponse(exchange, 400, response);
         } catch (Exception ex) {
             // return error to client
             LOGGER.log(Level.SEVERE, "Error creating function", ex);

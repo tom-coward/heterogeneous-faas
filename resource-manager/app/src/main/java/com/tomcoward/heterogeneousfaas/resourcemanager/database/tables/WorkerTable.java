@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
+import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
 
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.*;
 
@@ -23,7 +24,6 @@ public class WorkerTable implements IDBTable {
 
     public void up() throws DBClientException {
         try {
-            // create table
             SimpleStatement createTableStatement = createTable(TABLE_NAME)
                     .ifNotExists()
                     .withPartitionKey("id", DataTypes.UUID)

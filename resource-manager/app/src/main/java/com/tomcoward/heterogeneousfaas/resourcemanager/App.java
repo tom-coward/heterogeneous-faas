@@ -74,6 +74,10 @@ public class App {
         server.createContext("/function/invoke", new InvokeFunctionHandler(functionsRepo, workersRepo, functionExecutionsRepo, awsLambda, kubernetes));
     }
 
+    private void addCreateWorkerRoute() {
+        server.createContext("/worker", new CreateWorkerHandler(workersRepo));
+    }
+
     private void addSetCredentialsRoute() {
         server.createContext("/credentials", new SetCredentialsHandler());
     }

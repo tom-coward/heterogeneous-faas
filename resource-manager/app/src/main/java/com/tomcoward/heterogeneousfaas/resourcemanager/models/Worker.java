@@ -1,9 +1,12 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.models;
 
+import java.io.IOException;
 import java.util.UUID;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
+
+import javax.json.JsonObject;
 
 @Entity
 public class Worker {
@@ -30,6 +33,12 @@ public class Worker {
         this.id = UUID.randomUUID();
         this.host = host;
         this.isActive = isActive;
+    }
+
+    public Worker(JsonObject jsonObject) throws IOException {
+        this.id = UUID.randomUUID();
+        this.host = jsonObject.getString("host");
+        this.isActive = jsonObject.getBoolean("is_active");
     }
 
 
