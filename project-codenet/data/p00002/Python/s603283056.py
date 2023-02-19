@@ -1,0 +1,9 @@
+while True:
+    try:
+        a, b = map(int, input().split())
+        c = a + b
+        print(len(str(c)))
+
+    except EOFError:
+        break
+
