@@ -1,22 +1,28 @@
 package main
 
 import (
+	"github.com/aws/aws-lambda-go/lambda"
 	"bufio"
-	"os"
-	"strings"
-	"strconv"
-	"fmt"
+    "os"
+    "strconv"
+    "strings"
 )
 
-func main() {
+func function() (int, error) {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		row := strings.Split(scanner.Text(), " ")
 		var sum int
+
 		for _, v := range row {
 			num, _ := strconv.Atoi(v)
 			sum += num
 		}
-		fmt.Println(len([]rune(strconv.Itoa(sum))))
+
+		return len([]rune(strconv.Itoa(sum))), nil
 	}
+}
+
+func main() {
+	lambda.Start(function)
 }

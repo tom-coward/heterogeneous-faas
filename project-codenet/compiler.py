@@ -15,7 +15,7 @@ def meetsCriteria(row, language):
     return row["language"] == language and row["status"] == "Accepted"
 
 def selectSolutions():
-    selectedSolutions = []
+    selectedSolutions = {}
 
     # Iterate through each selected problem
     for problem in selectedProblems:
@@ -47,11 +47,6 @@ def selectSolutions():
 
     return selectedSolutions
 
-def prepareSolutionFunctions(selectedSolutions):
-    
-
 
 if __name__ == "__main__":
-    selectedSolutions = selectSolutions() # select random subset of Accepted solutions for each selected problem
-
-    prepareSolutionFunctions(selectedSolutions) # wrap selected solutions in function handlers to prepare functions
+    selectSolutions() # select random subset of Accepted solutions for each selected problem

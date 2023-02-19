@@ -12,7 +12,7 @@ class main
                     int a = int.Parse(t[0]);
                     int b = int.Parse(t[1]);
                     int c = a + b;
-
+ 
                     Console.WriteLine(c.ToString().Length);
             }
             if (s == null)
@@ -20,6 +20,5 @@ class main
                 break;
             }
         }
-        //Console.ReadKey();
     }
 }
