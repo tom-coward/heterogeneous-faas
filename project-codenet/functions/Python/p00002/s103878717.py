@@ -10,10 +10,10 @@ def digit_check(n):
 
     return digit
         
-def main():
-    for line in sys.stdin:
+def main(input):
+    for line in input:
         ls = list(map(int, line.split(' ')))
         return digit_check(ls[0]+ls[1])
 
 def lambda_handler(event, context):
-    return main()
+    return main(event['data'])
