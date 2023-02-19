@@ -9,3 +9,5 @@ Solutions written in Python, Go and C# have been used. This provides a range bet
 The following subset of problems from the Project CodeNet data repository has been selected:
 - P00002: "Write a program which computes the digit number of sum of two integers a and b."
 - 
+
+Each problem has a number of solutions for each language (C#/Go/Python) - a subset of solutions for each language (5% or 5, whichever is lowest) are selected and then manually modified to be wrapped in a function handler.
