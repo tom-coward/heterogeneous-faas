@@ -1,34 +1,57 @@
 import csv
 import os
-
-selected_problems = ["p00002"]
-
-accepted_languages = ["C#", "Go", "Python"]
-
-metadata_directory = "./metadata"
-
-def meets_criteria(row):
-    return row["language"] in accepted_languages and row["status"] == "Accepted"
-
-submission_ids = []
-
-# Iterate through each selected problem
-for problem in selected_problems:
-    # Get list of Accepted submission IDs for the problem (from metadata csv)
-    with open(os.path.join(metadata_directory, problem + ".csv"), "r") as csvfile:
-        reader = csv.DictReader(csvfile)
-
-        for row in reader:
-            if meets_criteria(row):
-                submission_ids.append(row["submission_id"])
+import random
+import math
 
 
-    data_directory = "./data"
+selectedProblems = ["p00002"]
+acceptedLanguages = ["C#", "Go", "Python"]
 
-    # Remove any files in ./data directory not in the list of Accepted submission IDs
-    for language in accepted_languages:
-        language_data_directory = os.path.join(data_directory, problem, language)
+metadataDirectory = "./metadata"
+dataDirectory = "./data"
 
-        for filename in os.listdir(language_data_directory):
-            if filename[:-3] not in submission_ids:
-                    os.remove(os.path.join(language_data_directory, filename))
+
+def meetsCriteria(row, language):
+    return row["language"] == language and row["status"] == "Accepted"
+
+def selectSolutions():
+    selectedSolutions = []
+
+    # Iterate through each selected problem
+    for problem in selectedProblems:
+        for language in acceptedLanguages:
+            submissionIds = []
+
+            # Get list of Accepted submission IDs for the problem (from metadata csv)
+            with open(os.path.join(metadataDirectory, problem + ".csv"), "r") as csvfile:
+                reader = csv.DictReader(csvfile)
+
+                for row in reader:
+                    if meetsCriteria(row, language):
+                        submissionIds.append(row["submission_id"])
+
+
+            # Select random subset (5% - max 5) of Accepted submissions (submission_ids) to be used
+            subsetSize = min(math.ceil(len(submissionIds) * 0.05), 5)
+            selectedSubmissionIds = random.sample(submissionIds, subsetSize)
+
+            # Remove any files in ./data directory not in the list of Accepted submission IDs
+            languageDataDirectory = os.path.join(dataDirectory, problem, language)
+
+            for filename in os.listdir(languageDataDirectory):
+                # remove file if not in list of accepted submission_ids
+                if filename[:-3] not in selectedSubmissionIds:
+                        os.remove(os.path.join(languageDataDirectory, filename))
+
+            selectedSolutions[problem] = selectedSubmissionIds
+
+    return selectedSolutions
+
+def prepareSolutionFunctions(selectedSolutions):
+    
+
+
+if __name__ == "__main__":
+    selectedSolutions = selectSolutions() # select random subset of Accepted solutions for each selected problem
+
+    prepareSolutionFunctions(selectedSolutions) # wrap selected solutions in function handlers to prepare functions
