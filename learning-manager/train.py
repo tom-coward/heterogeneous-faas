@@ -12,24 +12,18 @@ def getFunctionExecutions(function_name: str):
     durations = []
 
     for row in rows:
-        inputSizes.append(row.column1)
-        durations.append(row.column2)
+        inputSizes.append(row.input_size)
+        durations.append(row.duration)
 
     return inputSizes, durations
 
 def train(function_name: str):
     inputSizes, durations = getFunctionExecutions(function_name)
 
-    inputSizes = np.array(inputSizes)
-    durations = np.array(durations)
+    x = np.array(inputSizes).reshape(-1, 1)
+    y = np.array(durations)
 
-    X = inputSizes.reshape(-1, 1) 
-    y = durations[:, 1]
-
-    model = LinearRegression().fit(X, y)
+    model = LinearRegression().fit(x, y)
 
     print("Coefficients: ", model.coef_)
     print("Intercept: ", model.intercept_)
-
-cassandraSession.shutdown()
-cassandraCluster.shutdown()
