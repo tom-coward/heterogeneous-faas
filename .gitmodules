@@ -1,3 +1,0 @@
-[submodule "hbase"]
-	path = hbase
-	url = https://github.com/tom-coward/hbase-docker

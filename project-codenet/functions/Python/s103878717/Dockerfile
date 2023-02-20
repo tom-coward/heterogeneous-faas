@@ -7,4 +7,4 @@ WORKDIR /app
 COPY . .
 
 # Set the command to be run when the container starts
-CMD ["s103878717.handler"]
+CMD ["main.handler"]
