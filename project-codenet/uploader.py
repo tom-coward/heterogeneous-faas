@@ -30,9 +30,10 @@ dockerClient.api.tag(image.id, tag)
 # Authenticate with AWS ECR
 authToken = ecrClient.get_authorization_token(registryIds = [awsAccountId])['authorizationData'][0]['authorizationToken']
 authUsername, authPassword = base64.b64decode(authToken).decode().split(':')
+
 dockerClient.login(username = authUsername, password = authPassword, registry = f"{awsAccountId}.dkr.ecr.{awsRegion}.amazonaws.com")
+print("Docker AWS ECR login successful")
 
 # Push the image to AWS ECR
 response = dockerClient.images.push(tag)
-
-print(response)
+print(f"Image successfully pushed to {tag}")
