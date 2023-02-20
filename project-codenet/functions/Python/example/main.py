@@ -1,4 +1,4 @@
-def lambda_handler(event, context):
+def handler(event, context):
     # TODO: logic goes here
 
     return ""

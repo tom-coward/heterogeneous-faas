@@ -15,5 +15,5 @@ def main(input):
         ls = list(map(int, line.split(' ')))
         return digit_check(ls[0]+ls[1])
 
-def lambda_handler(event, context):
+def handler(event, context):
     return main(event['data'])
