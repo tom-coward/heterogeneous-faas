@@ -1,7 +1,5 @@
 # coding: utf-8
 
-import sys
-
 def digit_check(n):
     digit = 1
     

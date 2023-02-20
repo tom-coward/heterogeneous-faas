@@ -23,13 +23,12 @@ def selectSolutions():
             submissionIds = []
 
             # Get list of Accepted submission IDs for the problem (from metadata csv)
-            with open(os.path.join(metadataDirectory, problem + ".csv"), "r") as csvfile:
+            with open(os.path.join(metadataDirectory, problem + ".csv"), "w") as csvfile:
                 reader = csv.DictReader(csvfile)
 
                 for row in reader:
                     if meetsCriteria(row, language):
                         submissionIds.append(row["submission_id"])
-
 
             # Select random subset (5% - max 5) of Accepted submissions (submission_ids) to be used
             subsetSize = min(math.ceil(len(submissionIds) * 0.05), 5)

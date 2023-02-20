@@ -66,7 +66,6 @@ public class Kubernetes implements IWorkerIntegration {
                 .withNewTemplate()
                 .withNewSpec()
                 .withContainers(serviceSpecContainer)
-                .withServiceAccountName("builder")
                 .endSpec()
                 .endTemplate()
                 .build();

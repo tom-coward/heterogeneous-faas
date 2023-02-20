@@ -2,11 +2,12 @@ import subprocess
 import json
 
 registryUrl = "963689541346.dkr.ecr.eu-west-1.amazonaws.com"
+awsRegion = "eu-west-1"
 secretName = "aws-ecr-secret"
 serviceAccountName = "default"
 
 def getEcrAuthInfo():
-    command = ['aws', 'ecr', 'get-login-password']
+    command = ['aws', 'ecr', 'get-login-password', '--region', awsRegion]
     result = subprocess.run(command, stdout=subprocess.PIPE)
     return result.stdout.decode('utf-8').strip()
 
