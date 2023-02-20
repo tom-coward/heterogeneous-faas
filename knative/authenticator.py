@@ -1,25 +1,35 @@
 import subprocess
 import json
 
-def get_ecr_auth_info():
+registryUrl = "963689541346.dkr.ecr.eu-west-1.amazonaws.com"
+secretName = "aws-ecr-secret"
+serviceAccountName = "default"
+
+def getEcrAuthInfo():
     command = ['aws', 'ecr', 'get-login-password']
     result = subprocess.run(command, stdout=subprocess.PIPE)
     return result.stdout.decode('utf-8').strip()
 
-def create_k8s_secret(auth_info):
-    secret_data = {
+def createK8sSecret(authInfo):
+    secretData = {
         '.dockerconfigjson': json.dumps({
             'auths': {
-                'my-registry-url': {
+                registryUrl: {
                     'username': 'AWS',
-                    'password': auth_info
+                    'password': authInfo
                 }
             }
         })
     }
-    command = ['kubectl', 'create', 'secret', 'generic', 'aws-ecr-secret', '--from-literal=dockerconfigjson=' + json.dumps(secret_data)]
+    command = ['kubectl', 'create', 'secret', 'generic', secretName, '--from-literal=dockerconfigjson=' + json.dumps(secretData)]
+    subprocess.run(command)
+
+def addSecretToServiceAccount():
+    command = ['kubectl', 'patch', 'serviceaccount', serviceAccountName, '-p', '{"imagePullSecrets":[{"name":"aws-ecr-secret"}]}']
     subprocess.run(command)
 
 if __name__ == '__main__':
-    auth_info = get_ecr_auth_info()
-    create_k8s_secret(auth_info)
+    authInfo = getEcrAuthInfo()
+    createK8sSecret(authInfo)
+
+    print(f"{secretName} secret created for {registryUrl} & added to the {serviceAccountName} service account")
