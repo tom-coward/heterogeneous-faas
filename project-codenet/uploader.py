@@ -28,7 +28,7 @@ tag = f"{awsAccountId}.dkr.ecr.{awsRegion}.amazonaws.com/{ecrRepoName}:latest"
 dockerClient.api.tag(image.id, tag)
 
 # Authenticate with AWS ECR
-authToken = ecrClient.get_authorization_token()['authorizationData'][0]['authorizationToken']
+authToken = ecrClient.get_authorization_token(registryIds = [awsAccountId])['authorizationData'][0]['authorizationToken']
 authUsername, authPassword = base64.b64decode(authToken).decode().split(':')
 dockerClient.login(username = authUsername, password = authPassword, registry = f"{awsAccountId}.dkr.ecr.{awsRegion}.amazonaws.com")
 
