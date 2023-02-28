@@ -15,7 +15,7 @@ def upload(containerDirectory, awsAccountId, awsRegion):
     )
 
     # build the Docker image
-    image = dockerClient.images.build(path = containerDirectory)
+    image, logs = dockerClient.images.build(path = containerDirectory)
 
     # tag the image for AWS ECR
     tag = f"{awsAccountId}.dkr.ecr.{awsRegion}.amazonaws.com/{ecrRepoName}:latest"

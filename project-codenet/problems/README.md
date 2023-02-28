@@ -1,3 +1,0 @@
-This directory contains a problem description (with info such as what the problem is and its input constraints). 
-
-It also contains `input-generator.py`, which is used to generate random test inputs given the input constraints of a problem - these inputs can then be passed as parameters to the function when generating training data (execution history) for functions. The test inputs are stored as a JSON array which can be easily copied into the request body when creating a function via. the Resource Manager API.
