@@ -57,10 +57,13 @@ public class AWSLambda implements IWorkerIntegration {
         }
     }
 
-    public String invokeFunction(Function function, JsonObject functionPayload) throws IntegrationException {
+    public String invokeFunction(Function function, String functionPayload) throws IntegrationException {
         try {
+            SdkBytes payloadBytes = SdkBytes.fromUtf8String(functionPayload);
+
             InvokeRequest invokeRequest = InvokeRequest.builder()
                     .functionName(function.getName())
+                    .payload(payloadBytes)
                     .build();
 
             InvokeResponse invokeResponse = lambdaClient.invoke(invokeRequest);

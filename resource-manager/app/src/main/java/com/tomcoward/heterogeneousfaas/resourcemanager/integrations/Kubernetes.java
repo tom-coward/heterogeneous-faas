@@ -47,7 +47,7 @@ public class Kubernetes implements IWorkerIntegration {
         return function;
     }
 
-    public String invokeFunction(Function function, JsonObject functionPayload) throws IntegrationException {
+    public String invokeFunction(Function function, String functionPayload) throws IntegrationException {
         return invokeKnativeService(function.getEdgeKnServiceUri(), "POST", functionPayload.toString());
     }
 

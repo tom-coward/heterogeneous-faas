@@ -17,6 +17,8 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionExecutionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IWorkerRepository;
+import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 
 public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler {
@@ -85,23 +87,30 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
         functionsRepo.create(function);
 
         // run training on function
-        runTraining(function);
+        JsonArray exampleInputs = functionObject.getJsonArray("example_inputs");
+        runTraining(function, exampleInputs);
 
         return function;
     }
 
-    private void runTraining(Function function) throws WorkerException, IntegrationException, DBClientException {
+    private void runTraining(Function function, JsonArray exampleInputs) throws WorkerException, IntegrationException, DBClientException {
+        // get example inputs
+        JsonObject inputs = exampleInputs.asJsonObject();
+
         // iterate through each worker to build model for each
         List<Worker> workers = workersRepo.getAll();
 
+        JsonArray functionPayloadArray = Json.createArrayBuilder().build();
+
         for (Worker worker : workers) {
-            for (int i=0; i < 100; i++) {
-                // get function payload (incrementally larger)
-                JsonObject functionPayload = JsonObject.EMPTY_JSON_OBJECT;
+            for (int i=0; i < Math.min(inputs.size(), 100); i++) {
+                // add to function payload (which gets incrementally larger)
+                functionPayloadArray.add(exampleInputs.get(i));
+                String functionPayload = functionPayloadArray.asJsonObject().toString();
 
                 InvokeFunctionHandler.FunctionInvocationResponse response = invokeFunctionHandler.invokeWorker(worker, function, functionPayload);
 
-                invokeFunctionHandler.recordFunctionExecution(function.getName(), worker.getId(), functionPayload.size(), response.getDuration());
+                invokeFunctionHandler.recordFunctionExecution(function.getName(), worker.getId(), functionPayloadArray.size(), response.getDuration());
             }
         }
     }

@@ -49,16 +49,16 @@ public class InvokeFunctionHandler implements HttpHandler {
             }
 
             // get payload of function (if any)
-            JsonObject functionPayload = requestBody.getJsonObject("function_payload");
+            String functionPayload = requestBody.getJsonObject("function_payload").toString();
 
             LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionName input: \"%s\"", functionName));
-            LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionPayload input: \"%s\"", functionPayload.toString()));
+            LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionPayload input: \"%s\"", functionPayload));
 
             FunctionInvocationResponse response = invokeFunction(functionName, functionPayload);
 
             HttpHelper.sendResponse(exchange, 200, response.getResponse());
 
-            recordFunctionExecution(functionName, response.getWorkerId(), functionPayload.size(), response.getDuration());
+            recordFunctionExecution(functionName, response.getWorkerId(), functionPayload.length(), response.getDuration());
         } catch (DBClientException ex) {
             // return error to client
             HttpHelper.sendResponse(exchange, 500, ex.getMessage());
@@ -71,14 +71,14 @@ public class InvokeFunctionHandler implements HttpHandler {
         }
     }
 
-    private FunctionInvocationResponse invokeFunction(String functionName, JsonObject functionPayload) throws DBClientException, WorkerException, IntegrationException {
+    private FunctionInvocationResponse invokeFunction(String functionName, String functionPayload) throws DBClientException, WorkerException, IntegrationException {
         Function function = functionsRepo.get(functionName);
 
         // invoke in AWS
         Worker worker = new Worker(Worker.HOST.AWS, true);
 
         // invoke in Kubernetes
-        //
+        //Worker worker = new Worker(Worker.HOST.KUBERNETES, true);
 
         // TODO: call ML Manager to choose worker
 
@@ -102,7 +102,7 @@ public class InvokeFunctionHandler implements HttpHandler {
         return response;
     }
 
-    public FunctionInvocationResponse invokeWorker(Worker worker, Function function, JsonObject functionPayload) throws WorkerException, IntegrationException {
+    public FunctionInvocationResponse invokeWorker(Worker worker, Function function, String functionPayload) throws WorkerException, IntegrationException {
         Instant invocationStartTime = Instant.now();
 
         String response;

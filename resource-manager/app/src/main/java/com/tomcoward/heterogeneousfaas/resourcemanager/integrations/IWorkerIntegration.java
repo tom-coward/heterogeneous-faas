@@ -6,5 +6,5 @@ import javax.json.JsonObject;
 
 public interface IWorkerIntegration {
     Function createFunction(Function function) throws IntegrationException;
-    String invokeFunction(Function function, JsonObject functionPayload) throws IntegrationException;
+    String invokeFunction(Function function, String functionPayload) throws IntegrationException;
 }

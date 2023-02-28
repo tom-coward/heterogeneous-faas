@@ -9,14 +9,14 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientExcept
 
 import static com.datastax.oss.driver.api.querybuilder.SchemaBuilder.*;
 
-public class WorkerTable implements IDBTable {
+public class MLModelTable implements IDBTable {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    private static final String TABLE_NAME = "worker";
+    private static final String TABLE_NAME = "ml_model";
 
     private final IDBClient db;
 
-    public WorkerTable(IDBClient db) {
+    public MLModelTable(IDBClient db) {
         this.db = db;
     }
 
@@ -26,8 +26,9 @@ public class WorkerTable implements IDBTable {
             SimpleStatement createTableStatement = createTable(TABLE_NAME)
                     .ifNotExists()
                     .withPartitionKey("id", DataTypes.UUID)
-                    .withColumn("host", DataTypes.ASCII)
-                    .withColumn("is_active", DataTypes.BOOLEAN)
+                    .withColumn("function_name", DataTypes.ASCII)
+                    .withColumn("worker_id", DataTypes.UUID)
+                    .withColumn("model", DataTypes.ASCII)
                     .build();
 
             db.execute(createTableStatement);

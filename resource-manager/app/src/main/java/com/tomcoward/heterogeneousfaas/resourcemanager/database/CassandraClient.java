@@ -18,6 +18,7 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.Function
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.FunctionExecutionsMapperBuilder;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.tables.FunctionExecutionTable;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.tables.FunctionTable;
+import com.tomcoward.heterogeneousfaas.resourcemanager.database.tables.MLModelTable;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.tables.WorkerTable;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 
@@ -31,6 +32,7 @@ public class CassandraClient implements IDBClient {
     private final FunctionTable functionsTable;
     private final WorkerTable workersTable;
     private final FunctionExecutionTable functionExecutionsTable;
+    private final MLModelTable mlModelTable;
 
     private final FunctionsDao functionsDao;
     private final WorkersDao workersDao;
@@ -42,6 +44,7 @@ public class CassandraClient implements IDBClient {
         this.functionsTable = new FunctionTable(this);
         this.workersTable = new WorkerTable(this);
         this.functionExecutionsTable = new FunctionExecutionTable(this);
+        this.mlModelTable = new MLModelTable(this);
 
         up();
 
@@ -58,6 +61,7 @@ public class CassandraClient implements IDBClient {
         functionsTable.up();
         workersTable.up();
         functionExecutionsTable.up();
+        mlModelTable.up();
     }
 
     public void down() throws DBClientException {
@@ -66,6 +70,7 @@ public class CassandraClient implements IDBClient {
         functionsTable.down();
         workersTable.down();
         functionExecutionsTable.down();
+        mlModelTable.down();
     }
 
     public ResultSet execute(SimpleStatement statement) {
