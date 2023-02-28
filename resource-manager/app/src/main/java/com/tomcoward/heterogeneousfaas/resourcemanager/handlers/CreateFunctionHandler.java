@@ -3,6 +3,7 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.handlers;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,6 +21,7 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IWorkerRepos
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+import javax.json.JsonString;
 
 public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -94,23 +96,29 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     }
 
     private void runTraining(Function function, JsonArray exampleInputs) throws WorkerException, IntegrationException, DBClientException {
-        // get example inputs
-        JsonObject inputs = exampleInputs.asJsonObject();
-
         // iterate through each worker to build model for each
         List<Worker> workers = workersRepo.getAll();
 
-        JsonArray functionPayloadArray = Json.createArrayBuilder().build();
+        if (workers.size() == 0) {
+            throw new WorkerException("No workers available to train function on");
+        }
+
+        ArrayList<String> functionPayloadArray = new ArrayList<>();
 
         for (Worker worker : workers) {
-            for (int i=0; i < Math.min(inputs.size(), 100); i++) {
+            for (int i=0; i < Math.min(exampleInputs.toArray().length, 100); i++) {
                 // add to function payload (which gets incrementally larger)
-                functionPayloadArray.add(exampleInputs.get(i));
-                String functionPayload = functionPayloadArray.asJsonObject().toString();
+                functionPayloadArray.add(exampleInputs.get(i).toString());
+
+                String functionPayload = gson.toJson(functionPayloadArray);
+
+                System.out.println(functionPayload);
 
                 InvokeFunctionHandler.FunctionInvocationResponse response = invokeFunctionHandler.invokeWorker(worker, function, functionPayload);
 
-                invokeFunctionHandler.recordFunctionExecution(function.getName(), worker.getId(), functionPayloadArray.size(), response.getDuration());
+                System.out.println(response.getResponse());
+
+                invokeFunctionHandler.recordFunctionExecution(function.getName(), worker.getId(), functionPayloadArray.size(), response);
             }
         }
     }

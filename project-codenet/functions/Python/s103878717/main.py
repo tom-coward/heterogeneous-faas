@@ -1,5 +1,3 @@
-# coding: utf-8
-
 def digit_check(n):
     digit = 1
     

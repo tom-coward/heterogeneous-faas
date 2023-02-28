@@ -19,16 +19,19 @@ public class FunctionExecution {
     private int inputSize;
     @CqlName("duration")
     private long duration;
+    @CqlName("is_success")
+    private boolean isSuccess;
 
 
     public FunctionExecution() {}
 
-    public FunctionExecution(UUID id, String functionName, UUID workerId, int inputSize, long duration) {
+    public FunctionExecution(UUID id, String functionName, UUID workerId, int inputSize, long duration, boolean isSuccess) {
         this.id = id;
         this.functionName = functionName;
         this.workerId = workerId;
         this.inputSize = inputSize;
         this.duration = duration;
+        this.isSuccess = isSuccess;
     }
 
     public FunctionExecution(String functionName, UUID workerId, int inputSize, long duration) {
@@ -60,6 +63,10 @@ public class FunctionExecution {
         return duration;
     }
 
+    public boolean isSuccess() {
+        return isSuccess;
+    }
+
 
     public void setId(UUID id) {
         this.id = id;
@@ -79,5 +86,9 @@ public class FunctionExecution {
 
     public void setDuration(long duration) {
         this.duration = duration;
+    }
+
+    public void setIsSuccess(boolean isSuccess) {
+        this.isSuccess = isSuccess;
     }
 }

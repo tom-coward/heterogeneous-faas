@@ -31,6 +31,7 @@ public class FunctionExecutionTable implements IDBTable {
                     .withColumn("worker_id", DataTypes.UUID)
                     .withColumn("input_size", DataTypes.INT)
                     .withColumn("duration", DataTypes.BIGINT)
+                    .withColumn("is_success", DataTypes.BOOLEAN)
                     .build();
 
             db.execute(createTableStatement);
@@ -52,6 +53,15 @@ public class FunctionExecutionTable implements IDBTable {
                     .build();
 
             db.execute(createWorkerIdIndexStatement);
+
+            // create is_success column index
+            SimpleStatement createIsSuccessIndexStatement = createIndex(String.format("%s_is_success_index", TABLE_NAME))
+                    .ifNotExists()
+                    .onTable(TABLE_NAME)
+                    .andColumn("is_success")
+                    .build();
+
+            db.execute(createIsSuccessIndexStatement);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, String.format("Error creating %s table", TABLE_NAME), ex);
             throw new DBClientException("There was a problem setting up the database");

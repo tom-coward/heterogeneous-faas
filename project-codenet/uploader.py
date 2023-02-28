@@ -10,9 +10,14 @@ def upload(containerDirectory, awsAccountId, awsRegion):
     # create new ECR repo to house image in
     ecrRepoName = os.path.basename(containerDirectory)
 
-    ecrClient.create_repository(
-        repositoryName = ecrRepoName
-    )
+    # check if repo already exists
+    try:
+        ecrClient.describe_repositories(repositoryNames = [ecrRepoName])
+    except ecrClient.exceptions.RepositoryNotFoundException:
+        # if it doesn't, create it...
+        ecrClient.create_repository(
+            repositoryName = ecrRepoName
+        )
 
     # build the Docker image
     image, logs = dockerClient.images.build(path = containerDirectory)

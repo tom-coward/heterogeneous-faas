@@ -58,7 +58,7 @@ public class InvokeFunctionHandler implements HttpHandler {
 
             HttpHelper.sendResponse(exchange, 200, response.getResponse());
 
-            recordFunctionExecution(functionName, response.getWorkerId(), functionPayload.length(), response.getDuration());
+            recordFunctionExecution(functionName, response.getWorkerId(), functionPayload.length(), response);
         } catch (DBClientException ex) {
             // return error to client
             HttpHelper.sendResponse(exchange, 500, ex.getMessage());
@@ -125,8 +125,11 @@ public class InvokeFunctionHandler implements HttpHandler {
         return new FunctionInvocationResponse(response, invocationDuration, worker.getId());
     }
 
-    public void recordFunctionExecution(String functionName, UUID workerId, int inputSize, long executionTime) throws DBClientException {
-        FunctionExecution functionExecution = new FunctionExecution(functionName, workerId, inputSize, executionTime);
+    public void recordFunctionExecution(String functionName, UUID workerId, int inputSize, FunctionInvocationResponse functionInvocationResponse) throws DBClientException {
+        FunctionExecution functionExecution = new FunctionExecution(functionName, workerId, inputSize, functionInvocationResponse.getDuration());
+
+        // if function response indicated there was an error, mark execution as unsuccessful
+        functionExecution.setIsSuccess(!functionInvocationResponse.getResponse().contains("errorType"));
 
         functionExecutionsRepo.create(functionExecution);
     }

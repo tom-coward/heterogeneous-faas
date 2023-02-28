@@ -2,6 +2,7 @@ import compiler
 import uploader
 import inputgenerator
 import argparse
+import subprocess
 
 
 # select random solutions to selected problems (as defined by their ID below) in the chosen languages
