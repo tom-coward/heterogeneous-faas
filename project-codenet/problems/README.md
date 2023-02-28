@@ -1,0 +1,1 @@
+This directory contains a problem description (with info such as what the problem is and its input constraints). It also contains `input-generator.py`, which is used to automatically generate test inputs when generating training data (execution history) for functions.
