@@ -11,3 +11,6 @@ The following subset of problems from the Project CodeNet data repository has be
 - 
 
 Each problem has a number of solutions for each language (C#/Go/Python) - a subset of solutions for each language (5% or 5, whichever is lowest) are selected and then manually modified to be wrapped in a function handler.
+
+## Preparing functions
+To prepare functions for Heterogeneous FaaS, you can simply run `[python/python3] main.py compile`. This will randomly select a subset of accepted (valid) solutions from the problem metadata stored in `./metadata`, and remove the rest from the `./data` directory - you may then manually compile each of the selected solutions into a function file within the `./functions` directory, running `[python/python3] main.py upload` to upload any Docker containers within the `./functions` directory to the AWS ECR registry. These registry image URIs can then be passed to the Resource Manager API to create a function within the system.

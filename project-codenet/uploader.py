@@ -4,36 +4,30 @@ import boto3
 import base64
 
 dockerClient = docker.from_env()
-
 ecrClient = boto3.client('ecr')
 
-ecrRepoName = "heterogeneous-faas"
-awsAccountId = "963689541346" 
-awsRegion = "eu-west-1"
+def upload(containerDirectory, awsAccountId, awsRegion):
+    # create new ECR repo to house image in
+    ecrRepoName = os.path.basename(containerDirectory)
 
-containerDirectory = input("Enter path of Docker container directory: ")
+    ecrClient.create_repository(
+        repositoryName = ecrRepoName
+    )
 
-# Create new ECR repo to house image in
-ecrRepoName = os.path.basename(containerDirectory)
+    # build the Docker image
+    image = dockerClient.images.build(path = containerDirectory)
 
-ecrClient.create_repository(
-    repositoryName = ecrRepoName
-)
+    # tag the image for AWS ECR
+    tag = f"{awsAccountId}.dkr.ecr.{awsRegion}.amazonaws.com/{ecrRepoName}:latest"
+    dockerClient.api.tag(image.id, tag)
 
-# Build the Docker image
-image, logs = dockerClient.images.build(path = containerDirectory)
+    # authenticate with AWS ECR
+    authToken = ecrClient.get_authorization_token(registryIds = [awsAccountId])['authorizationData'][0]['authorizationToken']
+    authUsername, authPassword = base64.b64decode(authToken).decode().split(':')
 
-# Tag the image for AWS ECR
-tag = f"{awsAccountId}.dkr.ecr.{awsRegion}.amazonaws.com/{ecrRepoName}:latest"
-dockerClient.api.tag(image.id, tag)
+    dockerClient.login(username = authUsername, password = authPassword, registry = f"{awsAccountId}.dkr.ecr.{awsRegion}.amazonaws.com")
+    print("Docker AWS ECR login successful")
 
-# Authenticate with AWS ECR
-authToken = ecrClient.get_authorization_token(registryIds = [awsAccountId])['authorizationData'][0]['authorizationToken']
-authUsername, authPassword = base64.b64decode(authToken).decode().split(':')
-
-dockerClient.login(username = authUsername, password = authPassword, registry = f"{awsAccountId}.dkr.ecr.{awsRegion}.amazonaws.com")
-print("Docker AWS ECR login successful")
-
-# Push the image to AWS ECR
-response = dockerClient.images.push(tag)
-print(f"Image successfully pushed to {tag}")
+    # push the image to AWS ECR
+    dockerClient.images.push(tag)
+    print(f"Image successfully pushed to {tag}")

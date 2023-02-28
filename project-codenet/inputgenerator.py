@@ -1,19 +1,25 @@
 import random
 import argparse
+import json
 
 def generateInputs(fileName, numColumns, numRows, lowerBound, upperBound):
     totalInputs = numColumns * numRows
 
     inputs = [random.randint(lowerBound, upperBound) for i in range(totalInputs)]
     
-    with open(fileName, 'w') as inputFile:
-        for i in range(numRows):
-            startIndex = i * numColumns
-            endIndex = startIndex + numColumns
-            rowInputs = inputs[startIndex:endIndex]
-            rowString = ' ' . join(map(str, rowInputs)) + '\n'
+    rows = []
 
-            inputFile.write(rowString)
+    for i in range(numRows):
+        startIndex = i * numColumns
+        endIndex = startIndex + numColumns
+        rowInputs = inputs[startIndex:endIndex]
+        rowString = ' '.join(map(str, rowInputs))
+        rows.append(rowString)
+
+    inputsArray = {"example_inputs": rows}
+        
+    with open(fileName, 'w') as file:
+        json.dump(inputsArray, file)
 
 
 if __name__ == "__main__":
@@ -25,8 +31,8 @@ if __name__ == "__main__":
     parser.add_argument("upperBound", type=int, help="Maximum value of an input")
     args = parser.parse_args()
 
-    fileName = f"./{args.problemId}/inputs.txt"
+    fileName = f"./{args.problemId}/inputs.json"
     
     generateInputs(fileName, args.numColumns, args.numRows, args.lowerBound, args.upperBound)
 
-    print(f"Inputs generated and placed in ./{args.problemId}/inputs.txt")
+    print(f"Inputs generated and placed in {fileName}")
