@@ -18,7 +18,7 @@ def getWorkers():
     return workers
 
 def getFunctionExecutions(functionName: str, workerId: str):
-    rows = cassandraSession.execute(f"SELECT input_size, duration FROM heterogeneous_faas.function_execution WHERE function_name='{functionName}' AND worker_id='{workerId}'")
+    rows = cassandraSession.execute(f"SELECT input_size, duration FROM heterogeneous_faas.function_execution WHERE function_name='{functionName}' AND worker_id='{workerId}' AND is_success=True")
 
     inputSizes = []
     durations = []
@@ -49,7 +49,7 @@ def train(functionName: str):
         print("Coefficients: ", model.coef_)
         print("Intercept: ", model.intercept_)
 
-        # save model in Cassandra database
+        # save model in Cassandra database (as a string representation of model object)
         modelString = pickle.dumps(model)
 
         saveModel(functionName, workerId, modelString)
