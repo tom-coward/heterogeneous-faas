@@ -43,6 +43,7 @@ public class AWSLambda implements IWorkerIntegration {
                     .functionName(function.getName())
                     .code(functionCode)
                     .packageType("Image")
+                    .architecturesWithStrings("arm64")
                     .role(this.awsIamRoleArn)
                     .build();
 

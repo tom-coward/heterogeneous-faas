@@ -112,8 +112,6 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
 
                 InvokeFunctionHandler.FunctionInvocationResponse response = invokeFunctionHandler.invokeWorker(worker, function, functionPayload);
 
-                System.out.println(response.getResponse());
-
                 invokeFunctionHandler.recordFunctionExecution(function.getName(), worker.getId(), functionPayloadArray.size(), response);
             }
         }
