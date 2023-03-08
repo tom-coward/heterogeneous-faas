@@ -3,7 +3,6 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.*;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
