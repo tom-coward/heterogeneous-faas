@@ -21,7 +21,7 @@ public class Kubernetes implements IWorkerIntegration {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private final static String KNATIVE_NAMESPACE = "default";
-    private final static String KNATIVE_URI = "127.0.0.1.sslip.io";
+    private final static String KNATIVE_URI = "127.0.0.1.sslip.io/2015-03-31/functions/function/invocations";
 
     private final KnativeClient knativeClient;
     private final HttpClient httpClient;
@@ -79,10 +79,6 @@ public class Kubernetes implements IWorkerIntegration {
         return String.format("http://%s.%s.%s", service.getMetadata().getName(), KNATIVE_NAMESPACE, KNATIVE_URI);
     }
 
-    private void createKnativeRevision() {
-        knativeClient.services().inNamespace(KNATIVE_NAMESPACE)
-    }
-
     private String invokeKnativeService(String serviceUri, String method, String functionPayload) throws IntegrationException {
         try {
             HttpRequest httpRequest = HttpRequest.newBuilder()
@@ -92,7 +88,7 @@ public class Kubernetes implements IWorkerIntegration {
 
             HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
-            if (httpResponse.statusCode() != 200 || httpResponse.statusCode() != 204) {
+            if (httpResponse.statusCode() != 200 && httpResponse.statusCode() != 204) {
                 String errorMessage = String.format("Function invocation failed. Status code: %d, body: %s", httpResponse.statusCode(), httpResponse.body());
                 LOGGER.log(Level.WARNING, errorMessage);
                 throw new FunctionInvocationException(errorMessage, httpResponse.statusCode());

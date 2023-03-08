@@ -18,10 +18,8 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionExecutionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IWorkerRepository;
-import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.json.JsonString;
 
 public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -110,9 +108,7 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
                 // add to function payload (which gets incrementally larger)
                 functionPayloadArray.add(exampleInputs.get(i).toString());
 
-                String functionPayload = gson.toJson(functionPayloadArray);
-
-                System.out.println(functionPayload);
+                String functionPayload = functionPayloadArray.toString();
 
                 InvokeFunctionHandler.FunctionInvocationResponse response = invokeFunctionHandler.invokeWorker(worker, function, functionPayload);
 
