@@ -16,9 +16,11 @@ def compile(selectedProblem):
 
 
 # build the selected solutions into Docker containers and upload them to AWS ECR
-def upload(containerDirectory):
+def upload(language, solutionId):
     awsAccountId = "963689541346" 
     awsRegion = "eu-west-1"
+
+    containerDirectory = f"./functions/{language}/{solutionId}"
 
     uploader.upload(containerDirectory, awsAccountId, awsRegion)
 
@@ -34,7 +36,8 @@ if __name__ == "__main__":
     parser.add_argument("option", type=str, help="The operation to perform (compile/upload/generateInputs [problemId numColumns numRows lowerBound upperBound])")
 
     # optional upload arguments
-    parser.add_argument("--containerDirectory", type=str, help="Directory of Docker container to upload to AWS ECR", required=False)
+    parser.add_argument("--language", type=str, help="Runtime language of Docker container to upload to AWS ECR", required=False)
+    parser.add_argument("--solutionId", type=str, help="Solution ID of Docker container to upload to AWS ECR", required=False)
 
     # optional generateInputs arguments
     parser.add_argument("--problemId", type=str, help="ID of the problem to generate inputs for", required=False)
@@ -49,7 +52,7 @@ if __name__ == "__main__":
         case "compile":
             compile()
         case "upload":
-            upload(args.containerDirectory)
+            upload(args.language, args.solutionId)
         case "generateInputs":
             generateInputs(args.problemId, args.numColumns, args.numRows, args.lowerBound, args.upperBound)
         case _:

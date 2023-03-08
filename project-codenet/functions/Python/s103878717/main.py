@@ -12,4 +12,4 @@ def main(input):
         return digit_check(ls[0]+ls[1])
 
 def handler(event, context):
-    return main(event['data'])
+    return main(event)

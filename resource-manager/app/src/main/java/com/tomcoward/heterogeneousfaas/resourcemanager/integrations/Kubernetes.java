@@ -10,7 +10,6 @@ import io.fabric8.knative.serving.v1.ServiceBuilder;
 import io.fabric8.knative.serving.v1.ServiceSpec;
 import io.fabric8.knative.serving.v1.ServiceSpecBuilder;
 import io.fabric8.kubernetes.api.model.*;
-import javax.json.JsonObject;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -78,6 +77,10 @@ public class Kubernetes implements IWorkerIntegration {
         knativeClient.services().inNamespace(KNATIVE_NAMESPACE).resource(service).create();
 
         return String.format("http://%s.%s.%s", service.getMetadata().getName(), KNATIVE_NAMESPACE, KNATIVE_URI);
+    }
+
+    private void createKnativeRevision() {
+        knativeClient.services().inNamespace(KNATIVE_NAMESPACE)
     }
 
     private String invokeKnativeService(String serviceUri, String method, String functionPayload) throws IntegrationException {

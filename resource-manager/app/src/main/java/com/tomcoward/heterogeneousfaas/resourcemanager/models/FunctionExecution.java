@@ -34,12 +34,13 @@ public class FunctionExecution {
         this.isSuccess = isSuccess;
     }
 
-    public FunctionExecution(String functionName, UUID workerId, int inputSize, long duration) {
+    public FunctionExecution(String functionName, UUID workerId, int inputSize, long duration, boolean isSuccess) {
         this.id = UUID.randomUUID();
         this.functionName = functionName;
         this.workerId = workerId;
         this.inputSize = inputSize;
         this.duration = duration;
+        this.isSuccess = isSuccess;
     }
 
 

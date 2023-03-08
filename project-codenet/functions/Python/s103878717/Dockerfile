@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/python:3.8
+FROM public.ecr.aws/lambda/python:3.8-arm64
 
 # Copy application code into the container
 COPY . ${LAMBDA_TASK_ROOT}

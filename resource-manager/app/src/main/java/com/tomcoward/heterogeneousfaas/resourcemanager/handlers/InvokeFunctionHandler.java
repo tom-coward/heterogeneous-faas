@@ -126,10 +126,10 @@ public class InvokeFunctionHandler implements HttpHandler {
     }
 
     public void recordFunctionExecution(String functionName, UUID workerId, int inputSize, FunctionInvocationResponse functionInvocationResponse) throws DBClientException {
-        FunctionExecution functionExecution = new FunctionExecution(functionName, workerId, inputSize, functionInvocationResponse.getDuration());
-
         // if function response indicated there was an error, mark execution as unsuccessful
-        functionExecution.setIsSuccess(!functionInvocationResponse.getResponse().contains("errorType"));
+        boolean isSuccess = !functionInvocationResponse.getResponse().contains("errorType");
+
+        FunctionExecution functionExecution = new FunctionExecution(functionName, workerId, inputSize, functionInvocationResponse.getDuration(), isSuccess);
 
         functionExecutionsRepo.create(functionExecution);
     }
