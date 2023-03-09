@@ -30,7 +30,9 @@ public class LearningManager {
 
             HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
-
+            if (httpResponse.statusCode() != 202) {
+                throw new Exception("Learning Manager returned non-202 status code");
+            }
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error sending HTTP request to Learning Manager /train", ex);
             throw new IntegrationException("There was an error triggering training by the Learning Manager");

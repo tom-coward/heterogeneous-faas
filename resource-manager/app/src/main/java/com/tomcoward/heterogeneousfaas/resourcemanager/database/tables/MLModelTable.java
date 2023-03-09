@@ -23,6 +23,7 @@ public class MLModelTable implements IDBTable {
 
     public void up() throws DBClientException {
         try {
+            // create table
             SimpleStatement createTableStatement = createTable(TABLE_NAME)
                     .ifNotExists()
                     .withPartitionKey("id", DataTypes.UUID)
@@ -32,6 +33,15 @@ public class MLModelTable implements IDBTable {
                     .build();
 
             db.execute(createTableStatement);
+
+            // create function_name column index
+            SimpleStatement createFunctionNameIndexStatement = createIndex(String.format("%s_function_name_index", TABLE_NAME))
+                    .ifNotExists()
+                    .onTable(TABLE_NAME)
+                    .andColumn("function_name")
+                    .build();
+
+            db.execute(createFunctionNameIndexStatement);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, String.format("Error creating %s table", TABLE_NAME), ex);
             throw new DBClientException("There was a problem setting up the database");
