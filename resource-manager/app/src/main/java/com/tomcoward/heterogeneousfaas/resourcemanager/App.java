@@ -19,6 +19,7 @@ public class App {
     private final AWSIAM awsIam;
     private final AWSLambda awsLambda;
     private final Kubernetes kubernetes;
+    private final LearningManager learningManager;
 
     private final IFunctionRepository functionsRepo;
     private final IWorkerRepository workersRepo;
@@ -32,6 +33,7 @@ public class App {
         awsIam = new AWSIAM();
         awsLambda = new AWSLambda(awsIam);
         kubernetes = new Kubernetes();
+        learningManager = new LearningManager();
 
         // initialise repos
         functionsRepo = new CassandraFunctionRepository(db);
@@ -68,7 +70,7 @@ public class App {
 
 
     private void addCreateFunctionRoute() {
-        server.createContext("/function", new CreateFunctionHandler(functionsRepo, workersRepo, functionExecutionsRepo, awsLambda, kubernetes));
+        server.createContext("/function", new CreateFunctionHandler(functionsRepo, workersRepo, functionExecutionsRepo, awsLambda, kubernetes, learningManager));
     }
 
     private void addInvokeFunctionRoute() {

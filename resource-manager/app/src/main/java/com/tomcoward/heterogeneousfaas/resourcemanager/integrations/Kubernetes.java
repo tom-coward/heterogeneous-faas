@@ -29,8 +29,7 @@ public class Kubernetes implements IWorkerIntegration {
     public Kubernetes() throws IntegrationException {
         try {
             this.knativeClient = new DefaultKnativeClient();
-            this.httpClient = HttpClient.newBuilder()
-                    .build();
+            this.httpClient = HttpClient.newBuilder().build();
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error initialising Kubernetes integration", ex);
             throw new IntegrationException("There was an error connecting to the Kubernetes cluster");
@@ -89,6 +88,11 @@ public class Kubernetes implements IWorkerIntegration {
             HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
             if (httpResponse.statusCode() != 200 && httpResponse.statusCode() != 204) {
+                if (httpResponse.statusCode() == 404) { // Knative service still being initialised... try again in 1 sec
+                    Thread.sleep(1000);
+                    return invokeKnativeService(serviceUri, method, functionPayload);
+                }
+
                 String errorMessage = String.format("Function invocation failed. Status code: %d, body: %s", httpResponse.statusCode(), httpResponse.body());
                 LOGGER.log(Level.WARNING, errorMessage);
                 throw new FunctionInvocationException(errorMessage, httpResponse.statusCode());

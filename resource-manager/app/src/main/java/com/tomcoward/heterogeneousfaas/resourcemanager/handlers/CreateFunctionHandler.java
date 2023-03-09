@@ -13,6 +13,7 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.WorkerExceptio
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.helpers.HttpHelper;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
+import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.LearningManager;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionExecutionRepository;
@@ -30,13 +31,15 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     private final IWorkerRepository workersRepo;
     private final AWSLambda awsLambda;
     private final Kubernetes kubernetes;
+    private final LearningManager learningManager;
     private final InvokeFunctionHandler invokeFunctionHandler;
 
-    public CreateFunctionHandler(IFunctionRepository functionsRepo, IWorkerRepository workersRepo, IFunctionExecutionRepository functionExecutionsRepo, AWSLambda awsLambda, Kubernetes kubernetes) {
+    public CreateFunctionHandler(IFunctionRepository functionsRepo, IWorkerRepository workersRepo, IFunctionExecutionRepository functionExecutionsRepo, AWSLambda awsLambda, Kubernetes kubernetes, LearningManager learningManager) {
         this.functionsRepo = functionsRepo;
         this.workersRepo = workersRepo;
         this.awsLambda = awsLambda;
         this.kubernetes = kubernetes;
+        this.learningManager = learningManager;
 
         this.invokeFunctionHandler = new InvokeFunctionHandler(functionsRepo, workersRepo, functionExecutionsRepo, awsLambda, kubernetes);
     }
@@ -115,5 +118,8 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
                 invokeFunctionHandler.recordFunctionExecution(function.getName(), worker.getId(), functionPayloadArray.size(), response);
             }
         }
+
+        // trigger training by Learning Manager
+        learningManager.triggerTraining(function.getName());
     }
 }
