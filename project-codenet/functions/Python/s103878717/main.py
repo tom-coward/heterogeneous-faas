@@ -7,9 +7,12 @@ def digit_check(n):
     return digit
         
 def main(input):
+    results = []
     for line in input:
         ls = list(map(int, line.split(' ')))
-        return digit_check(ls[0]+ls[1])
+        results += digit_check(ls[0]+ls[1])
+    
+    return results
 
 def handler(event, context):
     return main(event)

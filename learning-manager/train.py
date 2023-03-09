@@ -8,17 +8,18 @@ cassandraCluster = Cluster(['localhost'])
 cassandraSession = cassandraCluster.connect()
 
 def getWorkers():
-    rows = cassandraSession.execute("SELECT worker_id FROM heterogeneous_faas.worker")
+    rows = cassandraSession.execute("SELECT id FROM heterogeneous_faas.worker")
 
     workers = []
 
     for row in rows:
-        workers.append(row.worker_id)
+        workers.append(row.id)
 
     return workers
 
 def getFunctionExecutions(functionName: str, workerId: str):
-    rows = cassandraSession.execute(f"SELECT input_size, duration FROM heterogeneous_faas.function_execution WHERE function_name='{functionName}' AND worker_id='{workerId}' AND is_success=True")
+    # TODO: remove ALLOW FILTERING if possible
+    rows = cassandraSession.execute(f"SELECT input_size, duration FROM heterogeneous_faas.function_execution WHERE function_name='{functionName}' AND worker_id={workerId} AND is_success=True ALLOW FILTERING")
 
     inputSizes = []
     durations = []
@@ -30,7 +31,7 @@ def getFunctionExecutions(functionName: str, workerId: str):
     return inputSizes, durations
 
 def saveModel(functionName: str, workerId: str, modelString: str):
-    cassandraSession.execute(f"INSERT INTO heterogeneous_faas.ml_model (id, function_name, worker_id, model) VALUES ({uuid.uuid4()}, '{functionName}', '{workerId}', '{modelString}')")
+    cassandraSession.execute(f"INSERT INTO heterogeneous_faas.ml_model (id, function_name, worker_id, model) VALUES ({uuid.uuid4()}, '{functionName}', {workerId}, '{modelString}')")
 
 def train(functionName: str):
     # get workers to train function on

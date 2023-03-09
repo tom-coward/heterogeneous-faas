@@ -1,7 +1,6 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
