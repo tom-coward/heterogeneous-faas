@@ -96,13 +96,11 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     }
 
     private void runTraining(Function function, JsonArray exampleInputs) throws WorkerException, IntegrationException, DBClientException {
-        // iterate through each worker (cloud & edge) to build model for each
-        ArrayList<String> functionPayloadArray = new ArrayList<>();
-
         // for AWS (if cloud supported)
         if (function.isCloudSupported()) {
             LOGGER.log(Level.INFO, String.format("Running training on AWS (cloud) worker for function: %s", function.getName()));
 
+            ArrayList<String> functionPayloadArray = new ArrayList<>();
             for (int i = 0; i < Math.min(exampleInputs.toArray().length, 100); i++) {
                 // add to function payload (which gets incrementally larger)
                 functionPayloadArray.add(exampleInputs.get(i).toString());
@@ -122,6 +120,7 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
         if (function.isEdgeSupported()) {
             LOGGER.log(Level.INFO, String.format("Running training on Kubernetes (edge) worker for function: %s", function.getName()));
 
+            ArrayList<String> functionPayloadArray = new ArrayList<>();
             for (int i = 0; i < Math.min(exampleInputs.toArray().length, 100); i++) {
                 // add to function payload (which gets incrementally larger)
                 functionPayloadArray.add(exampleInputs.get(i).toString());

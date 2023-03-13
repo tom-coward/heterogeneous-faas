@@ -29,7 +29,7 @@ public class MLModelTable implements IDBTable {
                     .withPartitionKey("id", DataTypes.UUID)
                     .withColumn("function_name", DataTypes.ASCII)
                     .withColumn("worker", DataTypes.ASCII)
-                    .withColumn("model", DataTypes.ASCII)
+                    .withColumn("model", DataTypes.BLOB)
                     .build();
 
             db.execute(createTableStatement);
