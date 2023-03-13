@@ -10,9 +10,14 @@ def main(input):
     results = []
     for line in input:
         ls = list(map(int, line.split(' ')))
-        results += digit_check(ls[0]+ls[1])
+        results.append(digit_check(ls[0]+ls[1]))
     
     return results
 
 def handler(event, context):
     return main(event)
+
+if __name__ == '__main__':
+    data = ["81 404", "605 444"]
+
+    print(main(data))
