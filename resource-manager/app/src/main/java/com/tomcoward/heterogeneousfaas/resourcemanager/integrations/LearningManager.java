@@ -44,7 +44,7 @@ public class LearningManager {
         try {
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(new URI(String.format("%s/predictions/%s", LEARNING_MANAGER_URI, functionName)))
-                    .method("GET", HttpRequest.BodyPublishers.noBody())
+                    .method("PUT", HttpRequest.BodyPublishers.noBody())
                     .build();
 
             HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());

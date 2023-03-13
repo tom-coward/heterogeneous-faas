@@ -140,5 +140,6 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
         // trigger training by Learning Manager
         LOGGER.log(Level.INFO, String.format("Triggering ML training for function: %s", function.getName()));
         learningManager.triggerTraining(function.getName());
+        LOGGER.log(Level.INFO, "ML training complete");
     }
 }

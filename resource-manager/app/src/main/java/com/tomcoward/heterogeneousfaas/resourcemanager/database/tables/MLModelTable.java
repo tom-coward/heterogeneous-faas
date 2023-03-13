@@ -28,7 +28,7 @@ public class MLModelTable implements IDBTable {
                     .ifNotExists()
                     .withPartitionKey("id", DataTypes.UUID)
                     .withColumn("function_name", DataTypes.ASCII)
-                    .withColumn("worker_id", DataTypes.UUID)
+                    .withColumn("worker", DataTypes.ASCII)
                     .withColumn("model", DataTypes.ASCII)
                     .build();
 
