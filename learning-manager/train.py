@@ -1,55 +1,54 @@
 from cassandra.cluster import Cluster
-import numpy as np
+import numpy
 from sklearn.linear_model import LinearRegression
 import pickle
 import uuid
 
+
 cassandraCluster = Cluster(['localhost'])
 cassandraSession = cassandraCluster.connect()
 
-def getWorkers():
-    rows = cassandraSession.execute("SELECT id FROM heterogeneous_faas.worker")
+workers = ["AWS", "KUBERNETES"]
 
-    workers = []
-
-    for row in rows:
-        workers.append(row.id)
-
-    return workers
-
-def getFunctionExecutions(functionName: str, workerId: str):
+def getFunctionExecutions(functionName: str, worker: str):
     # TODO: remove ALLOW FILTERING if possible
-    rows = cassandraSession.execute(f"SELECT input_size, duration FROM heterogeneous_faas.function_execution WHERE function_name='{functionName}' AND worker_id={workerId} AND is_success=True ALLOW FILTERING")
+    rows = cassandraSession.execute(f"SELECT input_size, duration FROM heterogeneous_faas.function_execution WHERE function_name='{functionName}' AND worker='{worker}' AND is_success=True ALLOW FILTERING")
 
-    inputSizes = []
-    durations = []
+    data = []
 
     for row in rows:
-        inputSizes.append(row.input_size)
-        durations.append(row.duration)
+        data.append([row.input_size, row.duration])
 
-    return inputSizes, durations
+    return data
 
-def saveModel(functionName: str, workerId: str, modelString: str):
-    cassandraSession.execute(f"INSERT INTO heterogeneous_faas.ml_model (id, function_name, worker_id, model) VALUES ({uuid.uuid4()}, '{functionName}', {workerId}, '{modelString}')")
+def saveModel(functionName: str, worker: str, modelBytes: bytes):
+    saveModelStatement = cassandraSession.prepare(f"INSERT INTO heterogeneous_faas.ml_model (id, function_name, worker, model) VALUES (?, ?, ?, ?)")
+    cassandraSession.execute(saveModelStatement, (uuid.uuid4(), functionName, worker, modelBytes))
 
 def train(functionName: str):
-    # get workers to train function on
-    workers = getWorkers()
-
-    for workerId in workers:    
+    for worker in workers:    
         # get model features (input sizes and corresponding execution times)
-        inputSizes, durations = getFunctionExecutions(functionName, workerId)
+        data = getFunctionExecutions(functionName, worker)
+
+        # remove outliers (using Z-score)
+        durations = [i[1] for i in data]
+
+        mean = numpy.mean(durations)
+        stdDev = numpy.std(durations)
+        zScores = (durations - mean) / stdDev
+
+        threshold = 3
+        outliers = numpy.where(zScores > threshold)
+
+        for o in outliers[0]:
+            del data[o]
 
         # create linear regression model
-        x = np.array(inputSizes).reshape(-1, 1)
-        y = np.array(durations)
+        x = numpy.array([i[0] for i in data]).reshape(-1, 1)
+        y = numpy.array([i[1] for i in data])
 
         model = LinearRegression().fit(x, y)
 
-        print("Coefficients: ", model.coef_)
-        print("Intercept: ", model.intercept_)
-
         # save model in Cassandra database (as a string representation of model object)
-        modelString = pickle.dumps(model)
-        saveModel(functionName, workerId, modelString)
+        modelBytes = pickle.dumps(model)
+        saveModel(functionName, worker, modelBytes)
