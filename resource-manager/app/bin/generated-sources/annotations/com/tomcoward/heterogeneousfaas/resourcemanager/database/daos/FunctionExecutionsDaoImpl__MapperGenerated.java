@@ -39,19 +39,19 @@ public class FunctionExecutionsDaoImpl__MapperGenerated extends DaoBase implemen
 
   private final PreparedStatement getByFunctionNameStatement;
 
-  private final PreparedStatement getByWorkerIdStatement;
+  private final PreparedStatement getByWorkerStatement;
 
   private final PreparedStatement createStatement;
 
   private FunctionExecutionsDaoImpl__MapperGenerated(MapperContext context,
       FunctionExecutionHelper__MapperGenerated functionExecutionHelper,
       PreparedStatement getStatement, PreparedStatement getByFunctionNameStatement,
-      PreparedStatement getByWorkerIdStatement, PreparedStatement createStatement) {
+      PreparedStatement getByWorkerStatement, PreparedStatement createStatement) {
     super(context);
     this.functionExecutionHelper = functionExecutionHelper;
     this.getStatement = getStatement;
     this.getByFunctionNameStatement = getByFunctionNameStatement;
-    this.getByWorkerIdStatement = getByWorkerIdStatement;
+    this.getByWorkerStatement = getByWorkerStatement;
     this.createStatement = createStatement;
   }
 
@@ -76,11 +76,11 @@ public class FunctionExecutionsDaoImpl__MapperGenerated extends DaoBase implemen
   }
 
   @Override
-  public PagingIterable<FunctionExecution> getByWorkerId(UUID workerId) throws DBClientException {
-    BoundStatementBuilder boundStatementBuilder = getByWorkerIdStatement.boundStatementBuilder();
+  public PagingIterable<FunctionExecution> getByWorker(String worker) throws DBClientException {
+    BoundStatementBuilder boundStatementBuilder = getByWorkerStatement.boundStatementBuilder();
     NullSavingStrategy nullSavingStrategy = NullSavingStrategy.DO_NOT_SET;
-    if (workerId != null || nullSavingStrategy == NullSavingStrategy.SET_TO_NULL) {
-      boundStatementBuilder = boundStatementBuilder.set("workerId", workerId, UUID.class);
+    if (worker != null || nullSavingStrategy == NullSavingStrategy.SET_TO_NULL) {
+      boundStatementBuilder = boundStatementBuilder.set("worker", worker, String.class);
     }
     BoundStatement boundStatement = boundStatementBuilder.build();
     return executeAndMapToEntityIterable(boundStatement, functionExecutionHelper);
@@ -121,13 +121,13 @@ public class FunctionExecutionsDaoImpl__MapperGenerated extends DaoBase implemen
           getByFunctionNameStatement_simple.getQuery());
       CompletionStage<PreparedStatement> getByFunctionNameStatement = prepare(getByFunctionNameStatement_simple, context);
       prepareStages.add(getByFunctionNameStatement);
-      // Prepare the statement for `public abstract PagingIterable<com.tomcoward.heterogeneousfaas.resourcemanager.models.FunctionExecution> getByWorkerId(java.util.UUID) throws com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException`:
-      SimpleStatement getByWorkerIdStatement_simple = replaceKeyspaceAndTablePlaceholders("SELECT * FROM ${qualifiedTableId} WHERE worker_id = :workerId", context, functionExecutionHelper);
-      LOG.debug("[{}] Preparing query `{}` for method public abstract PagingIterable<com.tomcoward.heterogeneousfaas.resourcemanager.models.FunctionExecution> getByWorkerId(java.util.UUID) throws com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException",
+      // Prepare the statement for `public abstract PagingIterable<com.tomcoward.heterogeneousfaas.resourcemanager.models.FunctionExecution> getByWorker(java.lang.String) throws com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException`:
+      SimpleStatement getByWorkerStatement_simple = replaceKeyspaceAndTablePlaceholders("SELECT * FROM ${qualifiedTableId} WHERE worker = :workerId", context, functionExecutionHelper);
+      LOG.debug("[{}] Preparing query `{}` for method public abstract PagingIterable<com.tomcoward.heterogeneousfaas.resourcemanager.models.FunctionExecution> getByWorker(java.lang.String) throws com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException",
           context.getSession().getName(),
-          getByWorkerIdStatement_simple.getQuery());
-      CompletionStage<PreparedStatement> getByWorkerIdStatement = prepare(getByWorkerIdStatement_simple, context);
-      prepareStages.add(getByWorkerIdStatement);
+          getByWorkerStatement_simple.getQuery());
+      CompletionStage<PreparedStatement> getByWorkerStatement = prepare(getByWorkerStatement_simple, context);
+      prepareStages.add(getByWorkerStatement);
       // Prepare the statement for `public abstract void create(com.tomcoward.heterogeneousfaas.resourcemanager.models.FunctionExecution) throws com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException`:
       SimpleStatement createStatement_simple = functionExecutionHelper.insert().build();
       LOG.debug("[{}] Preparing query `{}` for method public abstract void create(com.tomcoward.heterogeneousfaas.resourcemanager.models.FunctionExecution) throws com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException",
@@ -142,7 +142,7 @@ public class FunctionExecutionsDaoImpl__MapperGenerated extends DaoBase implemen
               functionExecutionHelper,
               CompletableFutures.getCompleted(getStatement),
               CompletableFutures.getCompleted(getByFunctionNameStatement),
-              CompletableFutures.getCompleted(getByWorkerIdStatement),
+              CompletableFutures.getCompleted(getByWorkerStatement),
               CompletableFutures.getCompleted(createStatement)))
           .toCompletableFuture();
     } catch (Throwable t) {

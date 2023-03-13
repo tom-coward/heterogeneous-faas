@@ -28,7 +28,7 @@ public class FunctionTable implements IDBTable {
                     .withPartitionKey("name", DataTypes.ASCII)
                     .withColumn("container_registry_uri", DataTypes.ASCII)
                     .withColumn("edge_supported", DataTypes.BOOLEAN)
-                    .withColumn("cloud_aws_supported", DataTypes.BOOLEAN)
+                    .withColumn("cloud_supported", DataTypes.BOOLEAN)
                     .withColumn("edge_knservice_uri", DataTypes.ASCII)
                     .withColumn("cloud_aws_arn", DataTypes.ASCII)
                     .build();

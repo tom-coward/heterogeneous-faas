@@ -17,8 +17,8 @@ public interface FunctionExecutionsDao {
     @Query("SELECT * FROM ${qualifiedTableId} WHERE function_name = :functionName")
     PagingIterable<FunctionExecution> getByFunctionName(String functionName) throws DBClientException;
 
-    @Query("SELECT * FROM ${qualifiedTableId} WHERE worker_id = :workerId")
-    PagingIterable<FunctionExecution> getByWorkerId(UUID workerId) throws DBClientException;
+    @Query("SELECT * FROM ${qualifiedTableId} WHERE worker = :workerId")
+    PagingIterable<FunctionExecution> getByWorker(String worker) throws DBClientException;
 
     @Insert
     void create(FunctionExecution functionExecution) throws DBClientException;

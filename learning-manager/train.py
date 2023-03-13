@@ -52,5 +52,4 @@ def train(functionName: str):
 
         # save model in Cassandra database (as a string representation of model object)
         modelString = pickle.dumps(model)
-
         saveModel(functionName, workerId, modelString)

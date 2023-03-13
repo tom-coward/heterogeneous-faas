@@ -73,6 +73,8 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     private Function createFunction(JsonObject functionObject) throws DBClientException, IntegrationException, IOException, WorkerException {
         Function function = new Function(functionObject);
 
+        LOGGER.log(Level.INFO, String.format("Creating function: %s", function.getName()));
+
         // if aws supported, add to AWS Lambda
         if (function.isCloudSupported()) {
             function = awsLambda.createFunction(function);
@@ -99,6 +101,8 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
 
         // for AWS (if cloud supported)
         if (function.isCloudSupported()) {
+            LOGGER.log(Level.INFO, String.format("Running training on AWS (cloud) worker for function: %s", function.getName()));
+
             for (int i = 0; i < Math.min(exampleInputs.toArray().length, 100); i++) {
                 // add to function payload (which gets incrementally larger)
                 functionPayloadArray.add(exampleInputs.get(i).toString());
@@ -108,11 +112,16 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
                 InvokeFunctionHandler.FunctionInvocationResponse response = invokeFunctionHandler.invokeWorker(AWSLambda.WORKER_NAME, function, functionPayload, 0);
 
                 invokeFunctionHandler.recordFunctionExecution(function.getName(), AWSLambda.WORKER_NAME, functionPayloadArray.size(), response);
+                LOGGER.log(Level.INFO, String.format("%d executions completed...", i+1));
             }
+
+            LOGGER.log(Level.INFO, "AWS (cloud) training complete");
         }
 
         // for Kubernetes (if edge supported)
         if (function.isEdgeSupported()) {
+            LOGGER.log(Level.INFO, String.format("Running training on Kubernetes (edge) worker for function: %s", function.getName()));
+
             for (int i = 0; i < Math.min(exampleInputs.toArray().length, 100); i++) {
                 // add to function payload (which gets incrementally larger)
                 functionPayloadArray.add(exampleInputs.get(i).toString());
@@ -122,10 +131,14 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
                 InvokeFunctionHandler.FunctionInvocationResponse response = invokeFunctionHandler.invokeWorker(Kubernetes.WORKER_NAME, function, functionPayload, 0);
 
                 invokeFunctionHandler.recordFunctionExecution(function.getName(), Kubernetes.WORKER_NAME, functionPayloadArray.size(), response);
+                LOGGER.log(Level.INFO, String.format("%d executions completed...", i+1));
             }
+
+            LOGGER.log(Level.INFO, "Kubernetes (edge) training complete");
         }
 
         // trigger training by Learning Manager
+        LOGGER.log(Level.INFO, String.format("Triggering ML training for function: %s", function.getName()));
         learningManager.triggerTraining(function.getName());
     }
 }

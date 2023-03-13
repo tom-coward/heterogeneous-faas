@@ -75,7 +75,7 @@ public class InvokeFunctionHandler implements HttpHandler {
 
         // invoke in AWS
         String worker = AWSLambda.WORKER_NAME;
-        long predictedDuration = 0;
+        float predictedDuration = 0;
 
         // invoke in Kubernetes
         //Worker worker = new Worker(Worker.HOST.KUBERNETES, true);
@@ -103,7 +103,7 @@ public class InvokeFunctionHandler implements HttpHandler {
         return response;
     }
 
-    public FunctionInvocationResponse invokeWorker(String worker, Function function, String functionPayload, long predictedDuration) throws WorkerException, IntegrationException {
+    public FunctionInvocationResponse invokeWorker(String worker, Function function, String functionPayload, float predictedDuration) throws WorkerException, IntegrationException {
         Instant invocationStartTime = Instant.now();
 
         String response;
@@ -121,7 +121,7 @@ public class InvokeFunctionHandler implements HttpHandler {
 
         Instant invocationEndTime = Instant.now();
 
-        long invocationDuration = Duration.between(invocationStartTime, invocationEndTime).toMillis();
+        float invocationDuration = Duration.between(invocationStartTime, invocationEndTime).toMillis();
 
         return new FunctionInvocationResponse(response, invocationDuration, predictedDuration, worker);
     }
@@ -138,11 +138,11 @@ public class InvokeFunctionHandler implements HttpHandler {
 
     public class FunctionInvocationResponse {
         private final String response;
-        private final long duration;
-        private final long predictedDuration;
+        private final float duration;
+        private final float predictedDuration;
         private final String worker;
 
-        public FunctionInvocationResponse(String response, long duration, long predictedDuration, String worker) {
+        public FunctionInvocationResponse(String response, float duration, float predictedDuration, String worker) {
             this.response = response;
             this.duration = duration;
             this.predictedDuration = predictedDuration;
@@ -154,11 +154,11 @@ public class InvokeFunctionHandler implements HttpHandler {
             return this.response;
         }
 
-        public long getDuration() {
+        public float getDuration() {
             return this.duration;
         }
 
-        public long getPredictedDuration() {
+        public float getPredictedDuration() {
             return this.predictedDuration;
         }
 

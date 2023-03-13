@@ -7,7 +7,7 @@ import subprocess
 
 # select random solutions to selected problems (as defined by their ID below) in the chosen languages
 def compile(selectedProblem):
-    selectedLanguages = ["C#", "Go", "Python"]
+    selectedLanguages = ["Python"]
 
     metadataDirectory = "./metadata"
     dataDirectory = "./data"

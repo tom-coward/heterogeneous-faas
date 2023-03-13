@@ -8,6 +8,6 @@ import java.util.UUID;
 public interface IFunctionExecutionRepository {
     FunctionExecution get(UUID id) throws DBClientException;
     List<FunctionExecution> getByFunction(String functionName) throws DBClientException;
-    List<FunctionExecution> getByWorker(UUID workerId) throws DBClientException;
+    List<FunctionExecution> getByWorker(String worker) throws DBClientException;
     void create(FunctionExecution functionExecution) throws DBClientException;
 }

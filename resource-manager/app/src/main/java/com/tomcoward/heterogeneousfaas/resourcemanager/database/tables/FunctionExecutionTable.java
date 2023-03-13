@@ -28,10 +28,10 @@ public class FunctionExecutionTable implements IDBTable {
                     .ifNotExists()
                     .withPartitionKey("id", DataTypes.UUID)
                     .withColumn("function_name", DataTypes.ASCII)
-                    .withColumn("worker_id", DataTypes.UUID)
+                    .withColumn("worker", DataTypes.ASCII)
                     .withColumn("input_size", DataTypes.INT)
-                    .withColumn("duration", DataTypes.BIGINT)
-                    .withColumn("predicted_duration", DataTypes.BIGINT)
+                    .withColumn("duration", DataTypes.FLOAT)
+                    .withColumn("predicted_duration", DataTypes.FLOAT)
                     .withColumn("is_success", DataTypes.BOOLEAN)
                     .build();
 
@@ -47,13 +47,13 @@ public class FunctionExecutionTable implements IDBTable {
             db.execute(createFunctionNameIndexStatement);
 
             // create worker_id column index
-            SimpleStatement createWorkerIdIndexStatement = createIndex(String.format("%s_worker_id_index", TABLE_NAME))
+            SimpleStatement createWorkerIndexStatement = createIndex(String.format("%s_worker_index", TABLE_NAME))
                     .ifNotExists()
                     .onTable(TABLE_NAME)
-                    .andColumn("worker_id")
+                    .andColumn("worker")
                     .build();
 
-            db.execute(createWorkerIdIndexStatement);
+            db.execute(createWorkerIndexStatement);
 
             // create is_success column index
             SimpleStatement createIsSuccessIndexStatement = createIndex(String.format("%s_is_success_index", TABLE_NAME))

@@ -41,11 +41,11 @@ public class CassandraFunctionExecutionRepository implements IFunctionExecutionR
         }
     }
 
-    public List<FunctionExecution> getByWorker(UUID workerId) throws DBClientException {
+    public List<FunctionExecution> getByWorker(String worker) throws DBClientException {
         try {
-            return functionExecutionsDao.getByWorkerId(workerId).all();
+            return functionExecutionsDao.getByWorker(worker).all();
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, String.format("Error getting FunctionExecutions for worker ID %d from Cassandra", workerId.toString()), ex);
+            LOGGER.log(Level.SEVERE, String.format("Error getting FunctionExecutions for worker %s from Cassandra", worker), ex);
             throw new DBClientException("There was a problem getting function execution history from the database");
         }
     }

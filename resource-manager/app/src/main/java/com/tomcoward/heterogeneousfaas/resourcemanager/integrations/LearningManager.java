@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public class LearningManager {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    private final static String LEARNING_MANAGER_URI = "http://localhost:8080";
+    private final static String LEARNING_MANAGER_URI = "http://localhost:5000";
 
     private final HttpClient httpClient;
 

@@ -18,16 +18,16 @@ public class FunctionExecution {
     @CqlName("input_size")
     private int inputSize;
     @CqlName("duration")
-    private long duration;
+    private float duration;
     @CqlName("predicted_duration")
-    private long predictedDuration;
+    private float predictedDuration;
     @CqlName("is_success")
     private boolean isSuccess;
 
 
     public FunctionExecution() {}
 
-    public FunctionExecution(UUID id, String functionName, String worker, int inputSize, long duration, long predictedDuration, boolean isSuccess) {
+    public FunctionExecution(UUID id, String functionName, String worker, int inputSize, float duration, float predictedDuration, boolean isSuccess) {
         this.id = id;
         this.functionName = functionName;
         this.worker = worker;
@@ -37,7 +37,7 @@ public class FunctionExecution {
         this.isSuccess = isSuccess;
     }
 
-    public FunctionExecution(String functionName, String worker, int inputSize, long duration, long predictedDuration, boolean isSuccess) {
+    public FunctionExecution(String functionName, String worker, int inputSize, float duration, float predictedDuration, boolean isSuccess) {
         this.id = UUID.randomUUID();
         this.functionName = functionName;
         this.worker = worker;
@@ -64,15 +64,15 @@ public class FunctionExecution {
         return inputSize;
     }
 
-    public long getDuration() {
+    public float getDuration() {
         return duration;
     }
 
-    public long getPredictedDuration() {
+    public float getPredictedDuration() {
         return predictedDuration;
     }
 
-    public boolean isSuccess() {
+    public boolean getIsSuccess() {
         return isSuccess;
     }
 
@@ -93,11 +93,11 @@ public class FunctionExecution {
         this.inputSize = inputSize;
     }
 
-    public void setDuration(long duration) {
+    public void setDuration(float duration) {
         this.duration = duration;
     }
 
-    public void setPredictedDuration(long predictedDuration) {
+    public void setPredictedDuration(float predictedDuration) {
         this.predictedDuration = predictedDuration;
     }
 

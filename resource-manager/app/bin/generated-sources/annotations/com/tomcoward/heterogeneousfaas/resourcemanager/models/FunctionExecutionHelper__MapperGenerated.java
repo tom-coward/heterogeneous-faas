@@ -23,10 +23,11 @@ import com.datastax.oss.driver.api.querybuilder.update.UpdateStart;
 import com.datastax.oss.driver.internal.mapper.entity.EntityHelperBase;
 import com.datastax.oss.driver.internal.querybuilder.update.DefaultUpdate;
 import com.datastax.oss.driver.shaded.guava.common.collect.ImmutableList;
+import java.lang.Boolean;
 import java.lang.Class;
+import java.lang.Float;
 import java.lang.IllegalArgumentException;
 import java.lang.Integer;
-import java.lang.Long;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
@@ -46,13 +47,15 @@ import org.slf4j.LoggerFactory;
 public class FunctionExecutionHelper__MapperGenerated extends EntityHelperBase<FunctionExecution> {
   private static final Logger LOG = LoggerFactory.getLogger(FunctionExecutionHelper__MapperGenerated.class);
 
-  private static final GenericType<Long> GENERIC_TYPE = new GenericType<Long>(){};
+  private static final GenericType<Float> GENERIC_TYPE = new GenericType<Float>(){};
 
   private static final GenericType<String> GENERIC_TYPE1 = new GenericType<String>(){};
 
   private static final GenericType<UUID> GENERIC_TYPE2 = new GenericType<UUID>(){};
 
   private static final GenericType<Integer> GENERIC_TYPE3 = new GenericType<Integer>(){};
+
+  private static final GenericType<Boolean> GENERIC_TYPE4 = new GenericType<Boolean>(){};
 
   private final List<String> primaryKeys;
 
@@ -94,10 +97,13 @@ public class FunctionExecutionHelper__MapperGenerated extends EntityHelperBase<F
       target = target.setInt("input_size", entity.getInputSize());
     }
     if (!lenient || hasProperty(target, "duration")) {
-      target = target.setLong("duration", entity.getDuration());
+      target = target.setFloat("duration", entity.getDuration());
     }
     if (!lenient || hasProperty(target, "predicted_duration")) {
-      target = target.setLong("predicted_duration", entity.getPredictedDuration());
+      target = target.setFloat("predicted_duration", entity.getPredictedDuration());
+    }
+    if (!lenient || hasProperty(target, "is_success")) {
+      target = target.setBoolean("is_success", entity.getIsSuccess());
     }
     return target;
   }
@@ -122,12 +128,16 @@ public class FunctionExecutionHelper__MapperGenerated extends EntityHelperBase<F
       returnValue.setInputSize(propertyValue3);
     }
     if (!lenient || hasProperty(source, "duration")) {
-      long propertyValue4 = source.getLong("duration");
+      float propertyValue4 = source.getFloat("duration");
       returnValue.setDuration(propertyValue4);
     }
     if (!lenient || hasProperty(source, "predicted_duration")) {
-      long propertyValue5 = source.getLong("predicted_duration");
+      float propertyValue5 = source.getFloat("predicted_duration");
       returnValue.setPredictedDuration(propertyValue5);
+    }
+    if (!lenient || hasProperty(source, "is_success")) {
+      boolean propertyValue6 = source.getBoolean("is_success");
+      returnValue.setIsSuccess(propertyValue6);
     }
     return returnValue;
   }
@@ -144,7 +154,8 @@ public class FunctionExecutionHelper__MapperGenerated extends EntityHelperBase<F
         .value("worker", QueryBuilder.bindMarker("worker"))
         .value("input_size", QueryBuilder.bindMarker("input_size"))
         .value("duration", QueryBuilder.bindMarker("duration"))
-        .value("predicted_duration", QueryBuilder.bindMarker("predicted_duration"));
+        .value("predicted_duration", QueryBuilder.bindMarker("predicted_duration"))
+        .value("is_success", QueryBuilder.bindMarker("is_success"));
   }
 
   public Select selectByPrimaryKeyParts(int parameterCount) {
@@ -173,7 +184,8 @@ public class FunctionExecutionHelper__MapperGenerated extends EntityHelperBase<F
         .column("worker")
         .column("input_size")
         .column("duration")
-        .column("predicted_duration");
+        .column("predicted_duration")
+        .column("is_success");
   }
 
   public DeleteSelection deleteStart() {
@@ -213,7 +225,8 @@ public class FunctionExecutionHelper__MapperGenerated extends EntityHelperBase<F
         .setColumn("worker", QueryBuilder.bindMarker("worker"))
         .setColumn("input_size", QueryBuilder.bindMarker("input_size"))
         .setColumn("duration", QueryBuilder.bindMarker("duration"))
-        .setColumn("predicted_duration", QueryBuilder.bindMarker("predicted_duration")));
+        .setColumn("predicted_duration", QueryBuilder.bindMarker("predicted_duration"))
+        .setColumn("is_success", QueryBuilder.bindMarker("is_success")));
   }
 
   @Override
@@ -249,6 +262,7 @@ public class FunctionExecutionHelper__MapperGenerated extends EntityHelperBase<F
     expectedCqlNames.add(CqlIdentifier.fromCql("input_size"));
     expectedCqlNames.add(CqlIdentifier.fromCql("duration"));
     expectedCqlNames.add(CqlIdentifier.fromCql("predicted_duration"));
+    expectedCqlNames.add(CqlIdentifier.fromCql("is_success"));
     Optional<TableMetadata> tableMetadata = keyspace.flatMap(v -> v.getTable(tableId));
     Optional<UserDefinedType> userDefinedType = keyspace.flatMap(v -> v.getUserDefinedType(tableId));
     if (tableMetadata.isPresent()) {
@@ -271,6 +285,7 @@ public class FunctionExecutionHelper__MapperGenerated extends EntityHelperBase<F
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("id"), GENERIC_TYPE2);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("function_name"), GENERIC_TYPE1);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("input_size"), GENERIC_TYPE3);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("is_success"), GENERIC_TYPE4);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("duration"), GENERIC_TYPE);
       List<String> missingTableTypes = findTypeMismatches(expectedTypesPerColumn, tableMetadata.get().getColumns(), context.getSession().getContext().getCodecRegistry());
       throwMissingTableTypesIfNotEmpty(missingTableTypes, keyspaceId, tableId, entityClassName);
@@ -289,6 +304,7 @@ public class FunctionExecutionHelper__MapperGenerated extends EntityHelperBase<F
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("id"), GENERIC_TYPE2);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("function_name"), GENERIC_TYPE1);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("input_size"), GENERIC_TYPE3);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("is_success"), GENERIC_TYPE4);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("duration"), GENERIC_TYPE);
       List<CqlIdentifier> expectedColumns = userDefinedType.get().getFieldNames();
       List<DataType> expectedTypes = userDefinedType.get().getFieldTypes();
