@@ -9,17 +9,13 @@ import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.daos.FunctionExecutionsDao;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.daos.FunctionsDao;
-import com.tomcoward.heterogeneousfaas.resourcemanager.database.daos.WorkersDao;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.FunctionsMapper;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.FunctionsMapperBuilder;
-import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.WorkersMapper;
-import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.WorkersMapperBuilder;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.FunctionExecutionsMapper;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.mappers.FunctionExecutionsMapperBuilder;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.tables.FunctionExecutionTable;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.tables.FunctionTable;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.tables.MLModelTable;
-import com.tomcoward.heterogeneousfaas.resourcemanager.database.tables.WorkerTable;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 
 public class CassandraClient implements IDBClient {
@@ -30,19 +26,16 @@ public class CassandraClient implements IDBClient {
     private final CqlSession cqlSession;
 
     private final FunctionTable functionsTable;
-    private final WorkerTable workersTable;
     private final FunctionExecutionTable functionExecutionsTable;
     private final MLModelTable mlModelTable;
 
     private final FunctionsDao functionsDao;
-    private final WorkersDao workersDao;
     private final FunctionExecutionsDao functionExecutionsDao;
 
     public CassandraClient() throws DBClientException {
         this.cqlSession = initialise();
 
         this.functionsTable = new FunctionTable(this);
-        this.workersTable = new WorkerTable(this);
         this.functionExecutionsTable = new FunctionExecutionTable(this);
         this.mlModelTable = new MLModelTable(this);
 
@@ -50,8 +43,6 @@ public class CassandraClient implements IDBClient {
 
         FunctionsMapper functionsMapper = new FunctionsMapperBuilder(this.cqlSession).build();
         this.functionsDao = functionsMapper.functionsDao(CqlIdentifier.fromCql(KEYSPACE_NAME));
-        WorkersMapper workersMapper = new WorkersMapperBuilder(this.cqlSession).build();
-        this.workersDao = workersMapper.workersDao(CqlIdentifier.fromCql(KEYSPACE_NAME));
         FunctionExecutionsMapper functionExecutionsMapper = new FunctionExecutionsMapperBuilder(this.cqlSession).build();
         this.functionExecutionsDao = functionExecutionsMapper.functionExecutionsDao(CqlIdentifier.fromCql(KEYSPACE_NAME));
     }
@@ -59,7 +50,6 @@ public class CassandraClient implements IDBClient {
 
     public void up() throws DBClientException {
         functionsTable.up();
-        workersTable.up();
         functionExecutionsTable.up();
         mlModelTable.up();
     }
@@ -68,7 +58,6 @@ public class CassandraClient implements IDBClient {
         dropKeyspace(this.cqlSession);
 
         functionsTable.down();
-        workersTable.down();
         functionExecutionsTable.down();
         mlModelTable.down();
     }
@@ -84,10 +73,6 @@ public class CassandraClient implements IDBClient {
 
     public FunctionsDao getFunctionsDao() {
         return this.functionsDao;
-    }
-
-    public WorkersDao getWorkersDao() {
-        return this.workersDao;
     }
 
     public FunctionExecutionsDao getFunctionExecutionsDao() {

@@ -22,7 +22,6 @@ public class App {
     private final LearningManager learningManager;
 
     private final IFunctionRepository functionsRepo;
-    private final IWorkerRepository workersRepo;
     private final IFunctionExecutionRepository functionExecutionsRepo;
 
     public App() throws Exception {
@@ -37,7 +36,6 @@ public class App {
 
         // initialise repos
         functionsRepo = new CassandraFunctionRepository(db);
-        workersRepo = new CassandraWorkerRepository(db);
         functionExecutionsRepo = new CassandraFunctionExecutionRepository(db);
 
         // initialise http server
@@ -47,7 +45,6 @@ public class App {
         // define http server routes
         addCreateFunctionRoute();
         addInvokeFunctionRoute();
-        addCreateWorkerRoute();
         addSetCredentialsRoute();
 
         // startup http server (will block thread)
@@ -70,15 +67,11 @@ public class App {
 
 
     private void addCreateFunctionRoute() {
-        server.createContext("/function", new CreateFunctionHandler(functionsRepo, workersRepo, functionExecutionsRepo, awsLambda, kubernetes, learningManager));
+        server.createContext("/function", new CreateFunctionHandler(functionsRepo, functionExecutionsRepo, awsLambda, kubernetes, learningManager));
     }
 
     private void addInvokeFunctionRoute() {
-        server.createContext("/function/invoke", new InvokeFunctionHandler(functionsRepo, workersRepo, functionExecutionsRepo, awsLambda, kubernetes));
-    }
-
-    private void addCreateWorkerRoute() {
-        server.createContext("/worker", new CreateWorkerHandler(workersRepo));
+        server.createContext("/function/invoke", new InvokeFunctionHandler(functionsRepo, functionExecutionsRepo, awsLambda, kubernetes, learningManager));
     }
 
     private void addSetCredentialsRoute() {

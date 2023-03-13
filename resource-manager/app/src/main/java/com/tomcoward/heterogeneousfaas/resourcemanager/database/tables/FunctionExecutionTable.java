@@ -31,6 +31,7 @@ public class FunctionExecutionTable implements IDBTable {
                     .withColumn("worker_id", DataTypes.UUID)
                     .withColumn("input_size", DataTypes.INT)
                     .withColumn("duration", DataTypes.BIGINT)
+                    .withColumn("predicted_duration", DataTypes.BIGINT)
                     .withColumn("is_success", DataTypes.BOOLEAN)
                     .build();
 

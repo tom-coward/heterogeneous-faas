@@ -6,13 +6,13 @@ import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.*;
-import javax.json.JsonObject;
-import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AWSLambda implements IWorkerIntegration {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
+    public final static String WORKER_NAME = "AWS";
 
     public final static Region AWS_REGION = Region.EU_WEST_1;
 

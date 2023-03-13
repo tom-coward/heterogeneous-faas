@@ -16,8 +16,8 @@ public class Function {
     private String containerRegistryUri;
     @CqlName("edge_supported")
     private boolean edgeSupported;
-    @CqlName("cloud_aws_supported")
-    private boolean cloudAWSSupported;
+    @CqlName("cloud_supported")
+    private boolean cloudSupported;
     @CqlName("edge_knservice_uri")
     private String edgeKnServiceUri;
     @CqlName("cloud_aws_arn")
@@ -29,7 +29,7 @@ public class Function {
         this.name = jsonObject.getString("name");
         this.containerRegistryUri = jsonObject.getString("container_registry_uri");
         this.edgeSupported = jsonObject.getBoolean("edge_supported");
-        this.cloudAWSSupported = jsonObject.getBoolean("cloud_aws_supported");
+        this.cloudSupported = jsonObject.getBoolean("cloud_supported");
     }
 
 
@@ -45,8 +45,8 @@ public class Function {
         return edgeSupported;
     }
 
-    public boolean isCloudAWSSupported() {
-        return cloudAWSSupported;
+    public boolean isCloudSupported() {
+        return cloudSupported;
     }
 
     public String getEdgeKnServiceUri() {
@@ -70,8 +70,8 @@ public class Function {
         this.edgeSupported = edgeSupported;
     }
 
-    public void setCloudAWSSupported(boolean cloudAWSSupported) {
-        this.cloudAWSSupported = cloudAWSSupported;
+    public void setCloudSupported(boolean cloudSupported) {
+        this.cloudSupported = cloudSupported;
     }
 
     public void setEdgeKnServiceUri(String edgeKnServiceUri) {

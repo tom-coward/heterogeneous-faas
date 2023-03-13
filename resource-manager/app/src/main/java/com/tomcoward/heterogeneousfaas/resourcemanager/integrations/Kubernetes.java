@@ -20,6 +20,8 @@ import java.util.logging.Logger;
 public class Kubernetes implements IWorkerIntegration {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
+    public final static String WORKER_NAME = "KUBERNETES";
+
     private final static String KNATIVE_NAMESPACE = "default";
     private final static String KNATIVE_URI = "127.0.0.1.sslip.io/2015-03-31/functions/function/invocations";
 
@@ -55,7 +57,7 @@ public class Kubernetes implements IWorkerIntegration {
                 .withName(name)
                 .build();
 
-        // TODO: can define resource limits of service pods (cpu & memory) here
+        // can define resource limits of service pods (cpu & memory) here
         Container serviceSpecContainer = new ContainerBuilder()
                 .withImage(containerRegistryUri)
                 .build();

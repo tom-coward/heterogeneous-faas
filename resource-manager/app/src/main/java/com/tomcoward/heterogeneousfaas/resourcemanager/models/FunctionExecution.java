@@ -13,33 +13,37 @@ public class FunctionExecution {
 
     @CqlName("function_name")
     private String functionName;
-    @CqlName("worker_id")
-    private UUID workerId;
+    @CqlName("worker")
+    private String worker;
     @CqlName("input_size")
     private int inputSize;
     @CqlName("duration")
     private long duration;
+    @CqlName("predicted_duration")
+    private long predictedDuration;
     @CqlName("is_success")
     private boolean isSuccess;
 
 
     public FunctionExecution() {}
 
-    public FunctionExecution(UUID id, String functionName, UUID workerId, int inputSize, long duration, boolean isSuccess) {
+    public FunctionExecution(UUID id, String functionName, String worker, int inputSize, long duration, long predictedDuration, boolean isSuccess) {
         this.id = id;
         this.functionName = functionName;
-        this.workerId = workerId;
+        this.worker = worker;
         this.inputSize = inputSize;
         this.duration = duration;
+        this.predictedDuration = predictedDuration;
         this.isSuccess = isSuccess;
     }
 
-    public FunctionExecution(String functionName, UUID workerId, int inputSize, long duration, boolean isSuccess) {
+    public FunctionExecution(String functionName, String worker, int inputSize, long duration, long predictedDuration, boolean isSuccess) {
         this.id = UUID.randomUUID();
         this.functionName = functionName;
-        this.workerId = workerId;
+        this.worker = worker;
         this.inputSize = inputSize;
         this.duration = duration;
+        this.predictedDuration = predictedDuration;
         this.isSuccess = isSuccess;
     }
 
@@ -52,8 +56,8 @@ public class FunctionExecution {
         return functionName;
     }
 
-    public UUID getWorkerID() {
-        return workerId;
+    public String getWorker() {
+        return worker;
     }
 
     public int getInputSize() {
@@ -62,6 +66,10 @@ public class FunctionExecution {
 
     public long getDuration() {
         return duration;
+    }
+
+    public long getPredictedDuration() {
+        return predictedDuration;
     }
 
     public boolean isSuccess() {
@@ -77,8 +85,8 @@ public class FunctionExecution {
         this.functionName = functionName;
     }
 
-    public void setWorkerId(UUID workerId) {
-        this.workerId = workerId;
+    public void setWorker(String worker) {
+        this.worker = worker;
     }
 
     public void setInputSize(int inputSize) {
@@ -87,6 +95,10 @@ public class FunctionExecution {
 
     public void setDuration(long duration) {
         this.duration = duration;
+    }
+
+    public void setPredictedDuration(long predictedDuration) {
+        this.predictedDuration = predictedDuration;
     }
 
     public void setIsSuccess(boolean isSuccess) {

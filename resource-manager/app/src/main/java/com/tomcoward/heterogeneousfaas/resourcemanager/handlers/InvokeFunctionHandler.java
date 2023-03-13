@@ -13,28 +13,27 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.*;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.helpers.HttpHelper;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
+import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.LearningManager;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.FunctionExecution;
-import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionExecutionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
-import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IWorkerRepository;
 
 public class InvokeFunctionHandler implements HttpHandler {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private final IFunctionRepository functionsRepo;
-    private final IWorkerRepository workersRepo;
     private final IFunctionExecutionRepository functionExecutionsRepo;
     private final AWSLambda awsLambda;
     private final Kubernetes kubernetes;
+    private final LearningManager learningManager;
 
-    public InvokeFunctionHandler(IFunctionRepository functionsRepo, IWorkerRepository workersRepo, IFunctionExecutionRepository functionExecutionsRepo, AWSLambda awsLambda, Kubernetes kubernetes) {
+    public InvokeFunctionHandler(IFunctionRepository functionsRepo, IFunctionExecutionRepository functionExecutionsRepo, AWSLambda awsLambda, Kubernetes kubernetes, LearningManager learningManager) {
         this.functionsRepo = functionsRepo;
-        this.workersRepo = workersRepo;
         this.functionExecutionsRepo = functionExecutionsRepo;
         this.awsLambda = awsLambda;
         this.kubernetes = kubernetes;
+        this.learningManager = learningManager;
     }
 
 
@@ -58,7 +57,7 @@ public class InvokeFunctionHandler implements HttpHandler {
 
             HttpHelper.sendResponse(exchange, 200, response.getResponse());
 
-            recordFunctionExecution(functionName, response.getWorkerId(), functionPayload.length(), response);
+            recordFunctionExecution(functionName, response.getWorker(), functionPayload.length(), response);
         } catch (DBClientException ex) {
             // return error to client
             HttpHelper.sendResponse(exchange, 500, ex.getMessage());
@@ -75,12 +74,14 @@ public class InvokeFunctionHandler implements HttpHandler {
         Function function = functionsRepo.get(functionName);
 
         // invoke in AWS
-        Worker worker = new Worker(Worker.HOST.AWS, true);
+        String worker = AWSLambda.WORKER_NAME;
+        long predictedDuration = 0;
 
         // invoke in Kubernetes
         //Worker worker = new Worker(Worker.HOST.KUBERNETES, true);
 
-        // TODO: call ML Manager to choose worker
+        // call ML Manager to choose worker
+        //ArrayList<LearningManager.FunctionInvocationPrediction> predictions = learningManager.getPredictions(function.getName(), functionPayload.length());
 
         // returns list of worker types
 //            ArrayList<Worker> workers = new ArrayList<>();
@@ -95,19 +96,19 @@ public class InvokeFunctionHandler implements HttpHandler {
 //                // TODO: handle if no workers available
 //            }
 
-        FunctionInvocationResponse response = invokeWorker(worker, function, functionPayload);
+        FunctionInvocationResponse response = invokeWorker(worker, function, functionPayload, predictedDuration);
 
         LOGGER.log(Level.INFO, String.format("%s invocation response in %dms: %s", function.getName(), response.getDuration(), response.getResponse()));
 
         return response;
     }
 
-    public FunctionInvocationResponse invokeWorker(Worker worker, Function function, String functionPayload) throws WorkerException, IntegrationException {
+    public FunctionInvocationResponse invokeWorker(String worker, Function function, String functionPayload, long predictedDuration) throws WorkerException, IntegrationException {
         Instant invocationStartTime = Instant.now();
 
         String response;
 
-        switch (worker.getHost()) {
+        switch (worker) {
             case "KUBERNETES":
                 response = kubernetes.invokeFunction(function, functionPayload);
                 break;
@@ -115,21 +116,21 @@ public class InvokeFunctionHandler implements HttpHandler {
                 response = awsLambda.invokeFunction(function, functionPayload);
                 break;
             default:
-                throw new WorkerException("The host of the function's selected worker could not be found");
+                throw new WorkerException(String.format("The host of the function's selected worker (%s) could not be found", worker));
         }
 
         Instant invocationEndTime = Instant.now();
 
         long invocationDuration = Duration.between(invocationStartTime, invocationEndTime).toMillis();
 
-        return new FunctionInvocationResponse(response, invocationDuration, worker.getId());
+        return new FunctionInvocationResponse(response, invocationDuration, predictedDuration, worker);
     }
 
-    public void recordFunctionExecution(String functionName, UUID workerId, int inputSize, FunctionInvocationResponse functionInvocationResponse) throws DBClientException {
+    public void recordFunctionExecution(String functionName, String worker, int inputSize, FunctionInvocationResponse functionInvocationResponse) throws DBClientException {
         // if function response indicated there was an error, mark execution as unsuccessful
         boolean isSuccess = !functionInvocationResponse.getResponse().contains("errorType");
 
-        FunctionExecution functionExecution = new FunctionExecution(functionName, workerId, inputSize, functionInvocationResponse.getDuration(), isSuccess);
+        FunctionExecution functionExecution = new FunctionExecution(functionName, worker, inputSize, functionInvocationResponse.getDuration(), functionInvocationResponse.getPredictedDuration(), isSuccess);
 
         functionExecutionsRepo.create(functionExecution);
     }
@@ -138,12 +139,14 @@ public class InvokeFunctionHandler implements HttpHandler {
     public class FunctionInvocationResponse {
         private final String response;
         private final long duration;
-        private final UUID workerId;
+        private final long predictedDuration;
+        private final String worker;
 
-        public FunctionInvocationResponse(String response, long duration, UUID workerId) {
+        public FunctionInvocationResponse(String response, long duration, long predictedDuration, String worker) {
             this.response = response;
             this.duration = duration;
-            this.workerId = workerId;
+            this.predictedDuration = predictedDuration;
+            this.worker = worker;
         }
 
 
@@ -155,8 +158,12 @@ public class InvokeFunctionHandler implements HttpHandler {
             return this.duration;
         }
 
-        public UUID getWorkerId() {
-            return this.workerId;
+        public long getPredictedDuration() {
+            return this.predictedDuration;
+        }
+
+        public String getWorker() {
+            return this.worker;
         }
     }
 }

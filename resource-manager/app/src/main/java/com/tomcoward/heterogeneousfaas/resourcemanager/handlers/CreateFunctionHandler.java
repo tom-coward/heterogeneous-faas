@@ -15,10 +15,9 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.LearningManager;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
-import com.tomcoward.heterogeneousfaas.resourcemanager.models.Worker;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionExecutionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
-import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IWorkerRepository;
+
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 
@@ -28,20 +27,18 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     private final Gson gson = new Gson();
 
     private final IFunctionRepository functionsRepo;
-    private final IWorkerRepository workersRepo;
     private final AWSLambda awsLambda;
     private final Kubernetes kubernetes;
     private final LearningManager learningManager;
     private final InvokeFunctionHandler invokeFunctionHandler;
 
-    public CreateFunctionHandler(IFunctionRepository functionsRepo, IWorkerRepository workersRepo, IFunctionExecutionRepository functionExecutionsRepo, AWSLambda awsLambda, Kubernetes kubernetes, LearningManager learningManager) {
+    public CreateFunctionHandler(IFunctionRepository functionsRepo, IFunctionExecutionRepository functionExecutionsRepo, AWSLambda awsLambda, Kubernetes kubernetes, LearningManager learningManager) {
         this.functionsRepo = functionsRepo;
-        this.workersRepo = workersRepo;
         this.awsLambda = awsLambda;
         this.kubernetes = kubernetes;
         this.learningManager = learningManager;
 
-        this.invokeFunctionHandler = new InvokeFunctionHandler(functionsRepo, workersRepo, functionExecutionsRepo, awsLambda, kubernetes);
+        this.invokeFunctionHandler = new InvokeFunctionHandler(functionsRepo, functionExecutionsRepo, awsLambda, kubernetes, learningManager);
     }
 
 
@@ -77,7 +74,7 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
         Function function = new Function(functionObject);
 
         // if aws supported, add to AWS Lambda
-        if (function.isCloudAWSSupported()) {
+        if (function.isCloudSupported()) {
             function = awsLambda.createFunction(function);
         }
 
@@ -97,25 +94,34 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     }
 
     private void runTraining(Function function, JsonArray exampleInputs) throws WorkerException, IntegrationException, DBClientException {
-        // iterate through each worker to build model for each
-        List<Worker> workers = workersRepo.getAll();
-
-        if (workers.size() == 0) {
-            throw new WorkerException("No workers available to train function on");
-        }
-
+        // iterate through each worker (cloud & edge) to build model for each
         ArrayList<String> functionPayloadArray = new ArrayList<>();
 
-        for (Worker worker : workers) {
-            for (int i=0; i < Math.min(exampleInputs.toArray().length, 100); i++) {
+        // for AWS (if cloud supported)
+        if (function.isCloudSupported()) {
+            for (int i = 0; i < Math.min(exampleInputs.toArray().length, 100); i++) {
                 // add to function payload (which gets incrementally larger)
                 functionPayloadArray.add(exampleInputs.get(i).toString());
 
                 String functionPayload = functionPayloadArray.toString();
 
-                InvokeFunctionHandler.FunctionInvocationResponse response = invokeFunctionHandler.invokeWorker(worker, function, functionPayload);
+                InvokeFunctionHandler.FunctionInvocationResponse response = invokeFunctionHandler.invokeWorker(AWSLambda.WORKER_NAME, function, functionPayload, 0);
 
-                invokeFunctionHandler.recordFunctionExecution(function.getName(), worker.getId(), functionPayloadArray.size(), response);
+                invokeFunctionHandler.recordFunctionExecution(function.getName(), AWSLambda.WORKER_NAME, functionPayloadArray.size(), response);
+            }
+        }
+
+        // for Kubernetes (if edge supported)
+        if (function.isEdgeSupported()) {
+            for (int i = 0; i < Math.min(exampleInputs.toArray().length, 100); i++) {
+                // add to function payload (which gets incrementally larger)
+                functionPayloadArray.add(exampleInputs.get(i).toString());
+
+                String functionPayload = functionPayloadArray.toString();
+
+                InvokeFunctionHandler.FunctionInvocationResponse response = invokeFunctionHandler.invokeWorker(Kubernetes.WORKER_NAME, function, functionPayload, 0);
+
+                invokeFunctionHandler.recordFunctionExecution(function.getName(), Kubernetes.WORKER_NAME, functionPayloadArray.size(), response);
             }
         }
 

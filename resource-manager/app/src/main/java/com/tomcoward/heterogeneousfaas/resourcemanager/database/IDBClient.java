@@ -5,7 +5,6 @@ import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.daos.FunctionExecutionsDao;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.daos.FunctionsDao;
-import com.tomcoward.heterogeneousfaas.resourcemanager.database.daos.WorkersDao;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 
 public interface IDBClient {
@@ -14,6 +13,5 @@ public interface IDBClient {
     ResultSet execute(SimpleStatement statement);
     CqlSession getCqlSession();
     FunctionsDao getFunctionsDao();
-    WorkersDao getWorkersDao();
     FunctionExecutionsDao getFunctionExecutionsDao();
 }
