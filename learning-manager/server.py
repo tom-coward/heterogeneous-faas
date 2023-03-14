@@ -27,8 +27,6 @@ def getPredictions(functionName: str):
     # get predictions for the function, for each worker
     predictions = predict.getPredictions(functionName, inputSize)
 
-    print(predictions)
-
     response = make_response(predictions, 200)
     return response
 

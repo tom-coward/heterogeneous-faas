@@ -29,23 +29,23 @@ def train(functionName: str):
     for worker in workers:    
         # get model features (input sizes and corresponding execution times)
         data = getFunctionExecutions(functionName, worker)
+        data = numpy.array(data)
 
         # remove outliers (using Z-score)
-        durations = [i[1] for i in data]
+        durations = data[:, 1]
 
         mean = numpy.mean(durations)
         stdDev = numpy.std(durations)
         zScores = (durations - mean) / stdDev
 
-        threshold = 3
+        threshold = 2
         outliers = numpy.where(zScores > threshold)
 
-        for o in outliers[0]:
-            del data[o]
+        data = numpy.delete(data, outliers, axis=0)
 
         # create linear regression model
-        x = numpy.array([i[0] for i in data]).reshape(-1, 1)
-        y = numpy.array([i[1] for i in data])
+        x = numpy.array(data[:, 0]).reshape(-1, 1)
+        y = numpy.array(data[:, 1])
 
         model = LinearRegression().fit(x, y)
 
