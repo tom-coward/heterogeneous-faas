@@ -3,6 +3,7 @@ import numpy
 from sklearn.linear_model import LinearRegression
 import pickle
 import uuid
+import matplotlib.pyplot as plt
 
 
 cassandraCluster = Cluster(['localhost'])
@@ -27,9 +28,14 @@ def saveModel(functionName: str, worker: str, modelBytes: bytes):
 
 def train(functionName: str):
     for worker in workers:    
+        print(worker)
+        
         # get model features (input sizes and corresponding execution times)
         data = getFunctionExecutions(functionName, worker)
         data = numpy.array(data)
+
+        numpy.set_printoptions(threshold=numpy.inf)
+        print(data)
 
         # remove outliers (using Z-score)
         durations = data[:, 1]
@@ -38,7 +44,7 @@ def train(functionName: str):
         stdDev = numpy.std(durations)
         zScores = (durations - mean) / stdDev
 
-        threshold = 2
+        threshold = 3
         outliers = numpy.where(zScores > threshold)
 
         data = numpy.delete(data, outliers, axis=0)
@@ -49,6 +55,19 @@ def train(functionName: str):
 
         model = LinearRegression().fit(x, y)
 
+        # plot original model as graph
+        plt.scatter(x, y)
+        plt.plot(x, model.predict(x), color='red')
+        plt.title(f'{worker} Model')
+        plt.xlabel('Input size')
+        plt.ylabel('Duration')
+        plt.show()
+
         # save model in Cassandra database (as a string representation of model object)
         modelBytes = pickle.dumps(model)
         saveModel(functionName, worker, modelBytes)
+
+
+if __name__ == '__main__':
+    functionName = input("Enter name of function to train: ")
+    train(functionName)
