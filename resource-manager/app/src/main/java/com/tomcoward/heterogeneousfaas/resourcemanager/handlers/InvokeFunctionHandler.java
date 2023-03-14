@@ -5,6 +5,8 @@ import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,16 +50,16 @@ public class InvokeFunctionHandler implements HttpHandler {
             }
 
             // get payload of function (if any)
-            String functionPayload = requestBody.getJsonObject("function_payload").toString();
+            JsonArray functionPayload = requestBody.getJsonArray("function_payload");
 
             LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionName input: \"%s\"", functionName));
-            LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionPayload input: \"%s\"", functionPayload));
+            LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionPayload input: \"%s\"", functionPayload.toString()));
 
             FunctionInvocationResponse response = invokeFunction(functionName, functionPayload);
 
             HttpHelper.sendResponse(exchange, 200, response.getResponse());
 
-            recordFunctionExecution(functionName, response.getWorker(), functionPayload.length(), response);
+            recordFunctionExecution(functionName, response.getWorker(), functionPayload.size(), response);
         } catch (DBClientException ex) {
             // return error to client
             HttpHelper.sendResponse(exchange, 500, ex.getMessage());
@@ -70,33 +72,26 @@ public class InvokeFunctionHandler implements HttpHandler {
         }
     }
 
-    private FunctionInvocationResponse invokeFunction(String functionName, String functionPayload) throws DBClientException, WorkerException, IntegrationException {
+    private FunctionInvocationResponse invokeFunction(String functionName, JsonArray functionPayload) throws DBClientException, WorkerException, IntegrationException {
         Function function = functionsRepo.get(functionName);
 
-        // invoke in AWS
-        String worker = AWSLambda.WORKER_NAME;
-        float predictedDuration = 0;
+        // get predicted durations on each worker from Learning Manager
+        HashMap<String, Float> predictions = learningManager.getPredictions(function.getName(), functionPayload.size());
 
-        // invoke in Kubernetes
-        //Worker worker = new Worker(Worker.HOST.KUBERNETES, true);
+        // invoke worker with lowest predicted duration
+        Map.Entry selectedPrediction = predictions.entrySet().stream().sorted(Map.Entry.comparingByValue()).findFirst().get();
+        if (selectedPrediction == null) {
+            throw new FunctionInvocationException(String.format("No workers were found to execute function %s", function.getName()), 503);
+        }
 
-        // call ML Manager to choose worker
-        //ArrayList<LearningManager.FunctionInvocationPrediction> predictions = learningManager.getPredictions(function.getName(), functionPayload.length());
+        String worker = (String) selectedPrediction.getKey();
+        float predictedDuration = (float) selectedPrediction.getValue();
 
-        // returns list of worker types
-//            ArrayList<Worker> workers = new ArrayList<>();
-//            // TESTING: add k8s worker
-//
-//            for (Worker worker : workers) {
-//                if (!worker.isAvailable()) {
-//                    continue;
-//                }
-//
-//                invokeWorker(worker, function, functionPayload);
-//                // TODO: handle if no workers available
-//            }
+        String functionPayloadString = functionPayload.toString();
 
-        FunctionInvocationResponse response = invokeWorker(worker, function, functionPayload, predictedDuration);
+        LOGGER.log(Level.INFO, String.format("Invoking function %s on worker %s", function.getName(), worker));
+
+        FunctionInvocationResponse response = invokeWorker(worker, function, functionPayloadString, predictedDuration);
 
         LOGGER.log(Level.INFO, String.format("%s invocation response in %dms: %s", function.getName(), response.getDuration(), response.getResponse()));
 
