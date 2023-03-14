@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
@@ -23,6 +22,8 @@ import javax.json.JsonObject;
 
 public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
+    private final static int MAX_TRAINING_EXECUTIONS = 1000;
 
     private final Gson gson = new Gson();
 
@@ -101,7 +102,7 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
             LOGGER.log(Level.INFO, String.format("Running training on AWS (cloud) worker for function: %s", function.getName()));
 
             ArrayList<String> functionPayloadArray = new ArrayList<>();
-            for (int i = 0; i < Math.min(exampleInputs.toArray().length, 100); i++) {
+            for (int i = 0; i < Math.min(exampleInputs.toArray().length, MAX_TRAINING_EXECUTIONS); i++) {
                 // add to function payload (which gets incrementally larger)
                 functionPayloadArray.add(exampleInputs.get(i).toString());
 
@@ -121,7 +122,7 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
             LOGGER.log(Level.INFO, String.format("Running training on Kubernetes (edge) worker for function: %s", function.getName()));
 
             ArrayList<String> functionPayloadArray = new ArrayList<>();
-            for (int i = 0; i < Math.min(exampleInputs.toArray().length, 100); i++) {
+            for (int i = 0; i < Math.min(exampleInputs.toArray().length, MAX_TRAINING_EXECUTIONS); i++) {
                 // add to function payload (which gets incrementally larger)
                 functionPayloadArray.add(exampleInputs.get(i).toString());
 

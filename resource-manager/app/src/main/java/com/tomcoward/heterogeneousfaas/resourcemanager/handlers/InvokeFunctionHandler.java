@@ -61,14 +61,17 @@ public class InvokeFunctionHandler implements HttpHandler {
 
             recordFunctionExecution(functionName, response.getWorker(), functionPayload.size(), response);
         } catch (DBClientException ex) {
+            LOGGER.log(Level.SEVERE, "Error invoking function", ex);
             // return error to client
-            HttpHelper.sendResponse(exchange, 500, ex.getMessage());
+            HttpHelper.sendResponse(exchange, 500, "There was a problem invoking the function");
         } catch (FunctionInvocationException ex) {
+            LOGGER.log(Level.SEVERE, "Error creating function", ex);
             // return function invocation error to client
             HttpHelper.sendResponse(exchange, ex.getHttpErrorCode(), ex.getMessage());
         } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error creating function", ex);
             // return error to client
-            HttpHelper.sendResponse(exchange, 500, ex.getMessage());
+            HttpHelper.sendResponse(exchange, 500, "There was a problem invoking the function");
         }
     }
 
@@ -85,7 +88,7 @@ public class InvokeFunctionHandler implements HttpHandler {
         }
 
         String worker = (String) selectedPrediction.getKey();
-        float predictedDuration = (float) selectedPrediction.getValue();
+        float predictedDuration = (float) ((double) selectedPrediction.getValue());
 
         String functionPayloadString = functionPayload.toString();
 
@@ -93,7 +96,7 @@ public class InvokeFunctionHandler implements HttpHandler {
 
         FunctionInvocationResponse response = invokeWorker(worker, function, functionPayloadString, predictedDuration);
 
-        LOGGER.log(Level.INFO, String.format("%s invocation response in %dms: %s", function.getName(), response.getDuration(), response.getResponse()));
+        LOGGER.log(Level.INFO, String.format("%s invocation response in %6.2fms (predicted: %6.2fms): %s", function.getName(), response.getDuration(), response.getPredictedDuration(), response.getResponse()));
 
         return response;
     }
