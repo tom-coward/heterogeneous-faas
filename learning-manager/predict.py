@@ -15,15 +15,15 @@ def getMLModels(functionName: str):
     return models
 
 def getPredictions(functionName: str, inputSize: int):
-    predictions = []
-    
     models = getMLModels(functionName)
+
+    predictions = []
 
     for m in models:
         model = pickle.loads(m[1])
 
         prediction = model.predict([[inputSize]])
 
-        predictions.append([m[0], prediction[0][0]])
+        predictions.append([m[0], prediction[0]])
 
     return predictions

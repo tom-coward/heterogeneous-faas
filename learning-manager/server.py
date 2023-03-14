@@ -1,6 +1,7 @@
 from flask import Flask, make_response, request
 import train
 import predict
+import transfer
 
 app = Flask(__name__)
 
@@ -14,12 +15,13 @@ def putTrain(functionName: str):
     return response
 
 @app.route('/predictions/<string:functionName>', methods=['GET'])
-def getPredictions(functionName: str):    
+def getPredictions(functionName: str):
     # get input size from URL query params
     inputSize = request.args.get('inputSize', '')
     if inputSize == None:
         response = make_response("Input size not provided", 400)
         return response
+    
     inputSize = int(inputSize)
     
     # get predictions for the function, for each worker
@@ -28,6 +30,18 @@ def getPredictions(functionName: str):
     print(predictions)
 
     response = make_response(predictions, 200)
+    return response
+
+@app.route('/transfer/<string:functionName>', methods=['PUT'])
+def putTransfer(functionName: str):
+    # initiate transfer of the model
+    transferred = transfer.transfer(functionName)
+
+    if transferred:
+        response = make_response("Transfer initiated", 202)
+    else:
+        response = make_response("Transfer failed", 500)
+    
     return response
 
 

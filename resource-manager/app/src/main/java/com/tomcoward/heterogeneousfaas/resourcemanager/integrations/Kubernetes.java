@@ -24,6 +24,8 @@ public class Kubernetes implements IWorkerIntegration {
 
     private final static String KNATIVE_NAMESPACE = "default";
     private final static String KNATIVE_URI = "127.0.0.1.sslip.io/2015-03-31/functions/function/invocations";
+    private final static String RESOURCE_CPU_LIMIT = "100m";
+    private final static String RESOURCE_MEMORY_LIMIT = "128Mi";
 
     private final KnativeClient knativeClient;
     private final HttpClient httpClient;
@@ -60,6 +62,10 @@ public class Kubernetes implements IWorkerIntegration {
         // can define resource limits of service pods (cpu & memory) here
         Container serviceSpecContainer = new ContainerBuilder()
                 .withImage(containerRegistryUri)
+                .withResources(new ResourceRequirementsBuilder()
+                    .addToLimits("cpu", new Quantity(RESOURCE_CPU_LIMIT))
+                    .addToLimits("memory", new Quantity(RESOURCE_MEMORY_LIMIT))
+                    .build())
                 .build();
 
         ServiceSpec serviceSpec = new ServiceSpecBuilder()
