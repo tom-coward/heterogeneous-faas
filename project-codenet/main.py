@@ -2,6 +2,7 @@ import compiler
 import uploader
 import inputgenerator
 import argparse
+import writer
 
 
 # select random solutions to selected problems (as defined by their ID below) in the chosen languages
@@ -15,11 +16,11 @@ def compile(selectedProblem):
 
 
 # build the selected solutions into Docker containers and upload them to AWS ECR
-def upload(language, solutionId):
+def upload(solutionId):
     awsAccountId = "963689541346" 
     awsRegion = "eu-west-1"
 
-    containerDirectory = f"./functions/{language}/{solutionId}"
+    containerDirectory = f"./functions/{solutionId}"
 
     uploader.upload(containerDirectory, awsAccountId, awsRegion)
 
@@ -28,14 +29,16 @@ def generateInputs(problemId, numColumns, numRows, lowerBound, upperBound):
     
     inputgenerator.generateInputs(fileName, numColumns, numRows, lowerBound, upperBound)
 
+def write(solutionId):
+    writer.writeToJson(solutionId)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Compile solutions, upload functions to AWS ECR or generate random inputs for a problem solution")
     
-    parser.add_argument("option", type=str, help="The operation to perform (compile/upload/generateInputs [problemId numColumns numRows lowerBound upperBound])")
+    parser.add_argument("option", type=str, help="The operation to perform (compile/upload/write/generateInputs [problemId numColumns numRows lowerBound upperBound])")
 
-    # optional upload arguments
-    parser.add_argument("--language", type=str, help="Runtime language of Docker container to upload to AWS ECR", required=False)
+    # optional upload/write arguments
     parser.add_argument("--solutionId", type=str, help="Solution ID of Docker container to upload to AWS ECR", required=False)
 
     # optional generateInputs arguments
@@ -51,7 +54,9 @@ if __name__ == "__main__":
         case "compile":
             compile()
         case "upload":
-            upload(args.language, args.solutionId)
+            upload(args.solutionId)
+        case "write":
+            write(args.solutionId)
         case "generateInputs":
             generateInputs(args.problemId, args.numColumns, args.numRows, args.lowerBound, args.upperBound)
         case _:

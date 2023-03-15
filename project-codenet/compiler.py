@@ -26,12 +26,10 @@ def selectSolutions(selectedProblem, selectedLanguages, metadataDirectory, dataD
         selectedSubmissionIds = random.sample(submissionIds, subsetSize)
 
         # remove any files in ./data directory not in the list of Accepted submission IDs
-        languageDataDirectory = os.path.join(dataDirectory, selectedProblem, language)
-
-        for filename in os.listdir(languageDataDirectory):
+        for filename in os.listdir(dataDirectory):
             # remove file if not in list of accepted submission_ids
             if filename[:-3] not in selectedSubmissionIds:
-                    os.remove(os.path.join(languageDataDirectory, filename))
+                    os.remove(os.path.join(dataDirectory, filename))
 
         selectedSolutions[selectedProblem] = selectedSubmissionIds
 
