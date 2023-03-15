@@ -2,10 +2,8 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
-import com.github.dockerjava.api.async.ResultCallbackTemplate;
-import com.github.dockerjava.api.command.BuildImageCmd;
-import com.github.dockerjava.api.command.BuildImageResultCallback;
 import com.github.dockerjava.api.model.AuthConfig;
+import com.github.dockerjava.api.model.BuildResponseItem;
 import com.github.dockerjava.api.model.PushResponseItem;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
@@ -59,8 +57,8 @@ public class Docker {
         try {
             String tempDirPath = writeTempFiles(function.getName(), function.getSourceCode());
 
-            buildDockerImage(tempDirPath, function.getName());
-            String containerUri = pushDockerImageToEcr(function.getName());
+            String imageId = buildDockerImage(tempDirPath, function.getName());
+            String containerUri = pushDockerImageToEcr(function.getName(), imageId);
 
             function.setContainerRegistryUri(containerUri);
 
@@ -89,46 +87,113 @@ public class Docker {
         return tempDir.toString();
     }
 
-    private void buildDockerImage(String tempDirPath, String functionName) {
-        BuildImageCmd buildCmd = client.buildImageCmd(new File(tempDirPath));
-        buildCmd.withTag(String.format("%s:latest", functionName));
+    private String buildDockerImage(String tempDirPath, String functionName) throws InterruptedException, IntegrationException {
+        String[] imageId = new String[1];
+        final boolean[] buildSuccessful = {false};
 
-        buildCmd.exec(new ResultCallback.Adapter() {
-            @Override
-            public void onError(Throwable throwable) {
-                LOGGER.log(Level.SEVERE, String.format("Error building Docker image: %s", throwable.getMessage()));
-            }
-        });
+        client.buildImageCmd(new File(tempDirPath))
+                .exec(new ResultCallback.Adapter<BuildResponseItem>() {
+                    @Override
+                    public void onError(Throwable throwable) {
+                        LOGGER.log(Level.SEVERE, String.format("Error building Docker image: %s", throwable.getMessage()));
+
+                        super.onError(throwable);
+                    }
+
+                    @Override
+                    public void onNext(BuildResponseItem item) {
+                        if (item.isBuildSuccessIndicated()) {
+                            imageId[0] = item.getImageId();
+                            buildSuccessful[0] = true;
+                        }
+
+                        super.onNext(item);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        if (buildSuccessful[0]) {
+                            LOGGER.log(Level.INFO, "Docker image built successfully");
+                        } else {
+                            LOGGER.log(Level.SEVERE, "Docker image build failed");
+                        }
+
+                        super.onComplete();
+                    }
+                })
+                .awaitCompletion();
+
+        if (!buildSuccessful[0]) {
+            throw new IntegrationException("There was a problem building the Docker image");
+        }
+
+        return imageId[0];
     }
 
-    private String pushDockerImageToEcr(String functionName) {
-        authDockerWithEcr();
+    private String pushDockerImageToEcr(String functionName, String imageId) throws InterruptedException, IntegrationException {
+        // get AWS ECR auth config
+        AuthConfig authConfig = getAuthConfig();
 
         // create ECR repository for function
         String repositoryUri = awsEcr.createRepository(functionName);
 
-        String containerUri = String.format("%s/%s:latest", repositoryUri, functionName);
+        // tag image with container URI
+        client.tagImageCmd(imageId, repositoryUri, "latest")
+                .withForce(true)
+                .exec();
 
+        String containerUri = String.format("%s:latest", repositoryUri);
+
+        final boolean[] pushSuccessful = {false};
         client.pushImageCmd(containerUri)
+                .withAuthConfig(authConfig)
                 .exec(new ResultCallback.Adapter<PushResponseItem>() {
                     @Override
                     public void onError(Throwable throwable) {
                         LOGGER.log(Level.SEVERE, String.format("Error pushing Docker image to ECR: %s", throwable.getMessage()));
+
+                        super.onError(throwable);
                     }
-                });
+
+                    @Override
+                    public void onNext(PushResponseItem item) {
+                        if (item.isErrorIndicated()) {
+                            LOGGER.log(Level.SEVERE, String.format("Error pushing Docker image: %s", item.getErrorDetail().getMessage()));
+                            pushSuccessful[0] = false;
+                        } else {
+                            pushSuccessful[0] = true;
+                        }
+
+                        super.onNext(item);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        if (pushSuccessful[0]) {
+                            LOGGER.log(Level.INFO, "Docker image pushed successfully");
+                        } else {
+                            LOGGER.log(Level.SEVERE, "Docker image build failed");
+                        }
+
+                        super.onComplete();
+                    }
+                })
+                .awaitCompletion();
+
+        if (!pushSuccessful[0]) {
+            throw new IntegrationException("There was a problem pushing the Docker image");
+        }
 
         return containerUri;
     }
 
-    private void authDockerWithEcr() {
+    private AuthConfig getAuthConfig() {
         AWSECR.AWSECRCredentials ecrCredentials = awsEcr.getCredentials();
 
-        client.authCmd()
-            .withAuthConfig(new AuthConfig()
+        return new AuthConfig()
                 .withUsername(ecrCredentials.getUsername())
                 .withPassword(ecrCredentials.getPassword())
-                .withRegistryAddress(ecrCredentials.getRegistryUrl())
-            )
-            .exec();
+                .withRegistryAddress(ecrCredentials.getRegistryUrl()
+            );
     }
 }

@@ -1,10 +1,8 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 
 import software.amazon.awssdk.services.ecr.EcrClient;
-import software.amazon.awssdk.services.ecr.model.AuthorizationData;
-import software.amazon.awssdk.services.ecr.model.CreateRepositoryRequest;
-import software.amazon.awssdk.services.ecr.model.GetAuthorizationTokenRequest;
-import software.amazon.awssdk.services.ecr.model.GetAuthorizationTokenResponse;
+import software.amazon.awssdk.services.ecr.model.*;
+
 import java.util.Base64;
 
 public class AWSECR {
@@ -17,11 +15,20 @@ public class AWSECR {
     }
 
     public String createRepository(String repositoryName) {
-        CreateRepositoryRequest createRepositoryRequest = CreateRepositoryRequest.builder()
-                .repositoryName(repositoryName)
-                .build();
+        try {
+            CreateRepositoryRequest createRepositoryRequest = CreateRepositoryRequest.builder()
+                    .repositoryName(repositoryName)
+                    .build();
 
-        return client.createRepository(createRepositoryRequest).repository().repositoryUri();
+            return client.createRepository(createRepositoryRequest).repository().repositoryUri();
+        } catch (RepositoryAlreadyExistsException ex) {
+            // get existing repository and return URI
+            DescribeRepositoriesRequest describeRepositoriesRequest = DescribeRepositoriesRequest.builder()
+                    .repositoryNames(repositoryName)
+                    .build();
+
+            return client.describeRepositories(describeRepositoriesRequest).repositories().get(0).repositoryUri();
+        }
     }
 
     public AWSECRCredentials getCredentials() {
