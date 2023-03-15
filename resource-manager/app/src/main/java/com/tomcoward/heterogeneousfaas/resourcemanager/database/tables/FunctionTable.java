@@ -26,6 +26,7 @@ public class FunctionTable implements IDBTable {
             SimpleStatement statement = createTable(TABLE_NAME)
                     .ifNotExists()
                     .withPartitionKey("name", DataTypes.ASCII)
+                    .withColumn("source_code", DataTypes.ASCII)
                     .withColumn("container_registry_uri", DataTypes.ASCII)
                     .withColumn("edge_supported", DataTypes.BOOLEAN)
                     .withColumn("cloud_supported", DataTypes.BOOLEAN)

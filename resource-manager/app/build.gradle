@@ -28,6 +28,8 @@ dependencies {
     implementation 'software.amazon.awssdk:iam:2.19.24'
     implementation 'io.fabric8:knative-client:6.4.1'
     implementation 'software.amazon.awssdk:ecr:2.19.33'
+    implementation 'com.github.docker-java:docker-java-core:3.2.13'
+    implementation 'com.github.docker-java:docker-java-transport-httpclient5:3.2.13'
     implementation 'com.datastax.oss:java-driver-mapper-runtime:4.15.0'
     compileOnly 'com.datastax.oss:java-driver-mapper-processor:4.15.0'
 

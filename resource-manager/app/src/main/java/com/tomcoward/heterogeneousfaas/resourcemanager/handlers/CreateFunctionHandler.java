@@ -10,9 +10,7 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientExcept
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.WorkerException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.helpers.HttpHelper;
-import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.AWSLambda;
-import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.Kubernetes;
-import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.LearningManager;
+import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.*;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionExecutionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
@@ -31,13 +29,15 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     private final AWSLambda awsLambda;
     private final Kubernetes kubernetes;
     private final LearningManager learningManager;
+    private final Docker docker;
     private final InvokeFunctionHandler invokeFunctionHandler;
 
-    public CreateFunctionHandler(IFunctionRepository functionsRepo, IFunctionExecutionRepository functionExecutionsRepo, AWSLambda awsLambda, Kubernetes kubernetes, LearningManager learningManager) {
+    public CreateFunctionHandler(IFunctionRepository functionsRepo, IFunctionExecutionRepository functionExecutionsRepo, AWSLambda awsLambda, Kubernetes kubernetes, LearningManager learningManager, Docker docker) {
         this.functionsRepo = functionsRepo;
         this.awsLambda = awsLambda;
         this.kubernetes = kubernetes;
         this.learningManager = learningManager;
+        this.docker = docker;
 
         this.invokeFunctionHandler = new InvokeFunctionHandler(functionsRepo, functionExecutionsRepo, awsLambda, kubernetes, learningManager);
     }
@@ -46,8 +46,15 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     public void handle(HttpExchange exchange) throws IOException {
         try {
             JsonObject functionObject = HttpHelper.getRequestBody(exchange, "function");
+            JsonArray exampleInputs = functionObject.getJsonArray("example_inputs");
 
-            Function function = createFunction(functionObject);
+            Function function = new Function(functionObject);
+
+            // build and push function as Docker image (to AWS ECR)
+            function = docker.buildAndPushImage(function);
+
+            // create function on cloud and edge workers
+            function = createFunction(function, exampleInputs);
 
             LOGGER.log(Level.INFO, String.format("CreateFunctionHandler function created: \"%s\"", function.getName()));
 
@@ -71,9 +78,7 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     }
 
 
-    private Function createFunction(JsonObject functionObject) throws DBClientException, IntegrationException, IOException, WorkerException {
-        Function function = new Function(functionObject);
-
+    private Function createFunction(Function function, JsonArray exampleInputs) throws DBClientException, IntegrationException, IOException, WorkerException {
         LOGGER.log(Level.INFO, String.format("Creating function: %s", function.getName()));
 
         // if aws supported, add to AWS Lambda
@@ -90,7 +95,6 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
         functionsRepo.create(function);
 
         // run training on function
-        JsonArray exampleInputs = functionObject.getJsonArray("example_inputs");
         runTraining(function, exampleInputs);
 
         return function;

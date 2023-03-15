@@ -18,8 +18,10 @@ public class App {
 
     private final AWSIAM awsIam;
     private final AWSLambda awsLambda;
+    private final AWSECR awsEcr;
     private final Kubernetes kubernetes;
     private final LearningManager learningManager;
+    private final Docker docker;
 
     private final IFunctionRepository functionsRepo;
     private final IFunctionExecutionRepository functionExecutionsRepo;
@@ -31,8 +33,10 @@ public class App {
         // setup AWS ECR/Lambda & k8s clients
         awsIam = new AWSIAM();
         awsLambda = new AWSLambda(awsIam);
+        awsEcr = new AWSECR();
         kubernetes = new Kubernetes();
         learningManager = new LearningManager();
+        docker = new Docker(awsEcr);
 
         // initialise repos
         functionsRepo = new CassandraFunctionRepository(db);
@@ -67,7 +71,7 @@ public class App {
 
 
     private void addCreateFunctionRoute() {
-        server.createContext("/function", new CreateFunctionHandler(functionsRepo, functionExecutionsRepo, awsLambda, kubernetes, learningManager));
+        server.createContext("/function", new CreateFunctionHandler(functionsRepo, functionExecutionsRepo, awsLambda, kubernetes, learningManager, docker));
     }
 
     private void addInvokeFunctionRoute() {

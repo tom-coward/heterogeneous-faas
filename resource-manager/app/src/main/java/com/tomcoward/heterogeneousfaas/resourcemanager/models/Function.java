@@ -12,6 +12,8 @@ public class Function {
     @CqlName("name")
     private String name;
 
+    @CqlName("source_code")
+    private String sourceCode;
     @CqlName("container_registry_uri")
     private String containerRegistryUri;
     @CqlName("edge_supported")
@@ -27,7 +29,7 @@ public class Function {
 
     public Function(JsonObject jsonObject) throws IOException {
         this.name = jsonObject.getString("name");
-        this.containerRegistryUri = jsonObject.getString("container_registry_uri");
+        this.sourceCode = jsonObject.getString("source_code");
         this.edgeSupported = jsonObject.getBoolean("edge_supported");
         this.cloudSupported = jsonObject.getBoolean("cloud_supported");
     }
@@ -35,6 +37,10 @@ public class Function {
 
     public String getName() {
         return name;
+    }
+
+    public String getSourceCode() {
+        return sourceCode;
     }
 
     public String getContainerRegistryUri() {
@@ -60,6 +66,10 @@ public class Function {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setSourceCode(String sourceCode) {
+        this.sourceCode = sourceCode;
     }
 
     public void setContainerRegistryUri(String containerRegistryUri) {

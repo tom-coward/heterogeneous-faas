@@ -74,6 +74,11 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
         target = target.set("name", entity.getName(), String.class);
       }
     }
+    if (!lenient || hasProperty(target, "source_code")) {
+      if (entity.getSourceCode() != null || nullSavingStrategy == NullSavingStrategy.SET_TO_NULL) {
+        target = target.set("source_code", entity.getSourceCode(), String.class);
+      }
+    }
     if (!lenient || hasProperty(target, "container_registry_uri")) {
       if (entity.getContainerRegistryUri() != null || nullSavingStrategy == NullSavingStrategy.SET_TO_NULL) {
         target = target.set("container_registry_uri", entity.getContainerRegistryUri(), String.class);
@@ -105,25 +110,29 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
       String propertyValue = source.get("name", String.class);
       returnValue.setName(propertyValue);
     }
+    if (!lenient || hasProperty(source, "source_code")) {
+      String propertyValue1 = source.get("source_code", String.class);
+      returnValue.setSourceCode(propertyValue1);
+    }
     if (!lenient || hasProperty(source, "container_registry_uri")) {
-      String propertyValue1 = source.get("container_registry_uri", String.class);
-      returnValue.setContainerRegistryUri(propertyValue1);
+      String propertyValue2 = source.get("container_registry_uri", String.class);
+      returnValue.setContainerRegistryUri(propertyValue2);
     }
     if (!lenient || hasProperty(source, "edge_supported")) {
-      boolean propertyValue2 = source.getBoolean("edge_supported");
-      returnValue.setEdgeSupported(propertyValue2);
+      boolean propertyValue3 = source.getBoolean("edge_supported");
+      returnValue.setEdgeSupported(propertyValue3);
     }
     if (!lenient || hasProperty(source, "cloud_supported")) {
-      boolean propertyValue3 = source.getBoolean("cloud_supported");
-      returnValue.setCloudSupported(propertyValue3);
+      boolean propertyValue4 = source.getBoolean("cloud_supported");
+      returnValue.setCloudSupported(propertyValue4);
     }
     if (!lenient || hasProperty(source, "edge_knservice_uri")) {
-      String propertyValue4 = source.get("edge_knservice_uri", String.class);
-      returnValue.setEdgeKnServiceUri(propertyValue4);
+      String propertyValue5 = source.get("edge_knservice_uri", String.class);
+      returnValue.setEdgeKnServiceUri(propertyValue5);
     }
     if (!lenient || hasProperty(source, "cloud_aws_arn")) {
-      String propertyValue5 = source.get("cloud_aws_arn", String.class);
-      returnValue.setCloudAwsArn(propertyValue5);
+      String propertyValue6 = source.get("cloud_aws_arn", String.class);
+      returnValue.setCloudAwsArn(propertyValue6);
     }
     return returnValue;
   }
@@ -136,6 +145,7 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
         : QueryBuilder.insertInto(keyspaceId, tableId);
     return insertInto
         .value("name", QueryBuilder.bindMarker("name"))
+        .value("source_code", QueryBuilder.bindMarker("source_code"))
         .value("container_registry_uri", QueryBuilder.bindMarker("container_registry_uri"))
         .value("edge_supported", QueryBuilder.bindMarker("edge_supported"))
         .value("cloud_supported", QueryBuilder.bindMarker("cloud_supported"))
@@ -165,6 +175,7 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
         : QueryBuilder.selectFrom(keyspaceId, tableId);
     return selectFrom
         .column("name")
+        .column("source_code")
         .column("container_registry_uri")
         .column("edge_supported")
         .column("cloud_supported")
@@ -205,6 +216,7 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
         ? QueryBuilder.update(tableId)
         : QueryBuilder.update(keyspaceId, tableId);
     return ((DefaultUpdate)update
+        .setColumn("source_code", QueryBuilder.bindMarker("source_code"))
         .setColumn("container_registry_uri", QueryBuilder.bindMarker("container_registry_uri"))
         .setColumn("edge_supported", QueryBuilder.bindMarker("edge_supported"))
         .setColumn("cloud_supported", QueryBuilder.bindMarker("cloud_supported"))
@@ -240,6 +252,7 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
     Optional<KeyspaceMetadata> keyspace = context.getSession().getMetadata().getKeyspace(keyspaceId);
     List<CqlIdentifier> expectedCqlNames = new ArrayList<>();
     expectedCqlNames.add(CqlIdentifier.fromCql("name"));
+    expectedCqlNames.add(CqlIdentifier.fromCql("source_code"));
     expectedCqlNames.add(CqlIdentifier.fromCql("container_registry_uri"));
     expectedCqlNames.add(CqlIdentifier.fromCql("edge_supported"));
     expectedCqlNames.add(CqlIdentifier.fromCql("cloud_supported"));
@@ -265,6 +278,7 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("cloud_supported"), GENERIC_TYPE);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("container_registry_uri"), GENERIC_TYPE1);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("name"), GENERIC_TYPE1);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("source_code"), GENERIC_TYPE1);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("edge_knservice_uri"), GENERIC_TYPE1);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("edge_supported"), GENERIC_TYPE);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("cloud_aws_arn"), GENERIC_TYPE1);
@@ -283,6 +297,7 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("cloud_supported"), GENERIC_TYPE);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("container_registry_uri"), GENERIC_TYPE1);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("name"), GENERIC_TYPE1);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("source_code"), GENERIC_TYPE1);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("edge_knservice_uri"), GENERIC_TYPE1);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("edge_supported"), GENERIC_TYPE);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("cloud_aws_arn"), GENERIC_TYPE1);
