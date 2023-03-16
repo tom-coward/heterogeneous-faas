@@ -124,13 +124,15 @@ public class InvokeFunctionHandler implements HttpHandler {
         return new FunctionInvocationResponse(response, invocationDuration, predictedDuration, worker);
     }
 
-    public void recordFunctionExecution(String functionName, String worker, int inputSize, FunctionInvocationResponse functionInvocationResponse) throws DBClientException {
+    public void recordFunctionExecution(String functionName, String worker, int inputSize, FunctionInvocationResponse functionInvocationResponse) throws DBClientException, IntegrationException {
         // if function response indicated there was an error, mark execution as unsuccessful
         boolean isSuccess = !functionInvocationResponse.getResponse().contains("errorType");
 
         FunctionExecution functionExecution = new FunctionExecution(functionName, worker, inputSize, functionInvocationResponse.getDuration(), functionInvocationResponse.getPredictedDuration(), isSuccess);
 
         functionExecutionsRepo.create(functionExecution);
+
+        learningManager.triggerIncrementalTraining(functionName, worker, inputSize, functionInvocationResponse.getDuration());
     }
 
 

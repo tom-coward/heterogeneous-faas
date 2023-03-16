@@ -41,6 +41,24 @@ public class LearningManager {
         }
     }
 
+    public void triggerIncrementalTraining(String functionName, String worker, int inputSize, float duration) throws IntegrationException {
+        try {
+            HttpRequest httpRequest = HttpRequest.newBuilder()
+                    .uri(new URI(String.format("%s/train/incremental/%s?worker=%s&inputSize=%d&duration=%6.2f", LEARNING_MANAGER_URI, functionName, worker, inputSize, duration)))
+                    .method("PUT", HttpRequest.BodyPublishers.noBody())
+                    .build();
+
+            HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+            if (httpResponse.statusCode() != 202) {
+                throw new IntegrationException("Learning Manager returned non-202 status code");
+            }
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error sending HTTP request to Learning Manager /train/incremental", ex);
+            throw new IntegrationException("There was an error triggering incremental training by the Learning Manager");
+        }
+    }
+
     public HashMap<String, Float> getPredictions(String functionName, int inputSize) throws IntegrationException {
         try {
             HttpRequest httpRequest = HttpRequest.newBuilder()
