@@ -1,7 +1,12 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.models;
 
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
@@ -14,6 +19,8 @@ public class Function {
 
     @CqlName("source_code")
     private String sourceCode;
+    @CqlName("example_inputs")
+    private List<String> exampleInputs;
     @CqlName("container_registry_uri")
     private String containerRegistryUri;
     @CqlName("edge_supported")
@@ -32,6 +39,13 @@ public class Function {
         this.sourceCode = jsonObject.getString("source_code");
         this.edgeSupported = jsonObject.getBoolean("edge_supported");
         this.cloudSupported = jsonObject.getBoolean("cloud_supported");
+
+        this.exampleInputs = new ArrayList<String>();
+        JsonArray exampleInputsJson = jsonObject.getJsonArray("example_inputs");
+        for (int i = 0; i < exampleInputsJson.size(); i++) {
+            String jsonString = exampleInputsJson.get(i).toString();
+            exampleInputs.add(jsonString);
+        }
     }
 
 
@@ -41,6 +55,10 @@ public class Function {
 
     public String getSourceCode() {
         return sourceCode;
+    }
+
+    public List<String> getExampleInputs() {
+        return exampleInputs;
     }
 
     public String getContainerRegistryUri() {
@@ -70,6 +88,10 @@ public class Function {
 
     public void setSourceCode(String sourceCode) {
         this.sourceCode = sourceCode;
+    }
+
+    public void setExampleInputs(List<String> exampleInputs) {
+        this.exampleInputs = exampleInputs;
     }
 
     public void setContainerRegistryUri(String containerRegistryUri) {

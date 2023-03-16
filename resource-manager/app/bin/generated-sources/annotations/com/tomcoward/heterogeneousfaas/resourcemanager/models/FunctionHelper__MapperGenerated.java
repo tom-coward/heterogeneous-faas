@@ -44,9 +44,11 @@ import org.slf4j.LoggerFactory;
 public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> {
   private static final Logger LOG = LoggerFactory.getLogger(FunctionHelper__MapperGenerated.class);
 
-  private static final GenericType<Boolean> GENERIC_TYPE = new GenericType<Boolean>(){};
+  private static final GenericType<List<String>> GENERIC_TYPE = new GenericType<List<String>>(){};
 
-  private static final GenericType<String> GENERIC_TYPE1 = new GenericType<String>(){};
+  private static final GenericType<Boolean> GENERIC_TYPE1 = new GenericType<Boolean>(){};
+
+  private static final GenericType<String> GENERIC_TYPE2 = new GenericType<String>(){};
 
   private final List<String> primaryKeys;
 
@@ -77,6 +79,11 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
     if (!lenient || hasProperty(target, "source_code")) {
       if (entity.getSourceCode() != null || nullSavingStrategy == NullSavingStrategy.SET_TO_NULL) {
         target = target.set("source_code", entity.getSourceCode(), String.class);
+      }
+    }
+    if (!lenient || hasProperty(target, "example_inputs")) {
+      if (entity.getExampleInputs() != null || nullSavingStrategy == NullSavingStrategy.SET_TO_NULL) {
+        target = target.set("example_inputs", entity.getExampleInputs(), GENERIC_TYPE);
       }
     }
     if (!lenient || hasProperty(target, "container_registry_uri")) {
@@ -114,25 +121,29 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
       String propertyValue1 = source.get("source_code", String.class);
       returnValue.setSourceCode(propertyValue1);
     }
+    if (!lenient || hasProperty(source, "example_inputs")) {
+      List<String> propertyValue2 = source.get("example_inputs", GENERIC_TYPE);
+      returnValue.setExampleInputs(propertyValue2);
+    }
     if (!lenient || hasProperty(source, "container_registry_uri")) {
-      String propertyValue2 = source.get("container_registry_uri", String.class);
-      returnValue.setContainerRegistryUri(propertyValue2);
+      String propertyValue3 = source.get("container_registry_uri", String.class);
+      returnValue.setContainerRegistryUri(propertyValue3);
     }
     if (!lenient || hasProperty(source, "edge_supported")) {
-      boolean propertyValue3 = source.getBoolean("edge_supported");
-      returnValue.setEdgeSupported(propertyValue3);
+      boolean propertyValue4 = source.getBoolean("edge_supported");
+      returnValue.setEdgeSupported(propertyValue4);
     }
     if (!lenient || hasProperty(source, "cloud_supported")) {
-      boolean propertyValue4 = source.getBoolean("cloud_supported");
-      returnValue.setCloudSupported(propertyValue4);
+      boolean propertyValue5 = source.getBoolean("cloud_supported");
+      returnValue.setCloudSupported(propertyValue5);
     }
     if (!lenient || hasProperty(source, "edge_knservice_uri")) {
-      String propertyValue5 = source.get("edge_knservice_uri", String.class);
-      returnValue.setEdgeKnServiceUri(propertyValue5);
+      String propertyValue6 = source.get("edge_knservice_uri", String.class);
+      returnValue.setEdgeKnServiceUri(propertyValue6);
     }
     if (!lenient || hasProperty(source, "cloud_aws_arn")) {
-      String propertyValue6 = source.get("cloud_aws_arn", String.class);
-      returnValue.setCloudAwsArn(propertyValue6);
+      String propertyValue7 = source.get("cloud_aws_arn", String.class);
+      returnValue.setCloudAwsArn(propertyValue7);
     }
     return returnValue;
   }
@@ -146,6 +157,7 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
     return insertInto
         .value("name", QueryBuilder.bindMarker("name"))
         .value("source_code", QueryBuilder.bindMarker("source_code"))
+        .value("example_inputs", QueryBuilder.bindMarker("example_inputs"))
         .value("container_registry_uri", QueryBuilder.bindMarker("container_registry_uri"))
         .value("edge_supported", QueryBuilder.bindMarker("edge_supported"))
         .value("cloud_supported", QueryBuilder.bindMarker("cloud_supported"))
@@ -176,6 +188,7 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
     return selectFrom
         .column("name")
         .column("source_code")
+        .column("example_inputs")
         .column("container_registry_uri")
         .column("edge_supported")
         .column("cloud_supported")
@@ -217,6 +230,7 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
         : QueryBuilder.update(keyspaceId, tableId);
     return ((DefaultUpdate)update
         .setColumn("source_code", QueryBuilder.bindMarker("source_code"))
+        .setColumn("example_inputs", QueryBuilder.bindMarker("example_inputs"))
         .setColumn("container_registry_uri", QueryBuilder.bindMarker("container_registry_uri"))
         .setColumn("edge_supported", QueryBuilder.bindMarker("edge_supported"))
         .setColumn("cloud_supported", QueryBuilder.bindMarker("cloud_supported"))
@@ -253,6 +267,7 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
     List<CqlIdentifier> expectedCqlNames = new ArrayList<>();
     expectedCqlNames.add(CqlIdentifier.fromCql("name"));
     expectedCqlNames.add(CqlIdentifier.fromCql("source_code"));
+    expectedCqlNames.add(CqlIdentifier.fromCql("example_inputs"));
     expectedCqlNames.add(CqlIdentifier.fromCql("container_registry_uri"));
     expectedCqlNames.add(CqlIdentifier.fromCql("edge_supported"));
     expectedCqlNames.add(CqlIdentifier.fromCql("cloud_supported"));
@@ -275,13 +290,14 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
       }
       // validation of types
       Map<CqlIdentifier, GenericType<?>> expectedTypesPerColumn = new LinkedHashMap<>();
-      expectedTypesPerColumn.put(CqlIdentifier.fromCql("cloud_supported"), GENERIC_TYPE);
-      expectedTypesPerColumn.put(CqlIdentifier.fromCql("container_registry_uri"), GENERIC_TYPE1);
-      expectedTypesPerColumn.put(CqlIdentifier.fromCql("name"), GENERIC_TYPE1);
-      expectedTypesPerColumn.put(CqlIdentifier.fromCql("source_code"), GENERIC_TYPE1);
-      expectedTypesPerColumn.put(CqlIdentifier.fromCql("edge_knservice_uri"), GENERIC_TYPE1);
-      expectedTypesPerColumn.put(CqlIdentifier.fromCql("edge_supported"), GENERIC_TYPE);
-      expectedTypesPerColumn.put(CqlIdentifier.fromCql("cloud_aws_arn"), GENERIC_TYPE1);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("cloud_supported"), GENERIC_TYPE1);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("container_registry_uri"), GENERIC_TYPE2);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("name"), GENERIC_TYPE2);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("source_code"), GENERIC_TYPE2);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("edge_knservice_uri"), GENERIC_TYPE2);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("edge_supported"), GENERIC_TYPE1);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("cloud_aws_arn"), GENERIC_TYPE2);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("example_inputs"), GENERIC_TYPE);
       List<String> missingTableTypes = findTypeMismatches(expectedTypesPerColumn, tableMetadata.get().getColumns(), context.getSession().getContext().getCodecRegistry());
       throwMissingTableTypesIfNotEmpty(missingTableTypes, keyspaceId, tableId, entityClassName);
     }
@@ -294,13 +310,14 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
       }
       // validation of UDT types
       Map<CqlIdentifier, GenericType<?>> expectedTypesPerColumn = new LinkedHashMap<>();
-      expectedTypesPerColumn.put(CqlIdentifier.fromCql("cloud_supported"), GENERIC_TYPE);
-      expectedTypesPerColumn.put(CqlIdentifier.fromCql("container_registry_uri"), GENERIC_TYPE1);
-      expectedTypesPerColumn.put(CqlIdentifier.fromCql("name"), GENERIC_TYPE1);
-      expectedTypesPerColumn.put(CqlIdentifier.fromCql("source_code"), GENERIC_TYPE1);
-      expectedTypesPerColumn.put(CqlIdentifier.fromCql("edge_knservice_uri"), GENERIC_TYPE1);
-      expectedTypesPerColumn.put(CqlIdentifier.fromCql("edge_supported"), GENERIC_TYPE);
-      expectedTypesPerColumn.put(CqlIdentifier.fromCql("cloud_aws_arn"), GENERIC_TYPE1);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("cloud_supported"), GENERIC_TYPE1);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("container_registry_uri"), GENERIC_TYPE2);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("name"), GENERIC_TYPE2);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("source_code"), GENERIC_TYPE2);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("edge_knservice_uri"), GENERIC_TYPE2);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("edge_supported"), GENERIC_TYPE1);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("cloud_aws_arn"), GENERIC_TYPE2);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("example_inputs"), GENERIC_TYPE);
       List<CqlIdentifier> expectedColumns = userDefinedType.get().getFieldNames();
       List<DataType> expectedTypes = userDefinedType.get().getFieldTypes();
       List<String> missingTableTypes = findTypeMismatches(expectedTypesPerColumn, expectedColumns, expectedTypes, context.getSession().getContext().getCodecRegistry());

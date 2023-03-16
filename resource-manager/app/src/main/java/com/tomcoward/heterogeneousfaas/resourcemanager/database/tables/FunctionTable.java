@@ -27,6 +27,7 @@ public class FunctionTable implements IDBTable {
                     .ifNotExists()
                     .withPartitionKey("name", DataTypes.ASCII)
                     .withColumn("source_code", DataTypes.ASCII)
+                    .withColumn("example_inputs", DataTypes.listOf(DataTypes.ASCII))
                     .withColumn("container_registry_uri", DataTypes.ASCII)
                     .withColumn("edge_supported", DataTypes.BOOLEAN)
                     .withColumn("cloud_supported", DataTypes.BOOLEAN)
