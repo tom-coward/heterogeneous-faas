@@ -1,6 +1,8 @@
 from cassandra.cluster import Cluster
 import numpy
-from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import make_pipeline
+from sklearn.linear_model import SGDRegressor
+from sklearn.preprocessing import StandardScaler
 import pickle
 import uuid
 import matplotlib.pyplot as plt
@@ -21,6 +23,12 @@ def getFunctionExecutions(functionName: str, worker: str):
         data.append([row.input_size, row.duration])
 
     return data
+
+def getMlModel(functionName: str, worker: str):
+    # TODO: remove ALLOW FILTERING if possible
+    result = cassandraSession.execute(f"SELECT model FROM heterogeneous_faas.ml_model WHERE function_name='{functionName}' AND worker = '{worker}' ALLOW FILTERING")
+
+    return result.one().model
 
 def saveModel(functionName: str, worker: str, modelBytes: bytes):
     saveModelStatement = cassandraSession.prepare(f"INSERT INTO heterogeneous_faas.ml_model (id, function_name, worker, model) VALUES (?, ?, ?, ?)")
@@ -50,22 +58,35 @@ def train(functionName: str):
         data = numpy.delete(data, outliers, axis=0)
 
         # create linear regression model
+        regressor = make_pipeline(
+            StandardScaler(),
+            SGDRegressor(eta0=0.01, learning_rate="constant", random_state=42)
+        )
+
         x = numpy.array(data[:, 0]).reshape(-1, 1)
         y = numpy.array(data[:, 1])
 
-        model = LinearRegression().fit(x, y)
+        regressor.fit(x, y)
 
         # plot original model as graph
         plt.scatter(x, y)
-        plt.plot(x, model.predict(x), color='red')
+        plt.plot(x, regressor.predict(x), color='red')
         plt.title(f'{worker} Model')
         plt.xlabel('Input size')
         plt.ylabel('Duration')
         plt.show()
 
         # save model in Cassandra database (as a string representation of model object)
-        modelBytes = pickle.dumps(model)
+        modelBytes = pickle.dumps(regressor)
         saveModel(functionName, worker, modelBytes)
+
+def incrementalTrain(functionName: str, worker: str, inputSize: int, duration: float):
+    # get existing model
+    mlModel = getMlModel(functionName, worker)
+    regressor = pickle.loads(mlModel)
+    
+    # fit new data (input size & duration) to model
+    regressor.named_steps['sgdregressor'].partial_fit(inputSize, duration)
 
 
 if __name__ == '__main__':

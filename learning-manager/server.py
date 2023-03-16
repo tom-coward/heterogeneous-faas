@@ -14,6 +14,22 @@ def putTrain(functionName: str):
     response = make_response("Training initiated", 202)
     return response
 
+@app.route('/train/incremental/<string:functionName>', methods=['PUT'])
+def putTrainIncremental(functionName: str):
+    # get worker, input size and duration from URL query params
+    worker = request.args.get('worker', '')
+    inputSize = request.args.get('inputSize', '')
+    duration = request.args.get('duration', '')
+    if inputSize == None or inputSize == None or duration == None:
+        response = make_response("Missing inputs (worker/inputSize/duration)", 400)
+        return response
+   
+    # initiate incremental training of the model
+    train.incrementalTrain(functionName, worker, inputSize, duration)
+
+    response = make_response("Incremental training initiated", 202)
+    return response
+
 @app.route('/predictions/<string:functionName>', methods=['GET'])
 def getPredictions(functionName: str):
     # get input size from URL query params

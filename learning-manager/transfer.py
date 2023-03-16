@@ -1,38 +1,38 @@
-import boto3
-import docker
-import base64
 import cProfile
-import pstats
+from cassandra.cluster import Cluster
 
-awsSession = boto3.Session()
-ecr = awsSession.client('ecr')
-registryUrl = "963689541346.dkr.ecr.eu-west-1.amazonaws.com"
 
-dockerClient = docker.from_env()
+cassandraCluster = Cluster(['localhost'])
+cassandraSession = cassandraCluster.connect()
 
-def getFunctionImage(functionName: str):
-    response = ecr.get_authorization_token()
-    authToken = response['authorizationData'][0]['authorizationToken']
-    username, password = base64.b64decode(authToken).decode().split(':')
+inputSize = 100
 
-    image = dockerClient.images.pull(f"{registryUrl}/{functionName}:latest", auth_config={'username': username, 'password': password})
+def getFunction(functionName: str):
+    result = cassandraSession.execute(f"SELECT source_code, example_inputs FROM heterogeneous_faas.function WHERE name='{functionName}'")
 
-    return image
+    return result.one().source_code, result.one().example_inputs
 
-def profileFunction(functionName: str):
-    image = getFunctionImage(functionName)
+def runSourceCode(sourceCode: str, inputs: list):
+    program = compile(sourceCode, "", "exec")
+    return exec(program, {}, {"data": inputs})
+
+def profileFunction(sourceCode: str, inputs: list):
+    selectedInputs = inputs[:inputSize]
     
-    container = dockerClient.containers.run(
-        image, 
-        command='python main.handler -m cProfile -o /tmp/cprofiler.prof'
-    )
-    container.wait()
-
-    cProfileFile = container.get_archive('/tmp/cprofile.prof')[0][1]
-    profileStats = pstats.Stats(cProfileFile)
-    profileStats.sort_stats('cumulative').print_stats(10)
-
+    cProfile.runctx(f"runSourceCode({sourceCode}, {selectedInputs})", globals=globals(), locals=locals())
 
 def transfer(functionName: str):
-    functionProfile = profileFunction(functionName)
+    functionSourceCode, functionExampleInputs = getFunction(functionName)
+    
+    functionProfile = profileFunction(functionSourceCode, functionExampleInputs)
     print(functionProfile)
+
+
+if __name__ == "__main__":
+    functionName = input("Enter name of function to attempt to transfer learn: ")
+    
+    functionSourceCode, functionExampleInputs = getFunction(functionName)
+
+    print(functionSourceCode)
+
+    print(runSourceCode(functionSourceCode, functionExampleInputs))
