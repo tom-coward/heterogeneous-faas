@@ -1,18 +1,19 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import com.sun.net.httpserver.HttpServer;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.CassandraClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.database.IDBClient;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.*;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.*;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.*;
+import io.undertow.Handlers;
+import io.undertow.Undertow;
+import io.undertow.server.handlers.PathHandler;
 
 public class App {
     private static final int SERVER_PORT = 5001;
 
-    private final HttpServer server;
+    private final Undertow server;
 
     private final IDBClient db;
 
@@ -42,18 +43,25 @@ public class App {
         functionsRepo = new CassandraFunctionRepository(db);
         functionExecutionsRepo = new CassandraFunctionExecutionRepository(db);
 
+        // define http server handlers
+        CreateFunctionHandler createFunctionHandler = new CreateFunctionHandler(functionsRepo, functionExecutionsRepo, awsLambda, kubernetes, learningManager, docker);
+        InvokeFunctionHandler invokeFunctionHandler = new InvokeFunctionHandler(functionsRepo, functionExecutionsRepo, awsLambda, kubernetes, learningManager);
+        SetCredentialsHandler setCredentialsHandler = new SetCredentialsHandler();
+
+        PathHandler pathHandler = Handlers.path()
+                .addExactPath("/function", createFunctionHandler)
+                .addPrefixPath("/function/invoke", invokeFunctionHandler)
+                .addExactPath("/credentials", setCredentialsHandler);
+
         // initialise http server
-        InetSocketAddress serverAddress = new InetSocketAddress(SERVER_PORT);
-        server = HttpServer.create(serverAddress, 0);
+        server = Undertow.builder()
+                .addHttpListener(SERVER_PORT, "localhost")
+                .setHandler(pathHandler)
+                .build();
 
-        // define http server routes
-        addCreateFunctionRoute();
-        addInvokeFunctionRoute();
-        addSetCredentialsRoute();
-
-        // startup http server (will block thread)
-        System.out.println(String.format("Resource Manager server started on port %d", SERVER_PORT));
+        // startup http server (runs on its own thread so non-blocking)
         server.start();
+        System.out.println(String.format("Resource Manager server started on port %d", SERVER_PORT));
     }
 
 
@@ -67,18 +75,5 @@ public class App {
             System.err.println(String.format("ERROR: %s", ex.getMessage()));
             System.exit(-1);
         }
-    }
-
-
-    private void addCreateFunctionRoute() {
-        server.createContext("/function", new CreateFunctionHandler(functionsRepo, functionExecutionsRepo, awsLambda, kubernetes, learningManager, docker));
-    }
-
-    private void addInvokeFunctionRoute() {
-        server.createContext("/function/invoke", new InvokeFunctionHandler(functionsRepo, functionExecutionsRepo, awsLambda, kubernetes, learningManager));
-    }
-
-    private void addSetCredentialsRoute() {
-        server.createContext("/credentials", new SetCredentialsHandler());
     }
 }

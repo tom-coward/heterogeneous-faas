@@ -31,6 +31,7 @@ dependencies {
     implementation 'com.github.docker-java:docker-java-core:3.2.13'
     implementation 'com.github.docker-java:docker-java-transport-httpclient5:3.2.13'
     implementation 'com.datastax.oss:java-driver-mapper-runtime:4.15.0'
+    implementation 'io.undertow:undertow-core:2.3.4.Final'
     compileOnly 'com.datastax.oss:java-driver-mapper-processor:4.15.0'
 
     annotationProcessor group: 'com.datastax.oss', name: 'java-driver-mapper-processor', version: '4.15.0'

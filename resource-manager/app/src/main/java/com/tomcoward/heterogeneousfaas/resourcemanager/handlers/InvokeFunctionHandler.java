@@ -1,13 +1,9 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.handlers;
 
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpExchange;
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.*;
@@ -20,6 +16,8 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.FunctionExecution;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionExecutionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
+import io.undertow.server.HttpHandler;
+import io.undertow.server.HttpServerExchange;
 
 public class InvokeFunctionHandler implements HttpHandler {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -39,40 +37,42 @@ public class InvokeFunctionHandler implements HttpHandler {
     }
 
 
-    public void handle(HttpExchange exchange) throws IOException {
-        try {
-            JsonObject requestBody = HttpHelper.getRequestBody(exchange, null);
+    public void handleRequest(HttpServerExchange exchange) {
+        exchange.dispatch(() -> { // handle request asynchronously
+            try {
+                JsonObject requestBody = HttpHelper.getRequestBody(exchange, null);
 
-            // get name of function to be invoked
-            String functionName = requestBody.getString("function_name");
-            if (functionName == null || functionName.trim().isEmpty()) {
-                throw new FunctionException(String.format("No function with the name %s exists to be invoked", functionName));
+                // get name of function to be invoked
+                String functionName = requestBody.getString("function_name");
+                if (functionName == null || functionName.trim().isEmpty()) {
+                    throw new FunctionException(String.format("No function with the name %s exists to be invoked", functionName));
+                }
+
+                // get payload of function (if any)
+                JsonArray functionPayload = requestBody.getJsonArray("function_payload");
+
+                LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionName input: \"%s\"", functionName));
+                LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionPayload input: \"%s\"", functionPayload.toString()));
+
+                FunctionInvocationResponse response = invokeFunction(functionName, functionPayload);
+
+                HttpHelper.sendResponse(exchange, 200, response.getResponse());
+
+                recordFunctionExecution(functionName, response.getWorker(), functionPayload.size(), response, false);
+            } catch (DBClientException ex) {
+                LOGGER.log(Level.SEVERE, "Error invoking function", ex);
+                // return error to client
+                HttpHelper.sendResponse(exchange, 500, "There was a problem invoking the function");
+            } catch (FunctionInvocationException ex) {
+                LOGGER.log(Level.SEVERE, "Error creating function", ex);
+                // return function invocation error to client
+                HttpHelper.sendResponse(exchange, ex.getHttpErrorCode(), ex.getMessage());
+            } catch (Exception ex) {
+                LOGGER.log(Level.SEVERE, "Error creating function", ex);
+                // return error to client
+                HttpHelper.sendResponse(exchange, 500, "There was a problem invoking the function");
             }
-
-            // get payload of function (if any)
-            JsonArray functionPayload = requestBody.getJsonArray("function_payload");
-
-            LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionName input: \"%s\"", functionName));
-            LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionPayload input: \"%s\"", functionPayload.toString()));
-
-            FunctionInvocationResponse response = invokeFunction(functionName, functionPayload);
-
-            HttpHelper.sendResponse(exchange, 200, response.getResponse());
-
-            recordFunctionExecution(functionName, response.getWorker(), functionPayload.size(), response);
-        } catch (DBClientException ex) {
-            LOGGER.log(Level.SEVERE, "Error invoking function", ex);
-            // return error to client
-            HttpHelper.sendResponse(exchange, 500, "There was a problem invoking the function");
-        } catch (FunctionInvocationException ex) {
-            LOGGER.log(Level.SEVERE, "Error creating function", ex);
-            // return function invocation error to client
-            HttpHelper.sendResponse(exchange, ex.getHttpErrorCode(), ex.getMessage());
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Error creating function", ex);
-            // return error to client
-            HttpHelper.sendResponse(exchange, 500, "There was a problem invoking the function");
-        }
+        });
     }
 
     private FunctionInvocationResponse invokeFunction(String functionName, JsonArray functionPayload) throws DBClientException, WorkerException, IntegrationException {
@@ -124,7 +124,7 @@ public class InvokeFunctionHandler implements HttpHandler {
         return new FunctionInvocationResponse(response, invocationDuration, predictedDuration, worker);
     }
 
-    public void recordFunctionExecution(String functionName, String worker, int inputSize, FunctionInvocationResponse functionInvocationResponse) throws DBClientException, IntegrationException {
+    public void recordFunctionExecution(String functionName, String worker, int inputSize, FunctionInvocationResponse functionInvocationResponse, boolean isTraining) throws DBClientException, IntegrationException {
         // if function response indicated there was an error, mark execution as unsuccessful
         boolean isSuccess = !functionInvocationResponse.getResponse().contains("errorType");
 
@@ -132,7 +132,9 @@ public class InvokeFunctionHandler implements HttpHandler {
 
         functionExecutionsRepo.create(functionExecution);
 
-        learningManager.triggerIncrementalTraining(functionName, worker, inputSize, functionInvocationResponse.getDuration());
+        if (!isTraining) {
+            learningManager.triggerIncrementalTraining(functionName, worker, inputSize, functionInvocationResponse.getDuration());
+        }
     }
 
 

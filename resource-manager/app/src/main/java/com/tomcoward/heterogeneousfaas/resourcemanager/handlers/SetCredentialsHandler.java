@@ -1,9 +1,9 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.helpers.HttpHelper;
-
+import io.undertow.server.HttpHandler;
+import io.undertow.server.HttpServerExchange;
 import javax.json.JsonObject;
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -11,18 +11,20 @@ import java.util.logging.Logger;
 public class SetCredentialsHandler implements HttpHandler {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    public void handle(HttpExchange exchange) throws IOException {
-        try {
-            JsonObject credentialsObject = HttpHelper.getRequestBody(exchange, "credentials");
+    public void handleRequest(HttpServerExchange exchange) {
+        exchange.dispatch(() -> {
+            try {
+                JsonObject credentialsObject = HttpHelper.getRequestBody(exchange, "credentials");
 
-            setSystemProperties(credentialsObject);
+                setSystemProperties(credentialsObject);
 
-            String response = "Credentials were successfully updated";
-            HttpHelper.sendResponse(exchange, 200, response);
-        } catch (Exception ex) {
-            String response = "There was an issue updating credentials";
-            HttpHelper.sendResponse(exchange, 500, response);
-        }
+                String response = "Credentials were successfully updated";
+                HttpHelper.sendResponse(exchange, 200, response);
+            } catch (Exception ex) {
+                String response = "There was an issue updating credentials";
+                HttpHelper.sendResponse(exchange, 500, response);
+            }
+        });
     }
 
 

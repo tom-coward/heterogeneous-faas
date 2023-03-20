@@ -14,10 +14,13 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.*;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionExecutionRepository;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
+import io.undertow.server.HttpHandler;
+import io.undertow.server.HttpServerExchange;
+
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 
-public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler {
+public class CreateFunctionHandler implements HttpHandler {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private final static int MAX_TRAINING_EXECUTIONS = 1000;
@@ -42,38 +45,40 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
     }
 
 
-    public void handle(HttpExchange exchange) throws IOException {
-        try {
-            JsonObject functionObject = HttpHelper.getRequestBody(exchange, "function");
-            JsonArray exampleInputs = functionObject.getJsonArray("example_inputs");
+    public void handleRequest(HttpServerExchange exchange) {
+        exchange.dispatch(() -> { // handle request asynchronously
+            try {
+                JsonObject functionObject = HttpHelper.getRequestBody(exchange, "function");
+                JsonArray exampleInputs = functionObject.getJsonArray("example_inputs");
 
-            Function function = new Function(functionObject);
+                Function function = new Function(functionObject);
 
-            // build and push function as Docker image (to AWS ECR)
-            function = docker.buildAndPushImage(function);
+                // build and push function as Docker image (to AWS ECR)
+                function = docker.buildAndPushImage(function);
 
-            // create function on cloud and edge workers
-            function = createFunction(function, exampleInputs);
+                // create function on cloud and edge workers
+                function = createFunction(function, exampleInputs);
 
-            LOGGER.log(Level.INFO, String.format("CreateFunctionHandler function created: \"%s\"", function.getName()));
+                LOGGER.log(Level.INFO, String.format("CreateFunctionHandler function created: \"%s\"", function.getName()));
 
-            String response = gson.toJson(function);
-            HttpHelper.sendResponse(exchange, 200, response);
-        } catch (DBClientException ex) {
-            // return error to client
-            String response = "There was an issue saving your function";
-            HttpHelper.sendResponse(exchange, 500, response);
-        } catch (IOException ex) {
-            // return error to client
-            LOGGER.log(Level.SEVERE, "Error creating function", ex);
-            String response = "The function object was invalid";
-            HttpHelper.sendResponse(exchange, 400, response);
-        } catch (Exception ex) {
-            // return error to client
-            LOGGER.log(Level.SEVERE, "Error creating function", ex);
-            String response = "There was an issue creating your function";
-            HttpHelper.sendResponse(exchange, 500, response);
-        }
+                String response = gson.toJson(function);
+                HttpHelper.sendResponse(exchange, 200, response);
+            } catch (DBClientException ex) {
+                // return error to client
+                String response = "There was an issue saving your function";
+                HttpHelper.sendResponse(exchange, 500, response);
+            } catch (IOException ex) {
+                // return error to client
+                LOGGER.log(Level.SEVERE, "Error creating function", ex);
+                String response = "The function object was invalid";
+                HttpHelper.sendResponse(exchange, 400, response);
+            } catch (Exception ex) {
+                // return error to client
+                LOGGER.log(Level.SEVERE, "Error creating function", ex);
+                String response = "There was an issue creating your function";
+                HttpHelper.sendResponse(exchange, 500, response);
+            }
+        });
     }
 
 
@@ -113,7 +118,7 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
 
                 InvokeFunctionHandler.FunctionInvocationResponse response = invokeFunctionHandler.invokeWorker(AWSLambda.WORKER_NAME, function, functionPayload, 0);
 
-                invokeFunctionHandler.recordFunctionExecution(function.getName(), AWSLambda.WORKER_NAME, functionPayloadArray.size(), response);
+                invokeFunctionHandler.recordFunctionExecution(function.getName(), AWSLambda.WORKER_NAME, functionPayloadArray.size(), response, true);
                 LOGGER.log(Level.INFO, String.format("%d executions completed...", i+1));
             }
 
@@ -133,7 +138,7 @@ public class CreateFunctionHandler implements com.sun.net.httpserver.HttpHandler
 
                 InvokeFunctionHandler.FunctionInvocationResponse response = invokeFunctionHandler.invokeWorker(Kubernetes.WORKER_NAME, function, functionPayload, 0);
 
-                invokeFunctionHandler.recordFunctionExecution(function.getName(), Kubernetes.WORKER_NAME, functionPayloadArray.size(), response);
+                invokeFunctionHandler.recordFunctionExecution(function.getName(), Kubernetes.WORKER_NAME, functionPayloadArray.size(), response, true);
                 LOGGER.log(Level.INFO, String.format("%d executions completed...", i+1));
             }
 

@@ -1,16 +1,16 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.handlers.helpers;
 
-import com.sun.net.httpserver.HttpExchange;
+import io.undertow.server.HttpServerExchange;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 public class HttpHelper {
-    public static JsonObject getRequestBody(HttpExchange httpExchange, String jsonObjectName) throws IOException {
-        InputStream requestBody = httpExchange.getRequestBody();
+    public static JsonObject getRequestBody(HttpServerExchange httpExchange, String jsonObjectName) throws IOException {
+        httpExchange.startBlocking();
+        InputStream requestBody = httpExchange.getInputStream();
 
         // deserialize json from request body
         JsonReader jsonReader = Json.createReader(requestBody);
@@ -29,10 +29,10 @@ public class HttpHelper {
         return jsonRequestBody;
     }
 
-    public static void sendResponse(HttpExchange httpExchange, int responseCode, String response) throws IOException {
-        httpExchange.sendResponseHeaders(responseCode, response.length());
-        OutputStream responseStream = httpExchange.getResponseBody();
-        responseStream.write(response.getBytes());
-        responseStream.close();
+    public static void sendResponse(HttpServerExchange httpExchange, int responseCode, String response) {
+        httpExchange.setStatusCode(responseCode);
+        httpExchange.getResponseSender().send(response);
+
+        httpExchange.endExchange();
     }
 }
