@@ -29,8 +29,8 @@ def generateInputs(problemId, numColumns, numRows, lowerBound, upperBound):
     
     inputgenerator.generateInputs(fileName, numColumns, numRows, lowerBound, upperBound)
 
-def write(solutionId):
-    writer.writeToJson(solutionId)
+def write():
+    writer.writeAllToJson()
 
 
 if __name__ == "__main__":
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     
     parser.add_argument("option", type=str, help="The operation to perform (compile/upload/write/generateInputs [problemId numColumns numRows lowerBound upperBound])")
 
-    # optional upload/write arguments
+    # optional upload arguments
     parser.add_argument("--solutionId", type=str, help="Solution ID of Docker container to upload to AWS ECR", required=False)
 
     # optional generateInputs arguments
@@ -56,7 +56,7 @@ if __name__ == "__main__":
         case "upload":
             upload(args.solutionId)
         case "write":
-            write(args.solutionId)
+            write()
         case "generateInputs":
             generateInputs(args.problemId, args.numColumns, args.numRows, args.lowerBound, args.upperBound)
         case _:

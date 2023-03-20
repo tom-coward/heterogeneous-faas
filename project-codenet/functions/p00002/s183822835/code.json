@@ -1,0 +1,1 @@
+{"source_code": "def solve(input):\n    a,b=map(int, input.split())\n    return len(str(a+b))\n\ndef handler(event, context):\n    results = []\n    \n    for i in range(len(event)):\n        results.append(solve(event[i]))\n\n    return results\n\n\nif __name__ == '__main__':\n    data = [\"81 404\", \"605 444\"]\n\n    print(handler(data, None))"}

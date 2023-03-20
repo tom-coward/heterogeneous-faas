@@ -20,4 +20,4 @@ def handler(event, context):
 if __name__ == '__main__':
     data = ["81 404", "605 444"]
 
-    print(main(data))
+    print(handler(data, None))
