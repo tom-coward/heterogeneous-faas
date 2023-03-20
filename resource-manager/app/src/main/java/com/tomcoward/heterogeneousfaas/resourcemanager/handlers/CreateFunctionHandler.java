@@ -46,39 +46,43 @@ public class CreateFunctionHandler implements HttpHandler {
 
 
     public void handleRequest(HttpServerExchange exchange) {
-        exchange.dispatch(() -> { // handle request asynchronously
-            try {
-                JsonObject functionObject = HttpHelper.getRequestBody(exchange, "function");
-                JsonArray exampleInputs = functionObject.getJsonArray("example_inputs");
+        // handle request asynchronously in new thread if currently blocking IO thread
+        if (exchange.isInIoThread()) {
+            exchange.dispatch(this);
+            return;
+        }
 
-                Function function = new Function(functionObject);
+        try {
+            JsonObject functionObject = HttpHelper.getRequestBody(exchange, "function");
+            JsonArray exampleInputs = functionObject.getJsonArray("example_inputs");
 
-                // build and push function as Docker image (to AWS ECR)
-                function = docker.buildAndPushImage(function);
+            Function function = new Function(functionObject);
 
-                // create function on cloud and edge workers
-                function = createFunction(function, exampleInputs);
+            // build and push function as Docker image (to AWS ECR)
+            function = docker.buildAndPushImage(function);
 
-                LOGGER.log(Level.INFO, String.format("CreateFunctionHandler function created: \"%s\"", function.getName()));
+            // create function on cloud and edge workers
+            function = createFunction(function, exampleInputs);
 
-                String response = gson.toJson(function);
-                HttpHelper.sendResponse(exchange, 200, response);
-            } catch (DBClientException ex) {
-                // return error to client
-                String response = "There was an issue saving your function";
-                HttpHelper.sendResponse(exchange, 500, response);
-            } catch (IOException ex) {
-                // return error to client
-                LOGGER.log(Level.SEVERE, "Error creating function", ex);
-                String response = "The function object was invalid";
-                HttpHelper.sendResponse(exchange, 400, response);
-            } catch (Exception ex) {
-                // return error to client
-                LOGGER.log(Level.SEVERE, "Error creating function", ex);
-                String response = "There was an issue creating your function";
-                HttpHelper.sendResponse(exchange, 500, response);
-            }
-        });
+            LOGGER.log(Level.INFO, String.format("CreateFunctionHandler function created: \"%s\"", function.getName()));
+
+            String response = gson.toJson(function);
+            HttpHelper.sendResponse(exchange, 200, response);
+        } catch (DBClientException ex) {
+            // return error to client
+            String response = "There was an issue saving your function";
+            HttpHelper.sendResponse(exchange, 500, response);
+        } catch (IOException ex) {
+            // return error to client
+            LOGGER.log(Level.SEVERE, "Error creating function", ex);
+            String response = "The function object was invalid";
+            HttpHelper.sendResponse(exchange, 400, response);
+        } catch (Exception ex) {
+            // return error to client
+            LOGGER.log(Level.SEVERE, "Error creating function", ex);
+            String response = "There was an issue creating your function";
+            HttpHelper.sendResponse(exchange, 500, response);
+        }
     }
 
 

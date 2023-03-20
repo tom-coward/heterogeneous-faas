@@ -38,41 +38,45 @@ public class InvokeFunctionHandler implements HttpHandler {
 
 
     public void handleRequest(HttpServerExchange exchange) {
-        exchange.dispatch(() -> { // handle request asynchronously
-            try {
-                JsonObject requestBody = HttpHelper.getRequestBody(exchange, null);
+        // handle request asynchronously in new thread if currently blocking IO thread
+        if (exchange.isInIoThread()) {
+            exchange.dispatch(this);
+            return;
+        }
 
-                // get name of function to be invoked
-                String functionName = requestBody.getString("function_name");
-                if (functionName == null || functionName.trim().isEmpty()) {
-                    throw new FunctionException(String.format("No function with the name %s exists to be invoked", functionName));
-                }
+        try {
+            JsonObject requestBody = HttpHelper.getRequestBody(exchange, null);
 
-                // get payload of function (if any)
-                JsonArray functionPayload = requestBody.getJsonArray("function_payload");
-
-                LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionName input: \"%s\"", functionName));
-                LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionPayload input: \"%s\"", functionPayload.toString()));
-
-                FunctionInvocationResponse response = invokeFunction(functionName, functionPayload);
-
-                HttpHelper.sendResponse(exchange, 200, response.getResponse());
-
-                recordFunctionExecution(functionName, response.getWorker(), functionPayload.size(), response, false);
-            } catch (DBClientException ex) {
-                LOGGER.log(Level.SEVERE, "Error invoking function", ex);
-                // return error to client
-                HttpHelper.sendResponse(exchange, 500, "There was a problem invoking the function");
-            } catch (FunctionInvocationException ex) {
-                LOGGER.log(Level.SEVERE, "Error creating function", ex);
-                // return function invocation error to client
-                HttpHelper.sendResponse(exchange, ex.getHttpErrorCode(), ex.getMessage());
-            } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, "Error creating function", ex);
-                // return error to client
-                HttpHelper.sendResponse(exchange, 500, "There was a problem invoking the function");
+            // get name of function to be invoked
+            String functionName = requestBody.getString("function_name");
+            if (functionName == null || functionName.trim().isEmpty()) {
+                throw new FunctionException(String.format("No function with the name %s exists to be invoked", functionName));
             }
-        });
+
+            // get payload of function (if any)
+            JsonArray functionPayload = requestBody.getJsonArray("function_payload");
+
+            LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionName input: \"%s\"", functionName));
+            LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionPayload input: \"%s\"", functionPayload.toString()));
+
+            FunctionInvocationResponse response = invokeFunction(functionName, functionPayload);
+
+            HttpHelper.sendResponse(exchange, 200, response.getResponse());
+
+            recordFunctionExecution(functionName, response.getWorker(), functionPayload.size(), response, false);
+        } catch (DBClientException ex) {
+            LOGGER.log(Level.SEVERE, "Error invoking function", ex);
+            // return error to client
+            HttpHelper.sendResponse(exchange, 500, "There was a problem invoking the function");
+        } catch (FunctionInvocationException ex) {
+            LOGGER.log(Level.SEVERE, "Error creating function", ex);
+            // return function invocation error to client
+            HttpHelper.sendResponse(exchange, ex.getHttpErrorCode(), ex.getMessage());
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error creating function", ex);
+            // return error to client
+            HttpHelper.sendResponse(exchange, 500, "There was a problem invoking the function");
+        }
     }
 
     private FunctionInvocationResponse invokeFunction(String functionName, JsonArray functionPayload) throws DBClientException, WorkerException, IntegrationException {

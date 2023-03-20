@@ -12,19 +12,23 @@ public class SetCredentialsHandler implements HttpHandler {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     public void handleRequest(HttpServerExchange exchange) {
-        exchange.dispatch(() -> {
-            try {
-                JsonObject credentialsObject = HttpHelper.getRequestBody(exchange, "credentials");
+        // handle request asynchronously in new thread if currently blocking IO thread
+        if (exchange.isInIoThread()) {
+            exchange.dispatch(this);
+            return;
+        }
 
-                setSystemProperties(credentialsObject);
+        try {
+            JsonObject credentialsObject = HttpHelper.getRequestBody(exchange, "credentials");
 
-                String response = "Credentials were successfully updated";
-                HttpHelper.sendResponse(exchange, 200, response);
-            } catch (Exception ex) {
-                String response = "There was an issue updating credentials";
-                HttpHelper.sendResponse(exchange, 500, response);
-            }
-        });
+            setSystemProperties(credentialsObject);
+
+            String response = "Credentials were successfully updated";
+            HttpHelper.sendResponse(exchange, 200, response);
+        } catch (Exception ex) {
+            String response = "There was an issue updating credentials";
+            HttpHelper.sendResponse(exchange, 500, response);
+        }
     }
 
 

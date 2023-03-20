@@ -8,6 +8,8 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.*;
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.*;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
+import io.undertow.server.HttpHandler;
+import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.PathHandler;
 
 public class App {
@@ -45,13 +47,48 @@ public class App {
 
         // define http server handlers
         CreateFunctionHandler createFunctionHandler = new CreateFunctionHandler(functionsRepo, functionExecutionsRepo, awsLambda, kubernetes, learningManager, docker);
+        HttpHandler createFunctionRequestHandler = new HttpHandler() {
+            @Override
+            public void handleRequest(HttpServerExchange exchange) {
+                // Handle request asynchronously in a new thread if currently blocking IO thread
+                if (exchange.isInIoThread()) {
+                    exchange.dispatch(createFunctionHandler);
+                } else {
+                    createFunctionHandler.handleRequest(exchange);
+                }
+            }
+        };
+
         InvokeFunctionHandler invokeFunctionHandler = new InvokeFunctionHandler(functionsRepo, functionExecutionsRepo, awsLambda, kubernetes, learningManager);
+        HttpHandler invokeFunctionRequestHandler = new HttpHandler() {
+            @Override
+            public void handleRequest(HttpServerExchange exchange) {
+                // Handle request asynchronously in a new thread if currently blocking IO thread
+                if (exchange.isInIoThread()) {
+                    exchange.dispatch(invokeFunctionHandler);
+                } else {
+                    invokeFunctionHandler.handleRequest(exchange);
+                }
+            }
+        };
+
         SetCredentialsHandler setCredentialsHandler = new SetCredentialsHandler();
+        HttpHandler setCredentialsRequestHandler = new HttpHandler() {
+            @Override
+            public void handleRequest(HttpServerExchange exchange) {
+                // Handle request asynchronously in a new thread if currently blocking IO thread
+                if (exchange.isInIoThread()) {
+                    exchange.dispatch(setCredentialsHandler);
+                } else {
+                    setCredentialsHandler.handleRequest(exchange);
+                }
+            }
+        };
 
         PathHandler pathHandler = Handlers.path()
-                .addExactPath("/function", createFunctionHandler)
-                .addPrefixPath("/function/invoke", invokeFunctionHandler)
-                .addExactPath("/credentials", setCredentialsHandler);
+                .addExactPath("/function", createFunctionRequestHandler)
+                .addPrefixPath("/function/invoke", invokeFunctionRequestHandler)
+                .addExactPath("/credentials", setCredentialsRequestHandler);
 
         // initialise http server
         server = Undertow.builder()
