@@ -1,25 +1,31 @@
-from flask import Flask, make_response, request
+from quart import Quart, request, make_response
 import train
 import predict
-import transfer
+import cluster
+import asyncio
 
-app = Flask(__name__)
+app = Quart(__name__)
 
 
 @app.route('/train/<string:functionName>', methods=['PUT'])
-def putTrain(functionName: str):
+async def putTrain(functionName: str):
     # initiate training of the model
-    train.train(functionName)
+    await train.train(functionName)
 
-    response = make_response("Training initiated", 202)
+    # cluster function
+    #cluster.cluster(functionName)
+
+    response = await make_response("Training initiated", 202)
     return response
 
 @app.route('/train/incremental/<string:functionName>', methods=['PUT'])
-def putTrainIncremental(functionName: str):
+async def putTrainIncremental(functionName: str):
     # get worker, input size and duration from URL query params
-    worker = request.args.get('worker', '')
-    inputSize = request.args.get('inputSize', '')
-    duration = request.args.get('duration', '')
+    request = await request.get_json()
+
+    worker = request['worker']
+    inputSize = request['inputSize']
+    duration = request['duration']
     if inputSize == None or inputSize == None or duration == None:
         response = make_response("Missing inputs (worker/inputSize/duration)", 400)
         return response
@@ -31,9 +37,11 @@ def putTrainIncremental(functionName: str):
     return response
 
 @app.route('/predictions/<string:functionName>', methods=['GET'])
-def getPredictions(functionName: str):
+async def getPredictions(functionName: str):
     # get input size from URL query params
-    inputSize = request.args.get('inputSize', '')
+    request = await request.get_json()
+    
+    inputSize = request['inputSize']
     if inputSize == None:
         response = make_response("Input size not provided", 400)
         return response
@@ -41,13 +49,13 @@ def getPredictions(functionName: str):
     inputSize = int(inputSize)
     
     # get predictions for the function, for each worker
-    predictions = predict.getPredictions(functionName, inputSize)
+    predictions = await predict.getPredictions(functionName, inputSize)
 
     response = make_response(predictions, 200)
     return response
 
 @app.route('/transfer/<string:functionName>', methods=['PUT'])
-def putTransfer(functionName: str):
+async def putTransfer(functionName: str):
     # initiate transfer of the model
     transferred = transfer.transfer(functionName)
 
