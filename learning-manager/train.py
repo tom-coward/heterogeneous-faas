@@ -14,7 +14,7 @@ cassandraSession = cassandraCluster.connect()
 
 workers = ["AWS", "KUBERNETES"]
 
-async def getFunctionExecutions(functionName: str, worker: str):
+def getFunctionExecutions(functionName: str, worker: str):
     # TODO: remove ALLOW FILTERING if possible
     rows = cassandraSession.execute(f"SELECT input_size, duration FROM heterogeneous_faas.function_execution WHERE function_name='{functionName}' AND worker='{worker}' AND is_success=True AND input_size < 1000 ALLOW FILTERING")
 
@@ -23,32 +23,29 @@ async def getFunctionExecutions(functionName: str, worker: str):
     for row in rows:
         data.append([row.input_size, row.duration])
 
-    print(data)
-
     return data
 
-async def getMlModel(functionName: str, worker: str):
+def getMlModel(functionName: str, worker: str):
     # TODO: remove ALLOW FILTERING if possible
     result = cassandraSession.execute(f"SELECT id, model FROM heterogeneous_faas.ml_model WHERE function_name='{functionName}' AND worker = '{worker}' ALLOW FILTERING")
 
     return result.one()
 
-async def saveModel(functionName: str, worker: str, modelBytes: bytes):
+def saveModel(functionName: str, worker: str, modelBytes: bytes):
     saveModelStatement = cassandraSession.prepare(f"INSERT INTO heterogeneous_faas.ml_model (id, function_name, worker, model) VALUES (?, ?, ?, ?)")
-    await cassandraSession.execute(saveModelStatement, (uuid.uuid4(), functionName, worker, modelBytes))
+    cassandraSession.execute(saveModelStatement, (uuid.uuid4(), functionName, worker, modelBytes))
 
-async def updateModel(id, functionName: str, worker: str, modelBytes: bytes):
+def updateModel(id, functionName: str, worker: str, modelBytes: bytes):
     saveModelStatement = cassandraSession.prepare(f"INSERT INTO heterogeneous_faas.ml_model (id, function_name, worker, model) VALUES (?, ?, ?, ?)")
-    await cassandraSession.execute(saveModelStatement, (id, functionName, worker, modelBytes))
+    cassandraSession.execute(saveModelStatement, (id, functionName, worker, modelBytes))
 
 async def train(functionName: str):
     for worker in workers:            
         # get model features (input sizes and corresponding execution times)
-        data = await getFunctionExecutions(functionName, worker)
+        data = getFunctionExecutions(functionName, worker)
         data = numpy.array(data)
 
         # remove outliers (using IQR)
-        print(data)
         durations = data[:, 1]
         
         q1 = numpy.percentile(durations, 25)
@@ -91,7 +88,7 @@ async def train(functionName: str):
 
 async def incrementalTrain(functionName: str, worker: str, inputSize: int, duration: float):
     # get existing model
-    mlModel = await getMlModel(functionName, worker)
+    mlModel = getMlModel(functionName, worker)
     regressor = pickle.loads(mlModel.model)
 
     newX = numpy.array([inputSize]).reshape(-1, 1)

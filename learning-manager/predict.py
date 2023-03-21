@@ -5,13 +5,13 @@ import asyncio
 cassandraCluster = Cluster(['localhost'])
 cassandraSession = cassandraCluster.connect()
 
-async def getMLModels(functionName: str):
+def getMLModels(functionName: str):
     results = cassandraSession.execute(f"SELECT worker, model FROM heterogeneous_faas.ml_model WHERE function_name='{functionName}'")
 
     return results
 
 async def getPredictions(functionName: str, inputSize: int):
-    models = await getMLModels(functionName)
+    models = getMLModels(functionName)
 
     predictions = []
 

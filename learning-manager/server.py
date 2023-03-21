@@ -39,19 +39,16 @@ async def putTrainIncremental(functionName: str):
 @app.route('/predictions/<string:functionName>', methods=['GET'])
 async def getPredictions(functionName: str):
     # get input size from URL query params
-    request = await request.get_json()
-    
-    inputSize = request['inputSize']
+    inputSize = request.args.get('inputSize', None)
     if inputSize == None:
-        response = make_response("Input size not provided", 400)
-        return response
-    
+        return 400, "Input size not provided"
     inputSize = int(inputSize)
     
     # get predictions for the function, for each worker
     predictions = await predict.getPredictions(functionName, inputSize)
+    print(predictions)
 
-    response = make_response(predictions, 200)
+    response = await make_response(predictions, 200)
     return response
 
 @app.route('/transfer/<string:functionName>', methods=['PUT'])
