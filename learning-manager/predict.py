@@ -10,7 +10,7 @@ def getMLModels(functionName: str):
 
     return results
 
-async def getPredictions(functionName: str, inputSize: int):
+def getPredictions(functionName: str, inputSize: int):
     models = getMLModels(functionName)
 
     predictions = []
@@ -29,6 +29,6 @@ if __name__ == '__main__':
     functionName = input("Enter name of function to predict: ")
     inputSize = int(input("Enter input size: "))
 
-    predictions = asyncio.run(getPredictions(functionName, inputSize))
+    predictions = getPredictions(functionName, inputSize)
 
     print(predictions)

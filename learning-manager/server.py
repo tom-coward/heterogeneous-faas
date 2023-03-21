@@ -45,8 +45,7 @@ async def getPredictions(functionName: str):
     inputSize = int(inputSize)
     
     # get predictions for the function, for each worker
-    predictions = await predict.getPredictions(functionName, inputSize)
-    print(predictions)
+    predictions = predict.getPredictions(functionName, inputSize)
 
     response = await make_response(predictions, 200)
     return response

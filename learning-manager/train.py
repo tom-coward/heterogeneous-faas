@@ -1,7 +1,7 @@
 from cassandra.cluster import Cluster
 import numpy
 from sklearn.pipeline import make_pipeline
-from sklearn.neighbors import KNeighborsRegressor
+from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
 import pickle
 import uuid
@@ -53,22 +53,20 @@ async def train(functionName: str):
         iqr = q3 - q1
 
         threshold = 1
-        lower_bound = q1 - threshold * iqr
-        upper_bound = q3 + threshold * iqr
+        lowerBound = q1 - threshold * iqr
+        upperBound = q3 + threshold * iqr
 
-        outliers = numpy.where((durations < lower_bound) | (durations > upper_bound))
+        outliers = numpy.where((durations < lowerBound) | (durations > upperBound))
         data = numpy.delete(data, outliers, axis=0)
 
         # transform data
         x = numpy.array(data[:, 0]).reshape(-1, 1)
         y = numpy.array(data[:, 1])
 
-        x = numpy.log(x)
-
         # create linear regression model
         regressor = make_pipeline(
             StandardScaler(),
-            KNeighborsRegressor(n_neighbors=5)
+            LinearRegression()
         )
 
         regressor.fit(x, y)
