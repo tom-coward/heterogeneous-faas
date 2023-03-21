@@ -2,7 +2,7 @@ import subprocess
 import json
 
 # AWS ECR Repository URI
-repository_uri = "https://963689541346.dkr.ecr.eu-west-1.amazonaws.com/s103878717"
+registryUrl = "https://963689541346.dkr.ecr.eu-west-1.amazonaws.com/"
 
 # Run the AWS CLI command to get the ECR Docker credentials
 getCredsCmd = f"aws ecr get-login-password --region eu-west-1"
@@ -20,7 +20,7 @@ except:
     # ignore error
     pass
 
-createKnSecretCmd = f"kubectl create secret docker-registry awsecr --docker-server={repository_uri} --docker-username={dockerUsername} --docker-password={dockerPassword} --docker-email={dockerEmail}"
+createKnSecretCmd = f"kubectl create secret docker-registry awsecr --docker-server={registryUrl} --docker-username={dockerUsername} --docker-password={dockerPassword} --docker-email={dockerEmail}"
 subprocess.check_call(createKnSecretCmd, shell=True)
 
 patchKnServiceAccountCmd = "kubectl patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"awsecr\"}]}'"
