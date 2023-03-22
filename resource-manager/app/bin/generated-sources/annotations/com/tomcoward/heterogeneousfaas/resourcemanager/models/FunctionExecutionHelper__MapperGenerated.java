@@ -25,7 +25,7 @@ import com.datastax.oss.driver.internal.querybuilder.update.DefaultUpdate;
 import com.datastax.oss.driver.shaded.guava.common.collect.ImmutableList;
 import java.lang.Boolean;
 import java.lang.Class;
-import java.lang.Float;
+import java.lang.Double;
 import java.lang.IllegalArgumentException;
 import java.lang.Integer;
 import java.lang.Override;
@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 public class FunctionExecutionHelper__MapperGenerated extends EntityHelperBase<FunctionExecution> {
   private static final Logger LOG = LoggerFactory.getLogger(FunctionExecutionHelper__MapperGenerated.class);
 
-  private static final GenericType<Float> GENERIC_TYPE = new GenericType<Float>(){};
+  private static final GenericType<Double> GENERIC_TYPE = new GenericType<Double>(){};
 
   private static final GenericType<String> GENERIC_TYPE1 = new GenericType<String>(){};
 
@@ -97,10 +97,10 @@ public class FunctionExecutionHelper__MapperGenerated extends EntityHelperBase<F
       target = target.setInt("input_size", entity.getInputSize());
     }
     if (!lenient || hasProperty(target, "duration")) {
-      target = target.setFloat("duration", entity.getDuration());
+      target = target.setDouble("duration", entity.getDuration());
     }
     if (!lenient || hasProperty(target, "predicted_duration")) {
-      target = target.setFloat("predicted_duration", entity.getPredictedDuration());
+      target = target.setDouble("predicted_duration", entity.getPredictedDuration());
     }
     if (!lenient || hasProperty(target, "is_success")) {
       target = target.setBoolean("is_success", entity.getIsSuccess());
@@ -128,11 +128,11 @@ public class FunctionExecutionHelper__MapperGenerated extends EntityHelperBase<F
       returnValue.setInputSize(propertyValue3);
     }
     if (!lenient || hasProperty(source, "duration")) {
-      float propertyValue4 = source.getFloat("duration");
+      double propertyValue4 = source.getDouble("duration");
       returnValue.setDuration(propertyValue4);
     }
     if (!lenient || hasProperty(source, "predicted_duration")) {
-      float propertyValue5 = source.getFloat("predicted_duration");
+      double propertyValue5 = source.getDouble("predicted_duration");
       returnValue.setPredictedDuration(propertyValue5);
     }
     if (!lenient || hasProperty(source, "is_success")) {

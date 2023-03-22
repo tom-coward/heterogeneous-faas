@@ -1,5 +1,6 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 
+import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.CapacityException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.FunctionInvocationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
@@ -10,10 +11,18 @@ import io.fabric8.knative.serving.v1.ServiceBuilder;
 import io.fabric8.knative.serving.v1.ServiceSpec;
 import io.fabric8.knative.serving.v1.ServiceSpecBuilder;
 import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.metrics.v1beta1.NodeMetrics;
+import io.fabric8.kubernetes.api.model.metrics.v1beta1.NodeMetricsList;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,14 +33,15 @@ public class Kubernetes implements IWorkerIntegration {
 
     private final static String KNATIVE_NAMESPACE = "default";
     private final static String KNATIVE_URI = "127.0.0.1.sslip.io/2015-03-31/functions/function/invocations";
-    private final static String RESOURCE_CPU_LIMIT = "50m";
-    private final static String RESOURCE_MEMORY_LIMIT = "128Mi";
+    private final static String RESOURCE_CPU_LIMIT = "35m";
 
+    private final KubernetesClient kubernetesClient;
     private final KnativeClient knativeClient;
     private final HttpClient httpClient;
 
     public Kubernetes() throws IntegrationException {
         try {
+            this.kubernetesClient = new KubernetesClientBuilder().build();
             this.knativeClient = new DefaultKnativeClient();
             this.httpClient = HttpClient.newBuilder().build();
         } catch (Exception ex) {
@@ -50,6 +60,10 @@ public class Kubernetes implements IWorkerIntegration {
     }
 
     public String invokeFunction(Function function, String functionPayload) throws IntegrationException {
+        if (!clusterIsAvailable()) {
+            throw new CapacityException("The Kubernetes cluster is currently unavailable");
+        }
+
         return invokeKnativeService(function.getEdgeKnServiceUri(), "POST", functionPayload.toString());
     }
 
@@ -64,12 +78,15 @@ public class Kubernetes implements IWorkerIntegration {
                 .withImage(containerRegistryUri)
                 .withResources(new ResourceRequirementsBuilder()
                     .addToLimits("cpu", new Quantity(RESOURCE_CPU_LIMIT))
-                    .addToLimits("memory", new Quantity(RESOURCE_MEMORY_LIMIT))
                     .build())
                 .build();
 
         ServiceSpec serviceSpec = new ServiceSpecBuilder()
                 .withNewTemplate()
+                .withNewMetadata()
+                .withAnnotations(Map.of("autoscaling.knative.dev/minScale", "1",
+                        "autoscaling.knative.dev/maxScale", "1"))
+                .endMetadata()
                 .withNewSpec()
                 .withContainers(serviceSpecContainer)
                 .endSpec()
@@ -110,6 +127,34 @@ public class Kubernetes implements IWorkerIntegration {
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error sending HTTP request to Knative (k8s) service", ex);
             throw new IntegrationException("There was an error invoking the function");
+        }
+    }
+
+    private boolean clusterIsAvailable() {
+        try {
+            // get cluster CPU/memory utilisation
+            NodeMetricsList nodeMetricsList = kubernetesClient.top().nodes().metrics();
+
+            double cpuUsage = 95;
+            double memoryUsage = 95;
+
+            for (NodeMetrics nodeMetrics : nodeMetricsList.getItems()) {
+                String nodeName = nodeMetrics.getMetadata().getName();
+                cpuUsage = nodeMetrics.getUsage().get("cpu").getNumericalAmount().doubleValue();
+                memoryUsage = nodeMetrics.getUsage().get("memory").getNumericalAmount().doubleValue();
+
+                System.out.println("Node " + nodeName + " CPU usage: " + cpuUsage + " Memory usage: " + memoryUsage);
+            }
+
+            // if both under 95%, cluster is available
+            if (cpuUsage < 95 && memoryUsage < 95) {
+                return true;
+            }
+
+            return false; // else, cluster is unavailable
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error getting cluster CPU/memory utilisation from Kubernetes API", ex);
+            return false;
         }
     }
 }

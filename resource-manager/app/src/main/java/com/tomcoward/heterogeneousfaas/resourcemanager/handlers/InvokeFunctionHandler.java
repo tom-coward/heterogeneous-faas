@@ -18,6 +18,7 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionExe
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import software.amazon.awssdk.core.retry.conditions.TokenBucketRetryCondition;
 
 public class InvokeFunctionHandler implements HttpHandler {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -83,7 +84,7 @@ public class InvokeFunctionHandler implements HttpHandler {
         Function function = functionsRepo.get(functionName);
 
         // get predicted durations on each worker from Learning Manager
-        HashMap<String, Float> predictions = learningManager.getPredictions(function.getName(), functionPayload.size());
+        HashMap<String, Double> predictions = learningManager.getPredictions(function.getName(), functionPayload.size());
 
         // invoke worker with lowest predicted duration
         Map.Entry selectedPrediction = predictions.entrySet().stream().sorted(Map.Entry.comparingByValue()).findFirst().get();
@@ -92,38 +93,51 @@ public class InvokeFunctionHandler implements HttpHandler {
         }
 
         String worker = (String) selectedPrediction.getKey();
-        float predictedDuration = (float) ((double) selectedPrediction.getValue());
+        double predictedDuration = (double) selectedPrediction.getValue();
 
         String functionPayloadString = functionPayload.toString();
 
         LOGGER.log(Level.INFO, String.format("Invoking function %s on worker %s", function.getName(), worker));
 
-        FunctionInvocationResponse response = invokeWorker(worker, function, functionPayloadString, predictedDuration);
+        FunctionInvocationResponse response;
+        try {
+            response = invokeWorker(worker, function, functionPayloadString, predictedDuration);
+        } catch (CapacityException ex) {
+            // if worker capacity exceeded, invoke function on other worker
+            String otherWorker = worker.equals("KUBERNETES") ? "AWS" : "KUBERNETES";
+            LOGGER.log(Level.INFO, String.format("Invoking function %s on worker %s", function.getName(), otherWorker));
+            response = invokeWorker(otherWorker, function, functionPayloadString, predictedDuration);
+        }
 
         LOGGER.log(Level.INFO, String.format("%s invocation response in %6.2fms (predicted: %6.2fms): %s", function.getName(), response.getDuration(), response.getPredictedDuration(), response.getResponse()));
 
         return response;
     }
 
-    public FunctionInvocationResponse invokeWorker(String worker, Function function, String functionPayload, float predictedDuration) throws WorkerException, IntegrationException {
+    public FunctionInvocationResponse invokeWorker(String worker, Function function, String functionPayload, double predictedDuration) throws WorkerException, IntegrationException {
         Instant invocationStartTime = Instant.now();
 
         String response;
 
-        switch (worker) {
-            case "KUBERNETES":
-                response = kubernetes.invokeFunction(function, functionPayload);
-                break;
-            case "AWS":
-                response = awsLambda.invokeFunction(function, functionPayload);
-                break;
-            default:
-                throw new WorkerException(String.format("The host of the function's selected worker (%s) could not be found", worker));
+        try {
+            switch (worker) {
+                case "KUBERNETES":
+                    response = kubernetes.invokeFunction(function, functionPayload);
+                    break;
+                case "AWS":
+                    response = awsLambda.invokeFunction(function, functionPayload);
+                    break;
+                default:
+                    throw new WorkerException(String.format("The host of the function's selected worker (%s) could not be found", worker));
+            }
+        } catch (CapacityException ex) {
+            LOGGER.log(Level.INFO, String.format("%s worker capacity exceeded, retrying with different worker", worker));
+            throw ex;
         }
 
         Instant invocationEndTime = Instant.now();
 
-        float invocationDuration = Duration.between(invocationStartTime, invocationEndTime).toMillis();
+        double invocationDuration = Duration.between(invocationStartTime, invocationEndTime).toMillis();
 
         return new FunctionInvocationResponse(response, invocationDuration, predictedDuration, worker);
     }
@@ -136,19 +150,19 @@ public class InvokeFunctionHandler implements HttpHandler {
 
         functionExecutionsRepo.create(functionExecution);
 
-        if (!isTraining) {
-            learningManager.triggerIncrementalTraining(functionName, worker, inputSize, functionInvocationResponse.getDuration());
-        }
+//        if (!isTraining) {
+//            learningManager.triggerIncrementalTraining(functionName, worker, inputSize, functionInvocationResponse.getDuration());
+//        }
     }
 
 
     public class FunctionInvocationResponse {
         private final String response;
-        private final float duration;
-        private final float predictedDuration;
+        private final double duration;
+        private final double predictedDuration;
         private final String worker;
 
-        public FunctionInvocationResponse(String response, float duration, float predictedDuration, String worker) {
+        public FunctionInvocationResponse(String response, double duration, double predictedDuration, String worker) {
             this.response = response;
             this.duration = duration;
             this.predictedDuration = predictedDuration;
@@ -160,11 +174,11 @@ public class InvokeFunctionHandler implements HttpHandler {
             return this.response;
         }
 
-        public float getDuration() {
+        public double getDuration() {
             return this.duration;
         }
 
-        public float getPredictedDuration() {
+        public double getPredictedDuration() {
             return this.predictedDuration;
         }
 

@@ -18,16 +18,16 @@ public class FunctionExecution {
     @CqlName("input_size")
     private int inputSize;
     @CqlName("duration")
-    private float duration;
+    private double duration;
     @CqlName("predicted_duration")
-    private float predictedDuration;
+    private double predictedDuration;
     @CqlName("is_success")
     private boolean isSuccess;
 
 
     public FunctionExecution() {}
 
-    public FunctionExecution(UUID id, String functionName, String worker, int inputSize, float duration, float predictedDuration, boolean isSuccess) {
+    public FunctionExecution(UUID id, String functionName, String worker, int inputSize, double duration, double predictedDuration, boolean isSuccess) {
         this.id = id;
         this.functionName = functionName;
         this.worker = worker;
@@ -37,7 +37,7 @@ public class FunctionExecution {
         this.isSuccess = isSuccess;
     }
 
-    public FunctionExecution(String functionName, String worker, int inputSize, float duration, float predictedDuration, boolean isSuccess) {
+    public FunctionExecution(String functionName, String worker, int inputSize, double duration, double predictedDuration, boolean isSuccess) {
         this.id = UUID.randomUUID();
         this.functionName = functionName;
         this.worker = worker;
@@ -64,11 +64,11 @@ public class FunctionExecution {
         return inputSize;
     }
 
-    public float getDuration() {
+    public double getDuration() {
         return duration;
     }
 
-    public float getPredictedDuration() {
+    public double getPredictedDuration() {
         return predictedDuration;
     }
 
@@ -93,11 +93,11 @@ public class FunctionExecution {
         this.inputSize = inputSize;
     }
 
-    public void setDuration(float duration) {
+    public void setDuration(double duration) {
         this.duration = duration;
     }
 
-    public void setPredictedDuration(float predictedDuration) {
+    public void setPredictedDuration(double predictedDuration) {
         this.predictedDuration = predictedDuration;
     }
 

@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -91,7 +92,10 @@ public class Docker {
         String[] imageId = new String[1];
         final boolean[] buildSuccessful = {false};
 
+        String tag = String.format("%s:latest", functionName);
+
         client.buildImageCmd(new File(tempDirPath))
+                .withTags(Set.of(tag))
                 .exec(new ResultCallback.Adapter<BuildResponseItem>() {
                     @Override
                     public void onError(Throwable throwable) {

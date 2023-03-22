@@ -80,7 +80,7 @@ public class CreateFunctionHandler implements HttpHandler {
         } catch (Exception ex) {
             // return error to client
             LOGGER.log(Level.SEVERE, "Error creating function", ex);
-            String response = "There was an issue creating your function";
+            String response = String.format("There was an issue creating your function: %s", ex.getMessage());
             HttpHelper.sendResponse(exchange, 500, response);
         }
     }

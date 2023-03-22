@@ -59,7 +59,7 @@ public class LearningManager {
         }
     }
 
-    public HashMap<String, Float> getPredictions(String functionName, int inputSize) throws IntegrationException {
+    public HashMap<String, Double> getPredictions(String functionName, int inputSize) throws IntegrationException {
         try {
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(new URI(String.format("%s/predictions/%s?inputSize=%d", LEARNING_MANAGER_URI, functionName, inputSize)))
@@ -74,7 +74,7 @@ public class LearningManager {
 
             String body = httpResponse.body();
 
-            HashMap predictions = new HashMap<String, Float>();
+            HashMap predictions = new HashMap<String, Double>();
             predictions = gson.fromJson(body, predictions.getClass());
 
             return predictions;
