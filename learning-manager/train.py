@@ -16,7 +16,7 @@ workers = ["AWS", "KUBERNETES"]
 
 def getFunctionExecutions(functionName: str, worker: str):
     # TODO: remove ALLOW FILTERING if possible
-    rows = cassandraSession.execute(f"SELECT input_size, duration FROM heterogeneous_faas.function_execution WHERE function_name='{functionName}' AND worker='{worker}' AND is_success=True AND input_size < 1000 ALLOW FILTERING")
+    rows = cassandraSession.execute(f"SELECT input_size, duration FROM heterogeneous_faas.function_execution WHERE function_name='{functionName}' AND worker='{worker}' AND is_success=True AND input_size <= 1000 ALLOW FILTERING")
 
     data = []
 
@@ -64,20 +64,17 @@ async def train(functionName: str):
         y = numpy.array(data[:, 1])
 
         # create linear regression model
-        regressor = make_pipeline(
-            StandardScaler(),
-            LinearRegression()
-        )
+        regressor = LinearRegression()
 
         regressor.fit(x, y)
 
         # plot original model as graph (if not running through server due to thread issues)
         if __name__ == "__main__":
             plt.scatter(x, y)
-            #plt.plot(x, regressor.predict(x), color='red')
+            plt.plot(x, regressor.predict(x), color='red')
             plt.title(f'{worker} Model')
-            plt.xlabel('Input size')
-            plt.ylabel('Duration')
+            plt.xlabel('Input size (n)')
+            plt.ylabel('Duration (ms)')
             plt.show()
 
         # save model in Cassandra database (as a string representation of model object)
@@ -98,7 +95,6 @@ async def incrementalTrain(functionName: str, worker: str, inputSize: int, durat
     # save model in Cassandra database (as a string representation of model object)
     modelBytes = pickle.dumps(regressor)
     updateModel(mlModel.id, functionName, worker, modelBytes)
-
 
 
 if __name__ == '__main__':
