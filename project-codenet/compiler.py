@@ -14,7 +14,7 @@ def selectSolutions(selectedProblem, selectedLanguages, metadataDirectory, dataD
         submissionIds = []
 
         # get list of Accepted submission IDs for the problem (from metadata csv)
-        with open(os.path.join(metadataDirectory, selectedProblem + ".csv"), "w") as csvfile:
+        with open(os.path.join(metadataDirectory, selectedProblem + ".csv"), "r") as csvfile:
             reader = csv.DictReader(csvfile)
 
             for row in reader:

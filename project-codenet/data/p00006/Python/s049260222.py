@@ -1,0 +1,1 @@
+print ''.join(reversed(list(raw_input())))

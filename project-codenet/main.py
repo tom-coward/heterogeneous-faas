@@ -24,10 +24,8 @@ def upload(solutionId):
 
     uploader.upload(containerDirectory, awsAccountId, awsRegion)
 
-def generateInputs(problemId, numColumns, numRows, lowerBound, upperBound):
-    fileName = f"./problems/{problemId}/inputs.json"
-    
-    inputgenerator.generateInputs(fileName, numColumns, numRows, lowerBound, upperBound)
+def generateInputs(problemId, type, numColumns, numRows, lowerBound, upperBound):    
+    inputgenerator.generateInputs(problemId, type, numColumns, numRows, lowerBound, upperBound)
 
 def write():
     writer.writeAllToJson()
@@ -38,11 +36,14 @@ if __name__ == "__main__":
     
     parser.add_argument("option", type=str, help="The operation to perform (compile/upload/write/generateInputs [problemId numColumns numRows lowerBound upperBound])")
 
+    # optional compile/generateInputs arguments
+    parser.add_argument("--problemId", type=str, help="ID of the problem to compile/generate inputs for", required=False)
+    
     # optional upload arguments
     parser.add_argument("--solutionId", type=str, help="Solution ID of Docker container to upload to AWS ECR", required=False)
 
     # optional generateInputs arguments
-    parser.add_argument("--problemId", type=str, help="ID of the problem to generate inputs for", required=False)
+    parser.add_argument("--type", type=str, help="The type of inputs to generate (int/string)", required=False)
     parser.add_argument("--numColumns", type=int, help="Number of inputs (columns) per row", required=False)
     parser.add_argument("--numRows", type=int, help="Number of rows of inputs", required=False)
     parser.add_argument("--lowerBound", type=int, help="Minimum value of an input", required=False)
@@ -52,12 +53,12 @@ if __name__ == "__main__":
 
     match args.option:
         case "compile":
-            compile()
+            compile(args.problemId)
         case "upload":
             upload(args.solutionId)
         case "write":
             write()
         case "generateInputs":
-            generateInputs(args.problemId, args.numColumns, args.numRows, args.lowerBound, args.upperBound)
+            generateInputs(args.problemId, args.type, args.numColumns, args.numRows, args.lowerBound, args.upperBound)
         case _:
             print("Invalid option")
