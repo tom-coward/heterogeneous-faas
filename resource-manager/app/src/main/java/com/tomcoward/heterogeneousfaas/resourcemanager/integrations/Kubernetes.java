@@ -1,5 +1,6 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 
+import com.datastax.oss.driver.api.core.metrics.NodeMetric;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.CapacityException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.FunctionInvocationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
@@ -135,18 +136,15 @@ public class Kubernetes implements IWorkerIntegration {
             // get cluster CPU/memory utilisation
             NodeMetricsList nodeMetricsList = kubernetesClient.top().nodes().metrics();
 
-            double cpuUsage = 95;
-            double memoryUsage = 95;
+            NodeMetrics nodeMetrics = nodeMetricsList.getItems().get(0);
 
-            for (NodeMetrics nodeMetrics : nodeMetricsList.getItems()) {
-                String nodeName = nodeMetrics.getMetadata().getName();
-                cpuUsage = nodeMetrics.getUsage().get("cpu").getNumericalAmount().doubleValue();
-                memoryUsage = nodeMetrics.getUsage().get("memory").getNumericalAmount().doubleValue();
+            String nodeName = nodeMetrics.getMetadata().getName();
+            double cpuUsage = nodeMetrics.getUsage().get("cpu").getNumericalAmount().doubleValue();
+            double memoryUsage = nodeMetrics.getUsage().get("memory").getNumericalAmount().doubleValue();
 
-                System.out.println("Node " + nodeName + " CPU usage: " + cpuUsage + " Memory usage: " + memoryUsage);
-            }
+            System.out.println("Node " + nodeName + " CPU usage: " + cpuUsage + " Memory usage: " + memoryUsage);
 
-            // if both under 95%, cluster is available
+            // if both metrics under 95%, cluster is available
             if (cpuUsage < 95 && memoryUsage < 95) {
                 return true;
             }

@@ -1,7 +1,6 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.handlers;
 
 import com.google.gson.Gson;
-import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -16,7 +15,6 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionExe
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 

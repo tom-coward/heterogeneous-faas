@@ -18,7 +18,6 @@ import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionExe
 import com.tomcoward.heterogeneousfaas.resourcemanager.repositories.IFunctionRepository;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-import software.amazon.awssdk.core.retry.conditions.TokenBucketRetryCondition;
 
 public class InvokeFunctionHandler implements HttpHandler {
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
