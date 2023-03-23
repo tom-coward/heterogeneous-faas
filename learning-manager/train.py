@@ -40,12 +40,12 @@ def updateModel(id, functionName: str, worker: str, modelBytes: bytes):
     cassandraSession.execute(saveModelStatement, (id, functionName, worker, modelBytes))
 
 def getOutliers(durations):    
-    # remove outliers (using IQR method)
+    # identify outliers (using IQR method)
     q1 = numpy.percentile(durations, 25)
     q3 = numpy.percentile(durations, 75)
     iqr = q3 - q1
 
-    threshold = 1
+    threshold = 0.5
     lowerBound = q1 - threshold * iqr
     upperBound = q3 + threshold * iqr
 

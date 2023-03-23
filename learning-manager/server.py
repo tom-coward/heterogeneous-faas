@@ -1,8 +1,6 @@
 from quart import Quart, request, make_response
 import train
 import predict
-import cluster
-import asyncio
 
 app = Quart(__name__)
 
@@ -21,19 +19,15 @@ async def putTrain(functionName: str):
 @app.route('/train/incremental/<string:functionName>', methods=['PUT'])
 async def putTrainIncremental(functionName: str):
     # get worker, input size and duration from URL query params
-    request = await request.get_json()
-
-    worker = request['worker']
-    inputSize = request['inputSize']
-    duration = request['duration']
-    if inputSize == None or inputSize == None or duration == None:
-        response = make_response("Missing inputs (worker/inputSize/duration)", 400)
+    worker = request.args.get('worker', None)
+    if worker == None:
+        response = make_response("Missing input (worker)", 400)
         return response
    
     # initiate incremental training of the model
-    train.incrementalTrain(functionName, worker, inputSize, duration)
+    train.incrementalTrain(functionName, worker)
 
-    response = make_response("Incremental training initiated", 202)
+    response = await make_response("Incremental training initiated", 202)
     return response
 
 @app.route('/predictions/<string:functionName>', methods=['GET'])
