@@ -150,7 +150,7 @@ public class InvokeFunctionHandler implements HttpHandler {
         functionExecutionsRepo.create(functionExecution);
 
         if (!isTraining) {
-            learningManager.triggerIncrementalTraining(functionName, worker, inputSize, functionInvocationResponse.getDuration());
+            learningManager.triggerIncrementalTraining(functionName, worker);
         }
     }
 

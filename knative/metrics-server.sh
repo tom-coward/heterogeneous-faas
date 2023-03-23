@@ -1,2 +1,0 @@
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-kubectl patch deployment metrics-server -n kube-system --patch "$(cat metric-server-patch.yaml)"

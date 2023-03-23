@@ -44,8 +44,8 @@ def evaluateML():
         for function_name in seenData[worker]:
             plt.scatter(seenData[worker][function_name]['x'], seenData[worker][function_name]['y'], label=function_name)
 
-        plt.xlabel('Predicted Duration')
-        plt.ylabel('Actual Duration')
+        plt.xlabel('Predicted Duration (ms)')
+        plt.ylabel('Actual Duration (ms)')
         plt.title(f"{worker} Executions (seen input sizes)")
         plt.legend()
         plt.show()
@@ -74,8 +74,8 @@ def evaluateML():
         for function_name in unseenData[worker]:
             plt.scatter(unseenData[worker][function_name]['x'], unseenData[worker][function_name]['y'], label=function_name)
 
-        plt.xlabel('Predicted Duration')
-        plt.ylabel('Actual Duration')
+        plt.xlabel('Predicted Duration (ms)')
+        plt.ylabel('Actual Duration (ms)')
         plt.title(f"{worker} Executions (unseen input sizes)")
         plt.legend()
         plt.show()

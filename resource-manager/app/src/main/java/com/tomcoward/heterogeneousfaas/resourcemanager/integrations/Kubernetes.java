@@ -1,7 +1,5 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 
-import com.datastax.oss.driver.api.core.metrics.NodeMetric;
-import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.CapacityException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.FunctionInvocationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
@@ -31,7 +29,7 @@ public class Kubernetes implements IWorkerIntegration {
 
     private final static String KNATIVE_NAMESPACE = "default";
     private final static String KNATIVE_URI = "127.0.0.1.sslip.io/2015-03-31/functions/function/invocations";
-    private final static String RESOURCE_CPU_LIMIT = "40m";
+    private final static String RESOURCE_CPU_LIMIT = "35m";
 
     private final KubernetesClient kubernetesClient;
     private final KnativeClient knativeClient;
