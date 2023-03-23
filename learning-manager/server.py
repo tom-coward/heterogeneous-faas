@@ -2,6 +2,7 @@ from quart import Quart, request, make_response
 import train
 import predict
 import cluster
+import transfer
 
 app = Quart(__name__)
 
@@ -60,7 +61,7 @@ async def putCluster():
 @app.route('/transfer/<string:functionName>', methods=['PUT'])
 async def putTransfer(functionName: str):
     # initiate transfer of the model
-    transferred = transfer.transfer(functionName)
+    transferred = await transfer.transfer(functionName)
 
     if transferred:
         response = make_response("Transfer initiated", 202)
