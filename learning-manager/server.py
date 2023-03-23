@@ -12,9 +12,6 @@ async def putTrain(functionName: str):
     # initiate training of the model
     await train.train(functionName)
 
-    # cluster function
-    #cluster.cluster(functionName)
-
     response = await make_response("Training initiated", 202)
     return response
 

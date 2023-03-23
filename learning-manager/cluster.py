@@ -5,7 +5,6 @@ import pstats
 from sklearn.cluster import KMeans
 import pickle
 import aiohttp
-import json
 import time
 import asyncio
 import numpy
@@ -33,7 +32,8 @@ def getFunction(functionName: str):
 async def executeFunction(functionName: str, worker: str, exampleInputs: list, inputSize: int):
     inputs = exampleInputs[:inputSize]
     inputsString = ", ".join(inputs)
-    inputsJson = json.dumps(inputsString)
+    inputsJson = f"[{inputsString}]"
+    print(inputsJson)
     
     requestBody = "{\"function_name\": \"" + functionName + "\", \"worker\": \"" + worker + "\", \"function_payload\": " + inputsJson + "}"
     data = bytes(requestBody, encoding='utf-8')
@@ -69,13 +69,6 @@ def profileFunction(sourceCode: str, exampleInputs: list):
 
     return stats
 
-def fitCluster(x):
-    n_clusters = min(len(x), 8) # max 8 clusters - but can only have as many clusters as functions
-
-    cluster = KMeans(n_clusters=n_clusters).fit(x)
-
-    return cluster
-
 def saveCluster(clusterBytes):
     saveClusterStatement = cassandraSession.prepare(f"INSERT INTO heterogeneous_faas.cluster (id, model) VALUES (?, ?)")
     cassandraSession.execute(saveClusterStatement, ("cluster", clusterBytes))
@@ -88,6 +81,16 @@ def getCluster():
     result = cassandraSession.execute(f"SELECT model FROM heterogeneous_faas.cluster WHERE id='cluster'")
 
     return result.one().model
+
+def fitCluster(x):
+    n_clusters = 8 # max 8 clusters - but can only have as many clusters as functions
+    
+    if (len(x)) < n_clusters:
+        raise Exception(f"There must be at least {n_clusters} functions to cluster")
+
+    cluster = KMeans(n_clusters=n_clusters).fit(x)
+
+    return cluster
 
 async def cluster():
     functions = getFunctions()
@@ -139,12 +142,13 @@ async def cluster():
 
 def predict(x, ignore=False):
     clusterBytes = getCluster()
+
     cluster = pickle.loads(clusterBytes)
 
     predictedCluster = cluster.predict(x)
 
     distances = cluster.transform(x)
-    distanceThreshold = 0.5
+    distanceThreshold = 50
 
     print(distances[0][predictedCluster[0]])
 
@@ -152,7 +156,7 @@ def predict(x, ignore=False):
         raise InvalidClusterException("Prediction is too far from cluster")
 
     return predictedCluster[0]
-
+    
 async def predictFunction(functionName: str):
     function = getFunction(functionName)
 

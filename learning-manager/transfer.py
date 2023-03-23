@@ -6,13 +6,15 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 import pickle
 import asyncio
+import train
+import uuid
 
 cassandraCluster = Cluster(['localhost'])
 cassandraSession = cassandraCluster.connect()
 
 
 def getClusterFunction(clusterId: int):
-    result = cassandraSession.execute(f"SELECT function_name FROM heterogeneous_faas.cluster_function WHERE cluster_id = {clusterId} ALLOW FILTERING")
+    result = cassandraSession.execute(f"SELECT name FROM heterogeneous_faas.function WHERE cluster_id = {clusterId} ALLOW FILTERING")
 
     return result.one()
 
@@ -20,6 +22,10 @@ def getMlModel(functionName: str, worker: str):
     result = cassandraSession.execute(f"SELECT model FROM heterogeneous_faas.ml_model WHERE function_name='{functionName}' AND worker = '{worker}' ALLOW FILTERING")
 
     return result.one().model
+
+def saveModel(functionName: str, worker: str, modelBytes: bytes):
+    saveModelStatement = cassandraSession.prepare(f"INSERT INTO heterogeneous_faas.ml_model (id, function_name, worker, model) VALUES (?, ?, ?, ?)")
+    cassandraSession.execute(saveModelStatement, (uuid.uuid4(), functionName, worker, modelBytes))
 
 def transferLearn(fromFunctionName: str, toFunctionName: str):
     # get from function's models
@@ -47,9 +53,10 @@ def transferLearn(fromFunctionName: str, toFunctionName: str):
         cloudToModel
     )
 
-    print(cloudRegressor.predict([[100]]))
-    print(edgeRegressor.predict([[100]]))
+    saveModel(toFunctionName, "AWS", pickle.dumps(cloudRegressor))
+    saveModel(toFunctionName, "KUBERNETES", pickle.dumps(edgeRegressor))
 
+    return cloudRegressor, edgeRegressor
 
 async def transfer(functionName: str):
     try:
@@ -57,12 +64,19 @@ async def transfer(functionName: str):
     except InvalidClusterException as ex:
         print(f"Predicted cluster for function {functionName} was invalid")
         return False # not transferred
+    except Exception as ex:
+        print(f"Error predicting function cluster: {ex}")
+        return False # not transferred
     
     # get function from cluster
     function = getClusterFunction(clusterId)
 
     # transfer learn from function
-    transferLearn(function.function_name, functionName)
+    transferLearn(function.name, functionName)
+
+    # fit training data to new model
+    train.incrementalTrain(functionName, "AWS")
+    train.incrementalTrain(functionName, "KUBERNETES")
 
     return True # transferred
 
