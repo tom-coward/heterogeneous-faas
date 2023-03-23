@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
-import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
-import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.TransferLearningException;
-import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.WorkerException;
+
+import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.*;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.helpers.HttpHelper;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.*;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;
@@ -69,7 +67,11 @@ public class CreateFunctionHandler implements HttpHandler {
             HttpHelper.sendResponse(exchange, 200, response);
 
             // once function created, trigger Learning Manager run function clustering asynchronously
-            learningManager.runFunctionClustering();
+            try {
+                learningManager.runFunctionClustering();
+            } catch (FunctionClusteringException ex) {
+                LOGGER.log(Level.SEVERE, "Error running function clustering", ex);
+            }
         } catch (DBClientException ex) {
             // return error to client
             String response = "There was an issue saving your function";

@@ -1,5 +1,6 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 
+import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.CapacityException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.FunctionInvocationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.models.Function;

@@ -1,6 +1,7 @@
 package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 
 import com.google.gson.Gson;
+import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.FunctionClusteringException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.TransferLearningException;
 import io.undertow.util.Transfer;
@@ -105,7 +106,7 @@ public class LearningManager {
         }
     }
 
-    public void runFunctionClustering() throws IntegrationException {
+    public void runFunctionClustering() throws FunctionClusteringException, IntegrationException {
         try {
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(new URI(String.format("%s/cluster", LEARNING_MANAGER_URI)))
@@ -115,7 +116,7 @@ public class LearningManager {
             HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
             if (httpResponse.statusCode() != 202) {
-                throw new IntegrationException("Learning Manager returned non-202 status code");
+                throw new FunctionClusteringException("Learning Manager returned non-202 status code");
             }
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error sending HTTP request to Learning Manager /cluster", ex);

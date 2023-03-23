@@ -82,7 +82,7 @@ public class InvokeFunctionHandler implements HttpHandler {
         }
     }
 
-    private FunctionInvocationResponse invokeFunction(String functionName, JsonArray functionPayload, String worker) throws DBClientException, WorkerException, IntegrationException {
+    private FunctionInvocationResponse invokeFunction(String functionName, JsonArray functionPayload, String worker) throws DBClientException, WorkerException, IntegrationException, CapacityException {
         Function function = functionsRepo.get(functionName);
 
         double predictedDuration;
@@ -110,15 +110,7 @@ public class InvokeFunctionHandler implements HttpHandler {
 
         LOGGER.log(Level.INFO, String.format("Invoking function %s on worker %s", function.getName(), worker));
 
-        FunctionInvocationResponse response;
-        try {
-            response = invokeWorker(worker, function, functionPayloadString, predictedDuration);
-        } catch (CapacityException ex) {
-            // if worker capacity exceeded, invoke function on other worker
-            String otherWorker = worker.equals("KUBERNETES") ? "AWS" : "KUBERNETES";
-            LOGGER.log(Level.INFO, String.format("Invoking function %s on worker %s", function.getName(), otherWorker));
-            response = invokeWorker(otherWorker, function, functionPayloadString, predictedDuration);
-        }
+        FunctionInvocationResponse response = invokeWorker(worker, function, functionPayloadString, predictedDuration);
 
         LOGGER.log(Level.INFO, String.format("%s invocation response in %6.2fms (predicted: %6.2fms): %s", function.getName(), response.getDuration(), response.getPredictedDuration(), response.getResponse()));
 
@@ -131,24 +123,19 @@ public class InvokeFunctionHandler implements HttpHandler {
 
         String response;
 
-        try {
-            switch (worker) {
-                case "KUBERNETES":
-                    invocationStartTime = Instant.now();
-                    response = kubernetes.invokeFunction(function, functionPayload);
-                    invocationEndTime = Instant.now();
-                    break;
-                case "AWS":
-                    invocationStartTime = Instant.now();
-                    response = awsLambda.invokeFunction(function, functionPayload);
-                    invocationEndTime = Instant.now();
-                    break;
-                default:
-                    throw new WorkerException(String.format("The host of the function's selected worker (%s) could not be found", worker));
-            }
-        } catch (CapacityException ex) {
-            LOGGER.log(Level.INFO, String.format("%s worker capacity exceeded, retrying with different worker", worker));
-            throw ex;
+        switch (worker) {
+            case "KUBERNETES":
+                invocationStartTime = Instant.now();
+                response = kubernetes.invokeFunction(function, functionPayload);
+                invocationEndTime = Instant.now();
+                break;
+            case "AWS":
+                invocationStartTime = Instant.now();
+                response = awsLambda.invokeFunction(function, functionPayload);
+                invocationEndTime = Instant.now();
+                break;
+            default:
+                throw new WorkerException(String.format("The host of the function's selected worker (%s) could not be found", worker));
         }
 
         double invocationDuration = Duration.between(invocationStartTime, invocationEndTime).toMillis();
