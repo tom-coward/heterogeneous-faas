@@ -33,6 +33,7 @@ public class FunctionTable implements IDBTable {
                     .withColumn("cloud_supported", DataTypes.BOOLEAN)
                     .withColumn("edge_knservice_uri", DataTypes.ASCII)
                     .withColumn("cloud_aws_arn", DataTypes.ASCII)
+                    .withColumn("cluster_id", DataTypes.INT)
                     .build();
 
             db.execute(statement);

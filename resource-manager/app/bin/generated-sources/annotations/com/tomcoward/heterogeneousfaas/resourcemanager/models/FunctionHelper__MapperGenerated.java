@@ -26,6 +26,7 @@ import com.datastax.oss.driver.shaded.guava.common.collect.ImmutableList;
 import java.lang.Boolean;
 import java.lang.Class;
 import java.lang.IllegalArgumentException;
+import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
@@ -49,6 +50,8 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
   private static final GenericType<Boolean> GENERIC_TYPE1 = new GenericType<Boolean>(){};
 
   private static final GenericType<String> GENERIC_TYPE2 = new GenericType<String>(){};
+
+  private static final GenericType<Integer> GENERIC_TYPE3 = new GenericType<Integer>(){};
 
   private final List<String> primaryKeys;
 
@@ -107,6 +110,9 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
         target = target.set("cloud_aws_arn", entity.getCloudAwsArn(), String.class);
       }
     }
+    if (!lenient || hasProperty(target, "cluster_id")) {
+      target = target.setInt("cluster_id", entity.getClusterId());
+    }
     return target;
   }
 
@@ -145,6 +151,10 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
       String propertyValue7 = source.get("cloud_aws_arn", String.class);
       returnValue.setCloudAwsArn(propertyValue7);
     }
+    if (!lenient || hasProperty(source, "cluster_id")) {
+      int propertyValue8 = source.getInt("cluster_id");
+      returnValue.setClusterId(propertyValue8);
+    }
     return returnValue;
   }
 
@@ -162,7 +172,8 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
         .value("edge_supported", QueryBuilder.bindMarker("edge_supported"))
         .value("cloud_supported", QueryBuilder.bindMarker("cloud_supported"))
         .value("edge_knservice_uri", QueryBuilder.bindMarker("edge_knservice_uri"))
-        .value("cloud_aws_arn", QueryBuilder.bindMarker("cloud_aws_arn"));
+        .value("cloud_aws_arn", QueryBuilder.bindMarker("cloud_aws_arn"))
+        .value("cluster_id", QueryBuilder.bindMarker("cluster_id"));
   }
 
   public Select selectByPrimaryKeyParts(int parameterCount) {
@@ -193,7 +204,8 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
         .column("edge_supported")
         .column("cloud_supported")
         .column("edge_knservice_uri")
-        .column("cloud_aws_arn");
+        .column("cloud_aws_arn")
+        .column("cluster_id");
   }
 
   public DeleteSelection deleteStart() {
@@ -235,7 +247,8 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
         .setColumn("edge_supported", QueryBuilder.bindMarker("edge_supported"))
         .setColumn("cloud_supported", QueryBuilder.bindMarker("cloud_supported"))
         .setColumn("edge_knservice_uri", QueryBuilder.bindMarker("edge_knservice_uri"))
-        .setColumn("cloud_aws_arn", QueryBuilder.bindMarker("cloud_aws_arn")));
+        .setColumn("cloud_aws_arn", QueryBuilder.bindMarker("cloud_aws_arn"))
+        .setColumn("cluster_id", QueryBuilder.bindMarker("cluster_id")));
   }
 
   @Override
@@ -273,6 +286,7 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
     expectedCqlNames.add(CqlIdentifier.fromCql("cloud_supported"));
     expectedCqlNames.add(CqlIdentifier.fromCql("edge_knservice_uri"));
     expectedCqlNames.add(CqlIdentifier.fromCql("cloud_aws_arn"));
+    expectedCqlNames.add(CqlIdentifier.fromCql("cluster_id"));
     Optional<TableMetadata> tableMetadata = keyspace.flatMap(v -> v.getTable(tableId));
     Optional<UserDefinedType> userDefinedType = keyspace.flatMap(v -> v.getUserDefinedType(tableId));
     if (tableMetadata.isPresent()) {
@@ -292,6 +306,7 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
       Map<CqlIdentifier, GenericType<?>> expectedTypesPerColumn = new LinkedHashMap<>();
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("cloud_supported"), GENERIC_TYPE1);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("container_registry_uri"), GENERIC_TYPE2);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("cluster_id"), GENERIC_TYPE3);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("name"), GENERIC_TYPE2);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("source_code"), GENERIC_TYPE2);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("edge_knservice_uri"), GENERIC_TYPE2);
@@ -312,6 +327,7 @@ public class FunctionHelper__MapperGenerated extends EntityHelperBase<Function> 
       Map<CqlIdentifier, GenericType<?>> expectedTypesPerColumn = new LinkedHashMap<>();
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("cloud_supported"), GENERIC_TYPE1);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("container_registry_uri"), GENERIC_TYPE2);
+      expectedTypesPerColumn.put(CqlIdentifier.fromCql("cluster_id"), GENERIC_TYPE3);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("name"), GENERIC_TYPE2);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("source_code"), GENERIC_TYPE2);
       expectedTypesPerColumn.put(CqlIdentifier.fromCql("edge_knservice_uri"), GENERIC_TYPE2);

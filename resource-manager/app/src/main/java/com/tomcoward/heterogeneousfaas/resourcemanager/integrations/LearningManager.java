@@ -2,6 +2,8 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 
 import com.google.gson.Gson;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
+import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.TransferLearningException;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -22,6 +24,24 @@ public class LearningManager {
         this.httpClient = HttpClient.newBuilder().build();
     }
 
+
+    public void transferLearn(String functionName) throws IntegrationException {
+        try {
+            HttpRequest httpRequest = HttpRequest.newBuilder()
+                    .uri(new URI(String.format("%s/transfer/%s", LEARNING_MANAGER_URI, functionName)))
+                    .method("PUT", HttpRequest.BodyPublishers.noBody())
+                    .build();
+
+            HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+            if (httpResponse.statusCode() != 202) {
+                throw new TransferLearningException("Transfer learning not possible");
+            }
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error sending HTTP request to Learning Manager /transfer", ex);
+            throw new IntegrationException("There was an error triggering transfer learning by the Learning Manager");
+        }
+    }
 
     public void triggerTraining(String functionName) throws IntegrationException {
         try {

@@ -29,6 +29,8 @@ public class Function {
     private String edgeKnServiceUri;
     @CqlName("cloud_aws_arn")
     private String cloudAwsArn;
+    @CqlName("cluster_id")
+    private int clusterId;
 
     public Function() {}
 
@@ -79,6 +81,10 @@ public class Function {
         return cloudAwsArn;
     }
 
+    public int getClusterId() {
+        return clusterId;
+    }
+
 
     public void setName(String name) {
         this.name = name;
@@ -110,5 +116,9 @@ public class Function {
 
     public void setCloudAwsArn(String cloudAwsArn) {
         this.cloudAwsArn = cloudAwsArn;
+    }
+
+    public void setClusterId(int clusterId) {
+        this.clusterId = clusterId;
     }
 }

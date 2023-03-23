@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.DBClientException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
+import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.TransferLearningException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.WorkerException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.handlers.helpers.HttpHelper;
 import com.tomcoward.heterogeneousfaas.resourcemanager.integrations.*;
@@ -107,6 +108,15 @@ public class CreateFunctionHandler implements HttpHandler {
     }
 
     private void runTraining(Function function, JsonArray exampleInputs) throws WorkerException, IntegrationException, DBClientException {
+        // attempt transfer learning first via. Learning Manager
+        try {
+            learningManager.transferLearn(function.getName());
+            LOGGER.log(Level.INFO, "ML training (transfer learning) complete");
+            return;
+        } catch (TransferLearningException ex) {
+            LOGGER.log(Level.INFO, "Transfer learning failed - proceeding to training with new training data");
+        }
+
         // for AWS (if cloud supported)
         if (function.isCloudSupported()) {
             LOGGER.log(Level.INFO, String.format("Running training on AWS (cloud) worker for function: %s", function.getName()));
@@ -147,7 +157,7 @@ public class CreateFunctionHandler implements HttpHandler {
             LOGGER.log(Level.INFO, "Kubernetes (edge) training complete");
         }
 
-        // trigger training by Learning Manager
+        // trigger model training by Learning Manager
         LOGGER.log(Level.INFO, String.format("Triggering ML training for function: %s", function.getName()));
         learningManager.triggerTraining(function.getName());
         LOGGER.log(Level.INFO, "ML training complete");

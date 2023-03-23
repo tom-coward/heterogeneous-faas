@@ -126,17 +126,22 @@ public class InvokeFunctionHandler implements HttpHandler {
     }
 
     public FunctionInvocationResponse invokeWorker(String worker, Function function, String functionPayload, double predictedDuration) throws WorkerException, IntegrationException {
-        Instant invocationStartTime = Instant.now();
+        Instant invocationStartTime;
+        Instant invocationEndTime;
 
         String response;
 
         try {
             switch (worker) {
                 case "KUBERNETES":
+                    invocationStartTime = Instant.now();
                     response = kubernetes.invokeFunction(function, functionPayload);
+                    invocationEndTime = Instant.now();
                     break;
                 case "AWS":
+                    invocationStartTime = Instant.now();
                     response = awsLambda.invokeFunction(function, functionPayload);
+                    invocationEndTime = Instant.now();
                     break;
                 default:
                     throw new WorkerException(String.format("The host of the function's selected worker (%s) could not be found", worker));
@@ -145,8 +150,6 @@ public class InvokeFunctionHandler implements HttpHandler {
             LOGGER.log(Level.INFO, String.format("%s worker capacity exceeded, retrying with different worker", worker));
             throw ex;
         }
-
-        Instant invocationEndTime = Instant.now();
 
         double invocationDuration = Duration.between(invocationStartTime, invocationEndTime).toMillis();
 
