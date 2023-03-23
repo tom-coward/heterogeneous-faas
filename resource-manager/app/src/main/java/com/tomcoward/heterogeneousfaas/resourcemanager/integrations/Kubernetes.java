@@ -14,11 +14,8 @@ import io.fabric8.knative.serving.v1.ServiceSpecBuilder;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.NodeMetrics;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.NodeMetricsList;
-import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -34,7 +31,7 @@ public class Kubernetes implements IWorkerIntegration {
 
     private final static String KNATIVE_NAMESPACE = "default";
     private final static String KNATIVE_URI = "127.0.0.1.sslip.io/2015-03-31/functions/function/invocations";
-    private final static String RESOURCE_CPU_LIMIT = "35m";
+    private final static String RESOURCE_CPU_LIMIT = "40m";
 
     private final KubernetesClient kubernetesClient;
     private final KnativeClient knativeClient;
@@ -61,9 +58,9 @@ public class Kubernetes implements IWorkerIntegration {
     }
 
     public String invokeFunction(Function function, String functionPayload) throws IntegrationException {
-        if (!clusterIsAvailable()) {
-            throw new CapacityException("The Kubernetes cluster is currently unavailable");
-        }
+//        if (!clusterIsAvailable()) {
+//            throw new CapacityException("The Kubernetes cluster is currently unavailable");
+//        }
 
         return invokeKnativeService(function.getEdgeKnServiceUri(), "POST", functionPayload.toString());
     }

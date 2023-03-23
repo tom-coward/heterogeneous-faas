@@ -44,7 +44,7 @@ public class LearningManager {
     public void triggerIncrementalTraining(String functionName, String worker, int inputSize, float duration) throws IntegrationException {
         try {
             HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(new URI(String.format("%s/train/incremental/%s?worker=%s&inputSize=%d&duration=%6.2f", LEARNING_MANAGER_URI, functionName, worker, inputSize, duration)))
+                    .uri(new URI(String.format("%s/train/incremental/%s?worker=%s", LEARNING_MANAGER_URI, functionName, worker, inputSize, duration)))
                     .method("PUT", HttpRequest.BodyPublishers.noBody())
                     .build();
 
