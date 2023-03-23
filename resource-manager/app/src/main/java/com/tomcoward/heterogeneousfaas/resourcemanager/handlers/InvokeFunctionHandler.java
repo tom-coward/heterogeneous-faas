@@ -53,13 +53,16 @@ public class InvokeFunctionHandler implements HttpHandler {
                 throw new FunctionException(String.format("No function with the name %s exists to be invoked", functionName));
             }
 
+            // get worker to execute on (if specified)
+            String worker = requestBody.getString("worker");
+
             // get payload of function (if any)
             JsonArray functionPayload = requestBody.getJsonArray("function_payload");
 
             LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionName input: \"%s\"", functionName));
             LOGGER.log(Level.INFO, String.format("InvokeFunctionHandler functionPayload input: \"%s\"", functionPayload.toString()));
 
-            FunctionInvocationResponse response = invokeFunction(functionName, functionPayload);
+            FunctionInvocationResponse response = invokeFunction(functionName, functionPayload, worker);
 
             HttpHelper.sendResponse(exchange, 200, response.getResponse());
 
@@ -79,20 +82,29 @@ public class InvokeFunctionHandler implements HttpHandler {
         }
     }
 
-    private FunctionInvocationResponse invokeFunction(String functionName, JsonArray functionPayload) throws DBClientException, WorkerException, IntegrationException {
+    private FunctionInvocationResponse invokeFunction(String functionName, JsonArray functionPayload, String worker) throws DBClientException, WorkerException, IntegrationException {
         Function function = functionsRepo.get(functionName);
 
-        // get predicted durations on each worker from Learning Manager
-        HashMap<String, Double> predictions = learningManager.getPredictions(function.getName(), functionPayload.size());
+        double predictedDuration;
 
-        // invoke worker with lowest predicted duration
-        Map.Entry selectedPrediction = predictions.entrySet().stream().sorted(Map.Entry.comparingByValue()).findFirst().get();
-        if (selectedPrediction == null) {
-            throw new FunctionInvocationException(String.format("No workers were found to execute function %s", function.getName()), 503);
+        if (worker != null && !worker.trim().isEmpty()) {
+            // worker has been defined by end user
+            LOGGER.log(Level.INFO, String.format("%s was specified as worker to execute on", worker));
+            predictedDuration = 0;
+        } else {
+            // worker not defined, so get predictions from Learning Manager and decide worker
+            // get predicted durations on each worker from Learning Manager
+            HashMap<String, Double> predictions = learningManager.getPredictions(function.getName(), functionPayload.size());
+
+            // invoke worker with lowest predicted duration
+            Map.Entry selectedPrediction = predictions.entrySet().stream().sorted(Map.Entry.comparingByValue()).findFirst().get();
+            if (selectedPrediction == null) {
+                throw new FunctionInvocationException(String.format("No workers were found to execute function %s", function.getName()), 503);
+            }
+
+            worker = (String) selectedPrediction.getKey();
+            predictedDuration = (double) selectedPrediction.getValue();
         }
-
-        String worker = (String) selectedPrediction.getKey();
-        double predictedDuration = (double) selectedPrediction.getValue();
 
         String functionPayloadString = functionPayload.toString();
 
