@@ -61,9 +61,9 @@ async def putTransfer(functionName: str):
     transferred = await transfer.transfer(functionName)
 
     if transferred:
-        response = make_response("Transfer initiated", 202)
+        response = await make_response("Transfer initiated", 202)
     else:
-        response = make_response("Transfer failed", 500)
+        response = await make_response("Transfer failed", 500)
     
     return response
 
