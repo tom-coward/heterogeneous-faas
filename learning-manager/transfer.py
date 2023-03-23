@@ -50,7 +50,7 @@ def transferLearn(fromFunctionName: str, toFunctionName: str):
     )
     edgeRegressor = make_pipeline(
         StandardScaler(),
-        cloudToModel
+        edgeToModel
     )
 
     saveModel(toFunctionName, "AWS", pickle.dumps(cloudRegressor))
