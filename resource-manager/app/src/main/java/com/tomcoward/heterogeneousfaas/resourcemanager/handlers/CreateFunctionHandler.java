@@ -67,6 +67,9 @@ public class CreateFunctionHandler implements HttpHandler {
 
             String response = gson.toJson(function);
             HttpHelper.sendResponse(exchange, 200, response);
+
+            // once function created, trigger Learning Manager run function clustering asynchronously
+            learningManager.runFunctionClustering();
         } catch (DBClientException ex) {
             // return error to client
             String response = "There was an issue saving your function";
@@ -108,6 +111,51 @@ public class CreateFunctionHandler implements HttpHandler {
     }
 
     private void runTraining(Function function, JsonArray exampleInputs) throws WorkerException, IntegrationException, DBClientException {
+        // collect minimal training data initially
+        if (function.isCloudSupported()) {
+            LOGGER.log(Level.INFO, String.format("Running minimal training on AWS (cloud) worker for function: %s", function.getName()));
+
+            // collect training data for every 100n input size
+            ArrayList<String> functionPayloadArray = new ArrayList<>();
+            for (int i = 0; i < Math.min(exampleInputs.toArray().length - 100, MAX_TRAINING_EXECUTIONS - 100); i += 100) {
+                // add to function payload (which gets incrementally larger)
+                for (int x = i; x < Math.min(i+100, exampleInputs.toArray().length); x++) {
+                    functionPayloadArray.add(exampleInputs.get(x).toString());
+                }
+
+                String functionPayload = functionPayloadArray.toString();
+
+                InvokeFunctionHandler.FunctionInvocationResponse response = invokeFunctionHandler.invokeWorker(AWSLambda.WORKER_NAME, function, functionPayload, 0);
+
+                invokeFunctionHandler.recordFunctionExecution(function.getName(), AWSLambda.WORKER_NAME, functionPayloadArray.size(), response, true);
+                LOGGER.log(Level.INFO, String.format("%d executions completed...", (i+1)/100));
+            }
+
+            LOGGER.log(Level.INFO, "AWS (cloud) minimal training complete");
+        }
+
+        if (function.isEdgeSupported()) {
+            LOGGER.log(Level.INFO, String.format("Running minimal training on Kubernetes (edge) worker for function: %s", function.getName()));
+
+            // collect training data for every 100n input size
+            ArrayList<String> functionPayloadArray = new ArrayList<>();
+            for (int i = 0; i < Math.min(exampleInputs.toArray().length - 100, MAX_TRAINING_EXECUTIONS - 100); i += 100) {
+                // add to function payload (which gets incrementally larger)
+                for (int x = i; x < Math.min(i+100, exampleInputs.toArray().length); x++) {
+                    functionPayloadArray.add(exampleInputs.get(x).toString());
+                }
+
+                String functionPayload = functionPayloadArray.toString();
+
+                InvokeFunctionHandler.FunctionInvocationResponse response = invokeFunctionHandler.invokeWorker(Kubernetes.WORKER_NAME, function, functionPayload, 0);
+
+                invokeFunctionHandler.recordFunctionExecution(function.getName(), AWSLambda.WORKER_NAME, functionPayloadArray.size(), response, true);
+                LOGGER.log(Level.INFO, String.format("%d executions completed...", (i+1)/100));
+            }
+
+            LOGGER.log(Level.INFO, "Kubernetes (edge) minimal training complete");
+        }
+
         // attempt transfer learning first via. Learning Manager
         try {
             learningManager.transferLearn(function.getName());
@@ -115,6 +163,7 @@ public class CreateFunctionHandler implements HttpHandler {
             return;
         } catch (TransferLearningException ex) {
             LOGGER.log(Level.INFO, "Transfer learning failed - proceeding to training with new training data");
+            // if transfer learning fails, proceed to standard training data collection flow...
         }
 
         // for AWS (if cloud supported)

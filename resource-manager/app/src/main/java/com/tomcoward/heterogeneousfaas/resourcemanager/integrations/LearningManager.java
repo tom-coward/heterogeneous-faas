@@ -3,6 +3,7 @@ package com.tomcoward.heterogeneousfaas.resourcemanager.integrations;
 import com.google.gson.Gson;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.IntegrationException;
 import com.tomcoward.heterogeneousfaas.resourcemanager.exceptions.TransferLearningException;
+import io.undertow.util.Transfer;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -25,7 +26,7 @@ public class LearningManager {
     }
 
 
-    public void transferLearn(String functionName) throws IntegrationException {
+    public void transferLearn(String functionName) throws IntegrationException, TransferLearningException {
         try {
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(new URI(String.format("%s/transfer/%s", LEARNING_MANAGER_URI, functionName)))
@@ -101,6 +102,24 @@ public class LearningManager {
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error sending HTTP request to Learning Manager /predictions", ex);
             throw new IntegrationException("There was an error getting predicted execution times from the Learning Manager");
+        }
+    }
+
+    public void runFunctionClustering() throws IntegrationException {
+        try {
+            HttpRequest httpRequest = HttpRequest.newBuilder()
+                    .uri(new URI(String.format("%s/cluster", LEARNING_MANAGER_URI)))
+                    .method("PUT", HttpRequest.BodyPublishers.noBody())
+                    .build();
+
+            HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+            if (httpResponse.statusCode() != 202) {
+                throw new IntegrationException("Learning Manager returned non-202 status code");
+            }
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error sending HTTP request to Learning Manager /cluster", ex);
+            throw new IntegrationException("There was an error triggering function clustering by the Learning Manager");
         }
     }
 }
