@@ -1,6 +1,7 @@
 from quart import Quart, request, make_response
 import train
 import predict
+import cluster
 
 app = Quart(__name__)
 
@@ -42,6 +43,18 @@ async def getPredictions(functionName: str):
     predictions = predict.getPredictions(functionName, inputSize)
 
     response = await make_response(predictions, 200)
+    return response
+
+@app.route('/cluster', methods=['PUT'])
+async def putCluster():
+    # initiate clustering of functions
+    transferred = cluster.cluster()
+
+    if transferred:
+        response = await make_response("Clustering initiated", 202)
+    else:
+        response = await make_response("Clustering failed", 500)
+    
     return response
 
 @app.route('/transfer/<string:functionName>', methods=['PUT'])
