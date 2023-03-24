@@ -7,6 +7,7 @@ import pickle
 import uuid
 import matplotlib.pyplot as plt
 import asyncio
+import time
 
 
 cassandraCluster = Cluster(['localhost'])
@@ -122,7 +123,11 @@ if __name__ == '__main__':
     functionName = input("Enter name of function to train: ")
 
     if mode == "T":
+        startTime = time.time()
         asyncio.run(train(functionName))
+        endTime = time.time()
+
+        totalTime = (endTime - startTime) * 1000
 
     if mode == "I":
         worker = input("Enter worker: ")

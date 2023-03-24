@@ -17,3 +17,7 @@ def writeAllToJson():
 
         for solutionId in os.listdir(f"./functions/{problemId}/"):
             writeToJson(problemId, solutionId)
+
+
+if __name__ == '__main__':
+    writeAllToJson()

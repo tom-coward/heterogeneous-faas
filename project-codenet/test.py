@@ -16,3 +16,5 @@ def main(input):
 
 def handler(event, context):
     return main(event)
+
+handler(["37646 576251"], None)

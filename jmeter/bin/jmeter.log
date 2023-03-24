@@ -130,3 +130,152 @@
 2023-03-23 02:08:13,884 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-1
 2023-03-23 02:08:13,884 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
 2023-03-23 02:08:13,884 INFO o.a.j.g.u.JMeterMenuBar: setRunning(false, *local*)
+2023-03-23 15:26:58,952 INFO o.a.j.g.a.Load: Loading file: /Users/tom/Uni/heterogeneous-faas/jmeter/test-plans/Create Functions.jmx
+2023-03-23 15:26:58,957 INFO o.a.j.s.FileServer: Set new base='/Users/tom/Uni/heterogeneous-faas/jmeter/test-plans'
+2023-03-23 15:26:58,958 INFO o.a.j.s.SaveService: Loading file: /Users/tom/Uni/heterogeneous-faas/jmeter/test-plans/Create Functions.jmx
+2023-03-23 15:26:59,001 INFO o.a.j.v.ViewResultsFullVisualizer: Add JavaFX to your Java installation if you want to use renderer: org.apache.jmeter.visualizers.RenderInBrowser
+2023-03-23 15:26:59,082 INFO o.a.j.s.FileServer: Set new base='/Users/tom/Uni/heterogeneous-faas/jmeter/test-plans'
+2023-03-23 15:27:01,720 INFO o.a.j.g.a.Load: Loading file: /Users/tom/Uni/heterogeneous-faas/jmeter/test-plans/Invoke Functions.jmx
+2023-03-23 15:27:01,720 INFO o.a.j.s.FileServer: Set new base='/Users/tom/Uni/heterogeneous-faas/jmeter/test-plans'
+2023-03-23 15:27:01,720 INFO o.a.j.s.SaveService: Loading file: /Users/tom/Uni/heterogeneous-faas/jmeter/test-plans/Invoke Functions.jmx
+2023-03-23 15:27:01,745 INFO o.a.j.v.ViewResultsFullVisualizer: Add JavaFX to your Java installation if you want to use renderer: org.apache.jmeter.visualizers.RenderInBrowser
+2023-03-23 15:27:01,795 INFO o.a.j.s.FileServer: Set new base='/Users/tom/Uni/heterogeneous-faas/jmeter/test-plans'
+2023-03-23 21:05:26,842 INFO o.a.j.g.a.Load: Loading file: /Users/tom/Uni/heterogeneous-faas/jmeter/test-plans/Create Functions.jmx
+2023-03-23 21:05:26,857 INFO o.a.j.s.FileServer: Set new base='/Users/tom/Uni/heterogeneous-faas/jmeter/test-plans'
+2023-03-23 21:05:26,858 INFO o.a.j.s.SaveService: Loading file: /Users/tom/Uni/heterogeneous-faas/jmeter/test-plans/Create Functions.jmx
+2023-03-23 21:05:26,919 INFO o.a.j.v.ViewResultsFullVisualizer: Add JavaFX to your Java installation if you want to use renderer: org.apache.jmeter.visualizers.RenderInBrowser
+2023-03-23 21:05:27,015 INFO o.a.j.s.FileServer: Set new base='/Users/tom/Uni/heterogeneous-faas/jmeter/test-plans'
+2023-03-23 21:06:07,366 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2023-03-23 21:06:07,371 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2023-03-23 21:06:07,375 INFO o.a.j.g.u.JMeterMenuBar: setRunning(true, *local*)
+2023-03-23 21:06:07,564 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : p00002
+2023-03-23 21:06:07,565 INFO o.a.j.e.StandardJMeterEngine: Starting 5 threads for group p00002.
+2023-03-23 21:06:07,565 INFO o.a.j.e.StandardJMeterEngine: Thread will stop on error
+2023-03-23 21:06:07,565 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=5 ramp-up=1 delayedStart=false
+2023-03-23 21:06:07,565 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-1
+2023-03-23 21:06:07,566 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2023-03-23 21:06:07,566 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2023-03-23 21:06:07,771 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-2
+2023-03-23 21:06:07,968 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-3
+2023-03-23 21:06:08,166 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-4
+2023-03-23 21:06:08,366 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-5
+2023-03-23 21:06:09,797 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-3
+2023-03-23 21:06:09,797 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-3
+2023-03-23 21:06:09,877 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-5
+2023-03-23 21:06:09,877 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-5
+2023-03-23 21:06:09,887 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-2
+2023-03-23 21:06:09,887 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-2
+2023-03-23 21:06:09,887 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-1
+2023-03-23 21:06:09,888 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-1
+2023-03-23 21:06:10,049 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-4
+2023-03-23 21:06:10,049 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-4
+2023-03-23 21:06:10,050 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2023-03-23 21:06:10,050 INFO o.a.j.g.u.JMeterMenuBar: setRunning(false, *local*)
+2023-03-23 21:06:29,121 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2023-03-23 21:06:29,123 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2023-03-23 21:06:29,126 INFO o.a.j.g.u.JMeterMenuBar: setRunning(true, *local*)
+2023-03-23 21:06:29,213 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : p00002
+2023-03-23 21:06:29,213 INFO o.a.j.e.StandardJMeterEngine: Starting 5 threads for group p00002.
+2023-03-23 21:06:29,213 INFO o.a.j.e.StandardJMeterEngine: Thread will stop on error
+2023-03-23 21:06:29,213 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=5 ramp-up=1 delayedStart=false
+2023-03-23 21:06:29,214 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-1
+2023-03-23 21:06:29,215 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2023-03-23 21:06:29,215 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2023-03-23 21:06:29,417 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-2
+2023-03-23 21:06:29,618 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-3
+2023-03-23 21:06:29,815 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-4
+2023-03-23 21:06:30,016 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-5
+2023-03-23 21:06:30,784 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-1
+2023-03-23 21:06:30,784 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-1
+2023-03-23 21:06:30,837 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-3
+2023-03-23 21:06:30,837 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-3
+2023-03-23 21:06:30,850 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-2
+2023-03-23 21:06:30,850 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-2
+2023-03-23 21:06:30,991 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-4
+2023-03-23 21:06:30,992 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-4
+2023-03-23 21:06:31,134 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-5
+2023-03-23 21:06:31,134 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-5
+2023-03-23 21:06:31,135 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2023-03-23 21:06:31,135 INFO o.a.j.g.u.JMeterMenuBar: setRunning(false, *local*)
+2023-03-23 21:06:53,539 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2023-03-23 21:06:53,544 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2023-03-23 21:06:53,549 INFO o.a.j.g.u.JMeterMenuBar: setRunning(true, *local*)
+2023-03-23 21:06:53,606 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : p00002
+2023-03-23 21:06:53,606 INFO o.a.j.e.StandardJMeterEngine: Starting 5 threads for group p00002.
+2023-03-23 21:06:53,606 INFO o.a.j.e.StandardJMeterEngine: Thread will stop on error
+2023-03-23 21:06:53,606 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=5 ramp-up=1 delayedStart=false
+2023-03-23 21:06:53,607 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-1
+2023-03-23 21:06:53,607 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2023-03-23 21:06:53,607 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2023-03-23 21:06:53,811 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-2
+2023-03-23 21:06:54,007 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-3
+2023-03-23 21:06:54,211 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-4
+2023-03-23 21:06:54,407 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-5
+2023-03-23 21:06:55,887 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-3
+2023-03-23 21:06:55,888 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-3
+2023-03-23 21:06:55,914 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-4
+2023-03-23 21:06:55,914 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-4
+2023-03-23 21:06:56,023 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-5
+2023-03-23 21:06:56,024 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-5
+2023-03-23 21:06:56,329 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-2
+2023-03-23 21:06:56,330 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-2
+2023-03-23 21:10:35,149 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-1
+2023-03-23 21:10:35,151 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-1
+2023-03-23 21:10:35,153 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2023-03-23 21:10:35,154 INFO o.a.j.g.u.JMeterMenuBar: setRunning(false, *local*)
+2023-03-23 23:03:14,982 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2023-03-23 23:03:14,984 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2023-03-23 23:03:14,989 INFO o.a.j.g.u.JMeterMenuBar: setRunning(true, *local*)
+2023-03-23 23:03:15,059 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : p00002
+2023-03-23 23:03:15,059 INFO o.a.j.e.StandardJMeterEngine: Starting 1 threads for group p00002.
+2023-03-23 23:03:15,059 INFO o.a.j.e.StandardJMeterEngine: Thread will stop on error
+2023-03-23 23:03:15,059 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=1 ramp-up=1 delayedStart=false
+2023-03-23 23:03:15,060 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2023-03-23 23:03:15,060 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2023-03-23 23:03:15,060 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-1
+2023-03-23 23:03:44,052 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-1
+2023-03-23 23:03:44,053 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-1
+2023-03-23 23:03:44,055 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2023-03-23 23:03:44,055 INFO o.a.j.g.u.JMeterMenuBar: setRunning(false, *local*)
+2023-03-23 23:06:01,152 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2023-03-23 23:06:01,154 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2023-03-23 23:06:01,157 INFO o.a.j.g.u.JMeterMenuBar: setRunning(true, *local*)
+2023-03-23 23:06:01,265 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : p00002
+2023-03-23 23:06:01,265 INFO o.a.j.e.StandardJMeterEngine: Starting 1 threads for group p00002.
+2023-03-23 23:06:01,266 INFO o.a.j.e.StandardJMeterEngine: Thread will stop on error
+2023-03-23 23:06:01,266 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=1 ramp-up=1 delayedStart=false
+2023-03-23 23:06:01,266 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2023-03-23 23:06:01,266 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2023-03-23 23:06:01,266 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-1
+2023-03-23 23:06:04,729 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-1
+2023-03-23 23:06:04,729 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-1
+2023-03-23 23:06:04,730 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2023-03-23 23:06:04,730 INFO o.a.j.g.u.JMeterMenuBar: setRunning(false, *local*)
+2023-03-23 23:06:19,658 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2023-03-23 23:06:19,660 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2023-03-23 23:06:19,663 INFO o.a.j.g.u.JMeterMenuBar: setRunning(true, *local*)
+2023-03-23 23:06:19,736 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : p00002
+2023-03-23 23:06:19,737 INFO o.a.j.e.StandardJMeterEngine: Starting 1 threads for group p00002.
+2023-03-23 23:06:19,737 INFO o.a.j.e.StandardJMeterEngine: Thread will stop on error
+2023-03-23 23:06:19,737 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=1 ramp-up=1 delayedStart=false
+2023-03-23 23:06:19,737 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2023-03-23 23:06:19,737 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2023-03-23 23:06:19,737 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-1
+2023-03-23 23:06:22,300 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-1
+2023-03-23 23:06:22,300 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-1
+2023-03-23 23:06:22,302 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2023-03-23 23:06:22,302 INFO o.a.j.g.u.JMeterMenuBar: setRunning(false, *local*)
+2023-03-23 23:06:43,059 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2023-03-23 23:06:43,061 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2023-03-23 23:06:43,063 INFO o.a.j.g.u.JMeterMenuBar: setRunning(true, *local*)
+2023-03-23 23:06:43,127 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : p00002
+2023-03-23 23:06:43,127 INFO o.a.j.e.StandardJMeterEngine: Starting 1 threads for group p00002.
+2023-03-23 23:06:43,127 INFO o.a.j.e.StandardJMeterEngine: Thread will stop on error
+2023-03-23 23:06:43,127 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=1 ramp-up=1 delayedStart=false
+2023-03-23 23:06:43,127 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2023-03-23 23:06:43,127 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2023-03-23 23:06:43,127 INFO o.a.j.t.JMeterThread: Thread started: p00002 1-1
+2023-03-23 23:07:09,327 INFO o.a.j.t.JMeterThread: Stop Thread detected by thread: p00002 1-1
+2023-03-23 23:07:09,337 INFO o.a.j.t.JMeterThread: Thread finished: p00002 1-1
+2023-03-23 23:07:09,342 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2023-03-23 23:07:09,342 INFO o.a.j.g.u.JMeterMenuBar: setRunning(false, *local*)

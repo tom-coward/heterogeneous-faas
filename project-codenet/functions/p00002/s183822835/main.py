@@ -9,9 +9,3 @@ def handler(event, context):
         results.append(solve(event[i]))
 
     return results
-
-
-if __name__ == '__main__':
-    data = ["81 404", "605 444"]
-
-    print(handler(data, None))
