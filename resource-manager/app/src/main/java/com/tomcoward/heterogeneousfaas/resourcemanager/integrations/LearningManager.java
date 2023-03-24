@@ -39,6 +39,8 @@ public class LearningManager {
             if (httpResponse.statusCode() != 202) {
                 throw new TransferLearningException("Transfer learning not possible");
             }
+        } catch (TransferLearningException ex) {
+            throw ex;
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error sending HTTP request to Learning Manager /transfer", ex);
             throw new IntegrationException("There was an error triggering transfer learning by the Learning Manager");
@@ -118,6 +120,8 @@ public class LearningManager {
             if (httpResponse.statusCode() != 202) {
                 throw new FunctionClusteringException("Learning Manager returned non-202 status code");
             }
+        } catch (FunctionClusteringException ex) {
+            throw ex;
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error sending HTTP request to Learning Manager /cluster", ex);
             throw new IntegrationException("There was an error triggering function clustering by the Learning Manager");

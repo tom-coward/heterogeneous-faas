@@ -30,7 +30,7 @@ public class Kubernetes implements IWorkerIntegration {
     private final static String KNATIVE_NAMESPACE = "default";
     private final static String KNATIVE_URI = "127.0.0.1.sslip.io/2015-03-31/functions/function/invocations";
     private final static String RESOURCE_CPU_LIMIT = "50m";
-    private final static String RESOURCE_MEMORY_LIMIT = "128mi";
+    private final static String RESOURCE_MEMORY_LIMIT = "128Mi";
 
     private final KubernetesClient kubernetesClient;
     private final KnativeClient knativeClient;

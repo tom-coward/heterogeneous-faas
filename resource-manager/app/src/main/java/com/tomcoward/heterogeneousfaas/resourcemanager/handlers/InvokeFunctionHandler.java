@@ -54,7 +54,13 @@ public class InvokeFunctionHandler implements HttpHandler {
             }
 
             // get worker to execute on (if specified)
-            String worker = requestBody.getString("worker");
+            String worker;
+            try {
+                worker = requestBody.getString("worker");
+            } catch (NullPointerException ex) {
+                // worker not specified
+                worker = null;
+            }
 
             // get payload of function (if any)
             JsonArray functionPayload = requestBody.getJsonArray("function_payload");
@@ -87,14 +93,17 @@ public class InvokeFunctionHandler implements HttpHandler {
 
         double predictedDuration;
 
+        // get predicted durations on each worker from Learning Manager
+        HashMap<String, Double> predictions = learningManager.getPredictions(function.getName(), functionPayload.size());
+
         if (worker != null && !worker.trim().isEmpty()) {
             // worker has been defined by end user
             LOGGER.log(Level.INFO, String.format("%s was specified as worker to execute on", worker));
-            predictedDuration = 0;
+
+            // get predicted duration of selected worker
+            predictedDuration = predictions.get(worker);
         } else {
-            // worker not defined, so get predictions from Learning Manager and decide worker
-            // get predicted durations on each worker from Learning Manager
-            HashMap<String, Double> predictions = learningManager.getPredictions(function.getName(), functionPayload.size());
+            // worker not defined, so decide worker based on predictions
 
             // invoke worker with lowest predicted duration
             Map.Entry selectedPrediction = predictions.entrySet().stream().sorted(Map.Entry.comparingByValue()).findFirst().get();
@@ -152,7 +161,7 @@ public class InvokeFunctionHandler implements HttpHandler {
         functionExecutionsRepo.create(functionExecution);
 
         if (!isTraining) {
-            learningManager.triggerIncrementalTraining(functionName, worker);
+            //learningManager.triggerIncrementalTraining(functionName, worker);
         }
     }
 
