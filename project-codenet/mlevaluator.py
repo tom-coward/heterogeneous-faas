@@ -10,7 +10,7 @@ unseenInputSizes = [1001, 1100, 1250, 2000]
 
 
 def getFunctionExecutions(inputSize: int):
-    results = cassandraSession.execute(f"SELECT predicted_duration, duration, function_name, worker FROM heterogeneous_faas.function_execution WHERE predicted_duration > 0 AND input_size = {inputSize} AND is_success = True ALLOW FILTERING")
+    results = cassandraSession.execute(f"SELECT predicted_duration, duration, function_name, worker FROM heterogeneous_faas.function_execution WHERE input_size = {inputSize} AND is_success = True ALLOW FILTERING")
 
     return results
 

@@ -22,7 +22,7 @@ def selectSolutions(selectedProblem, selectedLanguages, metadataDirectory, dataD
                     submissionIds.append(row["submission_id"])
 
         # select random subset (5% - max 5) of Accepted submissions (submission_ids) to be used
-        subsetSize = min(math.ceil(len(submissionIds) * 0.05), 5)
+        subsetSize = min(math.ceil(len(submissionIds) * 0.05), 15)
         selectedSubmissionIds = random.sample(submissionIds, subsetSize)
 
         # remove any files in ./data/{problemId} directory not in the list of Accepted submission IDs
