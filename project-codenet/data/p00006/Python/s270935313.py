@@ -1,1 +1,0 @@
-print "".join(raw_input()[::-1])

@@ -1,1 +1,0 @@
-print "".join([x for x in reversed(list(raw_input()))])
