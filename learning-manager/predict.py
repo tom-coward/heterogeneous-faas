@@ -1,6 +1,5 @@
 from cassandra.cluster import Cluster
 import pickle
-import asyncio
 
 cassandraCluster = Cluster(['localhost'])
 cassandraSession = cassandraCluster.connect()
