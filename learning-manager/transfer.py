@@ -82,7 +82,8 @@ async def transfer(functionName: str):
 
 
 if __name__ == '__main__':
-    functionName = input("Enter function name: ")
+    fromFunctionName = input('Enter from function name: ')
+    toFunctionName = input("Enter to function name: ")
     
-    transfer = asyncio.run(transfer(functionName))
+    cloudRegressor, edgeRegressor = asyncio.run(transferLearn(fromFunctionName, toFunctionName))
     print(transfer)

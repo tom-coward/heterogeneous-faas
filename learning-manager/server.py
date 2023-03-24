@@ -9,8 +9,8 @@ app = Quart(__name__)
 
 @app.route('/train/<string:functionName>', methods=['PUT'])
 async def putTrain(functionName: str):
-    # initiate training of the model
-    await train.train(functionName)
+    # initiate training of the model (async)
+    train.train(functionName)
 
     response = await make_response("Training initiated", 202)
     return response
@@ -46,7 +46,7 @@ async def getPredictions(functionName: str):
 @app.route('/cluster', methods=['PUT'])
 async def putCluster():
     # initiate clustering of functions
-    transferred = cluster.cluster()
+    transferred = await cluster.cluster()
 
     if transferred:
         response = await make_response("Clustering initiated", 202)
@@ -57,7 +57,7 @@ async def putCluster():
 
 @app.route('/transfer/<string:functionName>', methods=['PUT'])
 async def putTransfer(functionName: str):
-    # initiate transfer of the model
+    # initiate transfer of the model (async)
     transferred = await transfer.transfer(functionName)
 
     if transferred:

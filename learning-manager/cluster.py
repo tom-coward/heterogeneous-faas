@@ -96,7 +96,7 @@ def getCluster():
     return result.one().model
 
 def fitCluster(x):
-    n_clusters = 8 # max 8 clusters - but can only have as many clusters as functions
+    n_clusters = 5 # max 8 clusters - but can only have as many clusters as functions
     
     if (len(x)) < n_clusters:
         raise Exception(f"There must be at least {n_clusters} functions to cluster")
@@ -164,11 +164,12 @@ def predict(x, ignore=False):
 
     predictedCluster = cluster.predict(x)
 
-    distances = cluster.transform(x)
-    distanceThreshold = 30
+    # TODO: enforce distance threshold from centroid for prediction to be valid
+    #distances = cluster.transform(x)
+    #distanceThreshold = 30
 
-    if ignore == False and distances[0][predictedCluster[0]] > distanceThreshold:
-        raise InvalidClusterException("Prediction is too far from cluster")
+    #if ignore == False and distances[0][predictedCluster[0]] > distanceThreshold:
+        #raise InvalidClusterException("Prediction is too far from cluster")
 
     return predictedCluster[0]
     

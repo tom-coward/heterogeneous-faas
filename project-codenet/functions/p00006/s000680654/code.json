@@ -1,0 +1,1 @@
+{"source_code": "def main(input):\n    a=list(str(input))\n    a.reverse()\n    return a\n\ndef handler(event, context):\n    result = main(event)\n\n    return result\n"}
