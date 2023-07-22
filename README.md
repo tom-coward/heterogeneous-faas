@@ -1,5 +1,5 @@
 # heterogeneous-faas
-This is the implementation of my university Third Year Project.
+This is the implementation of my university Third Year Project. The corresponding dissertation can be found [here](https://tomcoward.me/assets/dissertation.pdf).
 
 ## Abstract
 Function-as-a-Service (FaaS), following its initial widescale release as AWS
